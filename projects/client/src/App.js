@@ -27,7 +27,7 @@ const PAGES = {
   AssetTools: <AssetTools />,
   Report: <Report />,
   Testing: <Testing />,
-  DataAsset: <DataAsset />,
+  DataAsset: <SideBar element={<DataAsset />} />,
 };
 
 function App() {
@@ -35,22 +35,17 @@ function App() {
 
   return (
     <div className="min-h-full flex flex-col">
-
-      {location.pathname !== "/" && <SideBar />}
+      {/* {location.pathname !== "/" && <SideBar />} */}
 
       <Routes>
-
         {dataurl.map((url) => {
           return (
-
             <Route
               key={url.id}
               path={url.url_master}
               element={PAGES[url.name]}
             />
-
-            
-          )
+          );
         })}
       </Routes>
     </div>

@@ -1,48 +1,99 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import { fetchAllBranches } from "../../reducers/branchSlice";
 import TransitionFade from "../../components/TransitionFade";
 import AddDataHeader from "../../components/AddDataHeader";
 import Table from "../../components/Table";
 import DataAssetForm from "../../components/DataAssetForm";
-import { fetchAssets } from "../../reducers/assetSlice";
+// import { fetchAssets } from "../../reducers/assetSlice";
 import AssetTableBody from "../../components/AssetTableBody";
+import { fetchCategories } from "../../reducers/categorySlice";
+import axios from "axios";
+import { fetchDataAsset } from "../../service/dataAsset/resDataAsset";
 
 const DataAsset = () => {
-  const categoryOptions = [{ value: "", label: "None" }];
+  const sortOptions = [
+    { value: "", label: "None" },
+    { value: "name_asc", label: "Name (A - Z)" },
+    { value: "name_desc", label: "Name (Z - A)" },
+    { value: "price_asc", label: "Price (Low - High)" },
+    { value: "price_desc", label: "Price (High - Low)" },
+  ];
+
+  // const categoryOptions = [{ value: "", label: "None" }];
+  // console.log("categori 1", categoryOptions);
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const dispatch = useDispatch();
+  const categoriesGlobal = useSelector((state) => state.category);
+  // console.log("categori global", categoriesGlobal);
   const assetGlobal = useSelector((state) => state.asset);
-  console.log("asetglobal", assetGlobal);
+  // console.log("asetglobal", assetGlobal);
 
   const [showAddDataForm, setShowAddDataForm] = useState(false);
   const [showEditDataForm, setShowEditDataForm] = useState(false);
-  console.log("showaddData", showAddDataForm);
-  const [categoryFilter, setCategoryFilter] = useState(categoryOptions[0]);
+  // console.log("showaddData", showAddDataForm);
+  const [categoryOptions, setCategoryOptions] = useState([
+    { value: "", label: "None" },
+  ]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dataAsset, setDataAsset] = useState([]);
+
+  // const sortFilterInitial = sortOptions.findIndex(
+  //   (s) => s.value === searchParams.get("sort")
+  // );
+
+  // const initialCategoryIdRef = useRef(parseInt(searchParams.get("categoryId")));
 
   useEffect(() => {
-    dispatch(fetchAllBranches());
+    // dispatch(fetchAllBranches());
+    dispatch(fetchCategories());
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchAssets());
-  }, [dispatch]);
+    const newCategoryOptions = [
+      { value: "", label: "None" },
+      ...categoriesGlobal.categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      })),
+    ];
+
+    setCategoryOptions(newCategoryOptions);
+  }, [categoriesGlobal.categories]);
+
+  useEffect(() => {
+    const getAssets = async () => {
+      try {
+        const assets = await fetchDataAsset();
+        console.log("assets nih", assets);
+        setDataAsset(assets.data.asset);
+      } catch (error) {
+        console.log("error data asset", error);
+        // Anda bisa menangani error di sini jika diperlukan
+      }
+    };
+    getAssets();
+  }, []);
 
   return (
-    <div className="container mx-auto sm:px-6 lg:px-8">
+    <div>
       <TransitionFade show={showAddDataForm}>
         {/* <div></div> */}
         <DataAssetForm
           action="Add"
           isLoading={assetGlobal.isLoading}
           setShowForm={setShowAddDataForm}
-
-          // categoryOptions={}
+          categoryOptions={categoryOptions}
+          currPage={currentPage}
         />
       </TransitionFade>
 
       <TransitionFade show={!showAddDataForm && !showEditDataForm}>
-        <div className="flex flex-1 flex-col md:pl-64">
+        <div>
           <AddDataHeader
             title="Data Assets"
             desc="A list Data Assets"
@@ -52,13 +103,15 @@ const DataAsset = () => {
           <Table
             className="mb-4"
             headCols={[
-              "Nama Asset",
+              "Asset Name",
               "Category",
               "Description",
-              "Stock",
+              "Quantity",
               "Branch",
+              "No Surat",
+              "Warna",
             ]}
-            tableBody={<AssetTableBody asset={assetGlobal.assets} />}
+            tableBody={<AssetTableBody asset={dataAsset} />}
           />
         </div>
       </TransitionFade>

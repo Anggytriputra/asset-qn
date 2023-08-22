@@ -56,7 +56,7 @@ function classNames(...classes) {
 }
 
 export default function SideBar({ element }) {
-  console.log("elementt nih", element);
+  // console.log("elementt nih", element);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -263,7 +263,7 @@ export default function SideBar({ element }) {
             <div className="flex flex-1 justify-between px-4">
               <div className="flex flex-1"></div>
               <div className="ml-4 flex items-center md:ml-6">
-                <button
+                {/* <button
                   type="button"
                   className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
@@ -272,7 +272,7 @@ export default function SideBar({ element }) {
                     className="h-6 w-6"
                     aria-hidden="true"
                   />
-                </button>
+                </button> */}
 
                 {/* Profile dropdown */}
                 <Menu
@@ -323,6 +323,13 @@ export default function SideBar({ element }) {
               </div>
             </div>
           </div>
+          <main className="flex-1">
+            <div className="py-6 ">
+              <div className="w-[90%] sm:w-full mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+                <div className="pb-4 min-h-screen">{element}</div>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     </>

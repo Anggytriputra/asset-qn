@@ -2,7 +2,7 @@
 import BrokenImg from "../assets/broken-img.png";
 
 export default function AssetTableBody({ asset = [], onEdit, onDelete }) {
-  console.log("assetTableBody", asset);
+  // console.log("assetTableBody", asset.reverse.data);
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
       {asset.map((assets) => (
@@ -14,28 +14,28 @@ export default function AssetTableBody({ asset = [], onEdit, onDelete }) {
                 <img
                   className="h-10 w-10"
                   src={
-                    //   `${process.env.REACT_APP_PRODUCT_IMG_BASE_URL}/${product.image_url}` ||
+                    `http://localhost:2000/static/asset/${assets.images_url}` ||
                     BrokenImg
                   }
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null;
                     currentTarget.src = BrokenImg;
                   }}
-                  alt={asset.nama_asset}
+                  alt={asset.asset_name}
                 />
               </div>
               <div className="ml-4">
                 <div className="font-medium text-gray-900 truncate max-w-[200px]">
-                  {assets.nama_asset}
+                  {assets.asset_name}
                 </div>
               </div>
             </div>
           </td>
           <td className="px-3 py-4 text-sm text-gray-500">
-            <div className="text-gray-900">{assets.nama_category}</div>
+            <div className="text-gray-900">{assets.category_name}</div>
           </td>
           <td className="px-3 py-4 text-sm text-gray-500">
-            <div className="text-gray-900">{assets.description}</div>
+            <div className="text-gray-900">{assets.desc}</div>
           </td>
           {/* <td className="px-3 py-4 text-sm text-gray-500">
             <div className="text-gray-900 truncate max-w-[90px]">
@@ -55,13 +55,19 @@ export default function AssetTableBody({ asset = [], onEdit, onDelete }) {
                   : "bg-red-100 text-red-800"
               }`}
             >
-              <span className="max-w-[100px] truncate">{assets.stock}</span>
+              <span className="max-w-[100px] truncate">{assets.quantity}</span>
             </div>
           </td>
           <td className="px-3 py-4 text-sm text-gray-500">
             <div className="text-gray-900 line-clamp-3">
-              {assets.nama_cabang}
+              {assets.cabang_name}
             </div>
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500">
+            <div className="text-gray-900 line-clamp-3">{assets.no_surat}</div>
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500">
+            <div className="text-gray-900 line-clamp-3">{assets.warna}</div>
           </td>
           <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
             <button

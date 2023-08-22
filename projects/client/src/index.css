@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* input {
+  border: 1px solid #ccc;
+} */
+
+@layer utillities {
+  .container-screen {
+    @apply mx-auto w-[80%] max-w-screen-xl;
+  }
+}

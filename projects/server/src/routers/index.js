@@ -1,9 +1,12 @@
 const authRouter = require("./authRouters");
 const branchRouter = require("./branchRouter");
-// const assetRouter = require("./assetRouter");
+const categoryRouter = require("./categoryRouter");
+
+const assetRouter = require("./assetRouters");
 
 module.exports = {
   authRouter,
   branchRouter,
-  //   assetRouter,
+  categoryRouter,
+  assetRouter,
 };

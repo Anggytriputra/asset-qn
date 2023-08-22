@@ -4,14 +4,17 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { errorAlertWithMessage } from "../helper/alerts";
 
 export default function ImageDragAndDrop({ className, image, setImage }) {
-  const onDrop = useCallback((acceptedFiles) => {
-    if (acceptedFiles?.length) {
-      const newFile = acceptedFiles[0];
-      setImage(
-        Object.assign(newFile, { preview: URL.createObjectURL(newFile) })
-      );
-    }
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      if (acceptedFiles?.length) {
+        const newImages = acceptedFiles.map((file) =>
+          Object.assign(file, { preview: URL.createObjectURL(file) })
+        );
+        setImage((prevImages) => [...prevImages, ...newImages]);
+      }
+    },
+    [setImage]
+  );
 
   const onDropRejected = useCallback(() => {
     errorAlertWithMessage("File not supported!");
@@ -27,9 +30,13 @@ export default function ImageDragAndDrop({ className, image, setImage }) {
       onDropRejected,
     });
 
-  function handleRemoveFile() {
-    URL.revokeObjectURL(image.preview);
-    setImage({});
+  function handleRemoveFile(index) {
+    setImage((prevImages) => {
+      const newImages = [...prevImages];
+      URL.revokeObjectURL(newImages[index].preview);
+      newImages.splice(index, 1);
+      return newImages;
+    });
   }
 
   return (
@@ -76,23 +83,28 @@ export default function ImageDragAndDrop({ className, image, setImage }) {
           <p className="text-xs text-gray-500">PNG, JPG up to 1MB</p>
         </div>
       </div>
-      {image.preview && (
+      {image.length > 0 && (
         <>
-          <p className="mt-4 text-sm">Uploaded Image:</p>
-          <div className="relative max-w-xs w-4/5 mt-2">
-            <img
-              src={image.preview}
-              alt="uploaded product"
-            />
-            <button
-              type="button"
-              onClick={handleRemoveFile}
-              className="bg-red-400 text-white w-6 h-6 rounded-full absolute -top-2 -right-2 hover:bg-red-500"
-              aria-label="remove image"
+          <p className="mt-4 text-sm">Uploaded Images:</p>
+          {image.map((img, index) => (
+            <div
+              className="relative max-w-xs w-4/5 mt-2"
+              key={index}
             >
-              <XMarkIcon />
-            </button>
-          </div>
+              <img
+                src={img.preview}
+                alt={`uploaded product ${index}`}
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveFile(index)}
+                className="bg-red-400 text-white w-6 h-6 rounded-full absolute -top-2 -right-2 hover:bg-red-500"
+                aria-label={`remove image ${index}`}
+              >
+                <XMarkIcon />
+              </button>
+            </div>
+          ))}
         </>
       )}
     </div>
