@@ -41,3 +41,16 @@ export function fetchCategories(query = "") {
     }
   };
 }
+
+export function fetchSubCategories(query = "") {
+  return async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const res = await axios.get(
+        `http://localhost:2000/sub-category?${query}`
+      );
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+}

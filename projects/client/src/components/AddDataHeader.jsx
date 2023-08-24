@@ -6,13 +6,14 @@ export default function AddDataHeader({
   addButtonText,
   onAddClick,
 }) {
+  // console.log("addDataButtonTex", addButtonText);
   return (
-    <div className="sm:flex sm:items-center ml-4 mr-4">
-      <div className="sm:flex-auto">
-        <h1 className="text-2xl relative font-semibold  w-max text-gray-900 after:block after:bg-red-300 after:absolute after:h-[30%] after:bottom-1 after:-z-10 after:left-0 after:right-0">
+    <div className="sm:flex sm:items-center ml-4 mr-4 py-6">
+      <div className=" sm:flex-auto ">
+        <h1 className="text-2xl relative font-semibold  w-max text-gray-900 after:block after:bg-red-300 after:absolute  after:bottom-1 after:-z-10 after:left-0 after:right-0">
           {title}
         </h1>
-        <p className="mt-2 text-sm text-gray-700">{desc}</p>
+        <p className="mt-4 text-sm text-gray-700">{desc}</p>
       </div>
       <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
         <button

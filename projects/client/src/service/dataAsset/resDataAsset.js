@@ -6,7 +6,7 @@ const BASEURL = "/asset";
 const fetchDataAsset = async () => {
   try {
     const res = await axios.get(`http://localhost:2000/asset`);
-    console.log("res", res);
+    // console.log("res", res);
     return res;
   } catch (error) {
     console.log("error", error);

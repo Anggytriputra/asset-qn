@@ -8,9 +8,15 @@ import Table from "../../components/Table";
 import DataAssetForm from "../../components/DataAssetForm";
 // import { fetchAssets } from "../../reducers/assetSlice";
 import AssetTableBody from "../../components/AssetTableBody";
-import { fetchCategories } from "../../reducers/categorySlice";
+import {
+  fetchAllCategoriesData,
+  fetchCategories,
+} from "../../reducers/categorySlice";
 import axios from "axios";
 import { fetchDataAsset } from "../../service/dataAsset/resDataAsset";
+import NavigationDataAsset from "../../components/NavigationDataAsset";
+import Filterasset from "../../components/FilterAsset";
+// import { NavigationDataAsset } from "../../components/NavigationDataAsset";
 
 const DataAsset = () => {
   const sortOptions = [
@@ -27,13 +33,19 @@ const DataAsset = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const dispatch = useDispatch();
-  const categoriesGlobal = useSelector((state) => state.category);
   // console.log("categori global", categoriesGlobal);
   const assetGlobal = useSelector((state) => state.asset);
   // console.log("asetglobal", assetGlobal);
 
   const [showAddDataForm, setShowAddDataForm] = useState(false);
   const [showEditDataForm, setShowEditDataForm] = useState(false);
+
+  const [activeTab, setActiveTab] = useState("");
+
+  console.log("activetetab Data Aset", activeTab);
+
+  const categoriesGlobal = useSelector((state) => state.category);
+
   // console.log("showaddData", showAddDataForm);
   const [categoryOptions, setCategoryOptions] = useState([
     { value: "", label: "None" },
@@ -61,7 +73,6 @@ const DataAsset = () => {
         label: category.name,
       })),
     ];
-
     setCategoryOptions(newCategoryOptions);
   }, [categoriesGlobal.categories]);
 
@@ -81,8 +92,14 @@ const DataAsset = () => {
 
   return (
     <div>
+      <TransitionFade>
+        <NavigationDataAsset
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      </TransitionFade>
+
       <TransitionFade show={showAddDataForm}>
-        {/* <div></div> */}
         <DataAssetForm
           action="Add"
           isLoading={assetGlobal.isLoading}
@@ -100,8 +117,11 @@ const DataAsset = () => {
             addButtonText="Add Data"
             onAddClick={() => setShowAddDataForm(true)}
           />
+
+          <Filterasset />
+
           <Table
-            className="mb-4"
+            className="mb-4 py-6"
             headCols={[
               "Asset Name",
               "Category",
