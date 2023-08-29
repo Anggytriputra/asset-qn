@@ -53,3 +53,13 @@ function App() {
 }
 
 export default App;
+
+// const tabs = Object.keys(categoriesGlobal)
+//   .filter((key) => key !== "isLoading")
+//   .map((key) => {
+//     return {
+//       id: categoriesGlobal[key].id,
+//       name: categoriesGlobal[key].name_ctgr,
+//       current: categoriesGlobal[key].id === activeTab,
+//     };
+//   });

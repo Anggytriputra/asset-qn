@@ -2,7 +2,7 @@
 import BrokenImg from "../assets/broken-img.png";
 
 export default function AssetTableBody({ asset = [], onEdit, onDelete }) {
-  // console.log("assetTableBody", asset.reverse.data);
+  console.log("assetTableBody", asset);
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
       {asset.map((assets) => (
@@ -33,6 +33,9 @@ export default function AssetTableBody({ asset = [], onEdit, onDelete }) {
           </td>
           <td className="px-3 py-4 text-sm text-gray-500">
             <div className="text-gray-900">{assets.category_name}</div>
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500">
+            <div className="text-gray-900">{assets.sub_category_name}</div>
           </td>
           <td className="px-3 py-4 text-sm text-gray-500">
             <div className="text-gray-900">{assets.desc}</div>

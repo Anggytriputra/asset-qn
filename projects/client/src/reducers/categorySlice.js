@@ -3,6 +3,8 @@ import axios from "axios";
 
 const initCategory = {
   categories: [],
+  subCategories: [],
+  isLoading: true,
 };
 
 const categorySlice = createSlice({
@@ -10,47 +12,57 @@ const categorySlice = createSlice({
   initialState: initCategory,
   reducers: {
     setCategory(state, action) {
-      return action.payload;
+      state.categories = action.payload;
+    },
+    setSubCategory(state, action) {
+      state.subCategories = action.payload;
     },
     setLoading(state, action) {
-      return { ...state, isLoading: action.payload };
+      state.isLoading = action.payload;
     },
   },
 });
 
-export default categorySlice.reducer;
-
-export const { setCategory, setLoading } = categorySlice.actions;
+export const { setCategory, setSubCategory, setLoading } =
+  categorySlice.actions;
 
 export function fetchCategories(query = "") {
   return async (dispatch) => {
     try {
       dispatch(setLoading(true));
-      const res = await axios.get(`http://localhost:2000/category?${query}`);
-      // console.log("re4scategori", res.data.data);
-      dispatch(
-        setCategory({
-          categories: res.data.data,
-        })
-      );
+      const res = await axios.get(`http://localhost:2000/category?/${query}`);
+      // console.log("ini res", res.data.data);
+      dispatch(setCategory(res.data.data));
       dispatch(setLoading(false));
-    } catch (err) {
-      dispatch(setLoading(false));
-      // errorAlert(err);
-      // console.log(err);
+    } catch (error) {
+      console.log("err", error);
     }
   };
 }
 
-export function fetchSubCategories(query = "") {
+export function fetchSubCategories(id) {
+  console.log("id", id);
   return async (dispatch) => {
     try {
-      dispatch(setLoading(true));
-      const res = await axios.get(
-        `http://localhost:2000/sub-category?${query}`
-      );
+      if (id) {
+        dispatch(setLoading(true));
+        const res = await axios.get(
+          `http://localhost:2000/category/sub-categories`,
+          {
+            params: {
+              categoryId: id,
+            },
+          }
+        );
+        // console.log("ini res", res);
+        dispatch(setSubCategory(res.data.data));
+        dispatch(setLoading(false));
+        // Handle the response data here, possibly with another dispatch to set subcategories
+      }
     } catch (err) {
-      console.log("err", err);
+      console.log("An error occurred:", err);
     }
   };
 }
+
+export default categorySlice.reducer;

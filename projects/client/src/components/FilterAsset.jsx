@@ -9,9 +9,9 @@ export default function Filterasset({
   sortOptions,
   sortFilter,
   onSortChange,
-  categoryOptions,
-  categoryFilter,
-  onCategoryChange,
+  subCategoryOption,
+  subCategoriesFilter,
+  onSubCategoriesChange,
   branchOptions,
   branchFilter,
   onBranchChange,
@@ -25,19 +25,19 @@ export default function Filterasset({
         defaultValue={searchProductName}
       />
       <div className="flex gap-2 items-center flex-wrap">
-        <Dropdown
+        {/* <Dropdown
           label="Sort"
           options={sortOptions}
           selectedValue={sortFilter}
           onChange={onSortChange}
-          className="text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
-        />
+          className="text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+        /> */}
         <Dropdown
-          label="Sub-Category"
-          options={categoryOptions}
-          selectedValue={categoryFilter}
-          onChange={onCategoryChange}
-          className="text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
+          label="Category"
+          options={subCategoryOption}
+          selectedValue={subCategoriesFilter}
+          onChange={onSubCategoriesChange}
+          className="text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
         />
         {userGlobal.role === "superadmin" && (
           <Dropdown
@@ -45,7 +45,7 @@ export default function Filterasset({
             options={branchOptions}
             selectedValue={branchFilter}
             onChange={onBranchChange}
-            className="text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
+            className="text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           />
         )}
       </div>

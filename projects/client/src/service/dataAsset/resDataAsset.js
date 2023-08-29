@@ -3,22 +3,23 @@ import { successAlert } from "../../helper/alerts";
 
 const BASEURL = "/asset";
 
-const fetchDataAsset = async () => {
+const fetchDataAsset = async (requestData) => {
   try {
-    const res = await axios.get(`http://localhost:2000/asset`);
-    // console.log("res", res);
+    const res = await axios.get(`http://localhost:2000/asset`, {
+      params: requestData,
+    });
     return res;
   } catch (error) {
-    console.log("error", error);
+    console.log("error", error.response.data.message);
     throw error;
   }
 };
 
 const createDataAsset = async (data) => {
-  // console.log("created data asset", data);
+  console.log("created data asset", data);
 
   try {
-    const res = await axios.post(`http://localhost:2000/asset`, data, {
+    const res = await axios.post(`http://localhost:2000/asset/t`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

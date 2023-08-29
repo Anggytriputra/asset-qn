@@ -86,25 +86,30 @@ export default function ImageDragAndDrop({ className, image, setImage }) {
       {image.length > 0 && (
         <>
           <p className="mt-4 text-sm">Uploaded Images:</p>
-          {image.map((img, index) => (
-            <div
-              className="relative max-w-xs w-4/5 mt-2"
-              key={index}
-            >
-              <img
-                src={img.preview}
-                alt={`uploaded product ${index}`}
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveFile(index)}
-                className="bg-red-400 text-white w-6 h-6 rounded-full absolute -top-2 -right-2 hover:bg-red-500"
-                aria-label={`remove image ${index}`}
+          <div className="grid grid-cols-3 gap-4">
+            {" "}
+            {/* Tambahkan kelas ini */}
+            {image.map((img, index) => (
+              <div
+                className="relative "
+                key={index}
               >
-                <XMarkIcon />
-              </button>
-            </div>
-          ))}
+                <img
+                  className="w-full h-full object-cover"
+                  src={img.preview}
+                  alt={`uploaded product ${index}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveFile(index)}
+                  className="bg-red-400 text-white w-6 h-6 rounded-full absolute -top-2 -right-2 hover:bg-red-500"
+                  aria-label={`remove image ${index}`}
+                >
+                  <XMarkIcon />
+                </button>
+              </div>
+            ))}
+          </div>
         </>
       )}
     </div>

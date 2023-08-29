@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { Transition, Listbox } from "@headlessui/react";
-import { ChevronDownIcon, CheckIcon } from "@heroicons/react/20/solid";
+import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 
 function Dropdown({
   name,
@@ -10,7 +10,7 @@ function Dropdown({
   selectedValue = {},
   onChange = () => {},
 }) {
-  console.log("option", options);
+  // console.log("option", options);
   // console.log("selectedValue", selectedValue);
   return (
     <Listbox
@@ -40,7 +40,7 @@ function Dropdown({
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Listbox.Options className="absolute mt-1 max-h-60 z-10 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-orange-600 ring-opacity-5 focus:outline-none sm:text-sm">
+          <Listbox.Options className="absolute mt-1 max-h-60 z-10 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-indigo-600 ring-opacity-5 focus:outline-none sm:text-sm">
             {options.map((option, optionIdx) => (
               <Listbox.Option
                 key={optionIdx}

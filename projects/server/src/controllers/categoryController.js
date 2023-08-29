@@ -4,11 +4,10 @@ async function getCategories(req, res) {
   try {
     // const db = await makeConnection();
 
-    const [data] = await db.promise().query(`SELECT 
-      MC.id, MC.name ctgr,
-      MSC.name sub_ctgr
-      FROM m_categories MC
-      LEFT JOIN m_sub_categories MSC ON MSC.m_categories_id = MC.id`);
+    const [data] = await db.promise().query(`
+    SELECT 
+      MC.id, MC.name name_ctgr
+      FROM m_categories MC`);
 
     res.status(200).send({
       message: "SuccessFuly get selected data categories",
@@ -20,15 +19,28 @@ async function getCategories(req, res) {
   }
 }
 
-
 async function getSubCategories(req, res) {
   try {
-    const categories =
+    const categoriesId = parseInt(req.query.categoryId);
+    console.log("category", categoriesId);
+
+    const data = await db
+      .promise()
+      .query(
+        `SELECT * FROM m_sub_categories WHERE m_categories_id = ${categoriesId}`
+      );
+
+    console.log("data", data[0]);
+    res.status(200).send({
+      message: "Succefuly Get Data Sub-Category",
+      data: data[0],
+    });
   } catch (error) {
-    
+    console.log("err", error);
   }
 }
 
 module.exports = {
   getCategories,
+  getSubCategories,
 };

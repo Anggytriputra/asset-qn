@@ -1,49 +1,59 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-
-// const tabs = [
-//   { name: "Kendaraan", path: "/kendaraan", current: false },
-//   { name: "Special Tools", path: "/special-tools", current: false },
-//   { name: "Stadard Tools", path: "/stadard-tools", current: true },
-//   { name: "Safety Tools", path: "/safety-tools", current: false },
-// ];
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function NavigationDataAsset({ activeTab, setActiveTab }) {
-  const categoriesGlobal = useSelector((state) => state.category.categories);
+export default function NavigationDataAsset({
+  categoriesGlobal = [],
+  activeTab,
+  setActiveTab,
+  savedTab,
+  tabs,
+}) {
+  // const location = useLocation();
 
-  // console.log("Categories G", categoriesGlobal);
-  // Dapatkan daftar kategori unik
-  const uniqueCategories = Array.from(
-    new Set(categoriesGlobal.map((cat) => cat.ctgr))
-  );
+  // useEffect(() => {
+  //   // Fungsi untuk membaca activeTab dari localStorage dan set state
+  //   const savedTab = localStorage.getItem("activeTab");
 
-  const tabs = uniqueCategories.map((ctgr) => ({
-    name: ctgr,
-    path: `/${ctgr.toLowerCase().replace(/ /g, "-")}`,
-    current: false,
-  }));
+  //   if (savedTab) {
+  //     setActiveTab(parseInt(savedTab, 10));
+  //   }
+  // }, []);
 
-  // const [activeTab, setActiveTab] = useState(tabs[0]?.name || "");
+  // useEffect(() => {
+  //   // Fungsi untuk menyimpan activeTab ke localStorage setiap kali state berubah
+  //   if (activeTab !== null) {
+  //     localStorage.setItem("activeTab", activeTab.toString());
+  //   }
+  // }, [activeTab]);
 
-  useEffect(() => {
-    if (tabs.length) setActiveTab(tabs[0].name);
-  }, []);
+  // useEffect(() => {
+  //   // Hapus activeTab dari localStorage saat URL berubah
+  //   return () => {
+  //     localStorage.removeItem("activeTab");
+  //   };
+  // }, [location.pathname]);
 
-  const handleTabClick = (tabName) => {
-    console.log("Active tab set to:", tabName);
-    setActiveTab(tabName);
+  // const tabs = Object.keys(categoriesGlobal)
+  //   .filter((key) => key !== "isLoading")
+  //   .map((key) => {
+  //     return {
+  //       id: categoriesGlobal[key].id,
+  //       name: categoriesGlobal[key].name_ctgr,
+  //       current: categoriesGlobal[key].id === activeTab,
+  //     };
+  //   });
+  const handleMobileSelectChange = (e) => {
+    const selectedTabId = e.target.value;
+    setActiveTab(selectedTabId);
   };
-
-  useEffect(() => {
-    console.log("Component re-rendered with activeTab:", activeTab);
-  }, [activeTab]);
 
   return (
     <div>
+      {/* Untuk tampilan mobile */}
       <div className="sm:hidden">
         <label
           htmlFor="tabs"
@@ -54,15 +64,22 @@ export default function NavigationDataAsset({ activeTab, setActiveTab }) {
         <select
           id="tabs"
           name="tabs"
-          className="block w-80 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-          defaultValue={activeTab}
+          className="block w-full text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
+          value={activeTab}
+          onChange={handleMobileSelectChange}
         >
           {tabs.map((tab) => (
-            <option key={tab.name}>{tab.name}</option>
+            <option
+              key={tab.name}
+              value={tab.id}
+            >
+              {tab.name}
+            </option>
           ))}
         </select>
       </div>
 
+      {/* Untuk tampilan desktop */}
       <div className="hidden sm:block">
         <div className="border-b border-gray-200">
           <nav
@@ -70,23 +87,19 @@ export default function NavigationDataAsset({ activeTab, setActiveTab }) {
             aria-label="Tabs"
           >
             {tabs.map((tab) => (
-              <a
+              <button
                 key={tab.name}
-                href={tab.path} // pastikan Anda menggunakan 'path', bukan 'href'
-                onClick={(e) => {
-                  e.preventDefault(); // mencegah perilaku default saat mengklik anchor link
-                  handleTabClick(tab.name);
-                }}
                 className={classNames(
-                  activeTab === tab.name
+                  tab.current
                     ? "border-indigo-500 text-indigo-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
                   "w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm"
                 )}
-                aria-current={activeTab === tab.name ? "page" : undefined}
+                aria-current={tab.current ? "page" : undefined}
+                onClick={() => setActiveTab(tab.id)}
               >
                 {tab.name}
-              </a>
+              </button>
             ))}
           </nav>
         </div>

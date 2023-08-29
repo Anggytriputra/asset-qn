@@ -9,42 +9,45 @@ import {
 
 import { useSelector } from "react-redux";
 import LoadingButton from "./LoadingButton";
+import Comboboxes from "./Comboboxes";
 
-export default function DataAssetForm({
+export default function DataKendaraanForm({
   action = "add",
   isLoading = false,
   setShowForm,
-  categoryOptions = [],
+  subCategoryOption = [],
   currPage,
-  product = {},
+  asset = {},
+  idOnTabsCategory,
 }) {
-  // console.log("setShowForm", setShowForm);
-  // console.log("categoryoption", categoryOptions);
-  // console.log("product", product);
-  // console.log("curPAGE", currPage);
+  console.log("idOnCategory", idOnTabsCategory);
+  console.log("sub-category", subCategoryOption);
+
+  const userGlobal = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
   const [image, setImage] = useState(
-    product.image_urls
-      ? product.image_urls.map((url) => ({
+    asset.image_urls
+      ? asset.image_urls.map((url) => ({
           preview: `http://localhost:2000/${url}`,
         }))
       : []
   );
 
-  const [selectedCategory, setSelectedCategory] = useState(
-    product.Category
-      ? { value: product.Category?.id, label: product.Category?.name }
-      : categoryOptions[0]
+  const [selectedSubCategory, setSelectedSubCategory] = useState(
+    asset.Category
+      ? { value: asset.Category?.id, label: asset.Category?.name }
+      : subCategoryOption[0]
   );
+
+  console.log("selectedSubCategory", selectedSubCategory);
   const [dataAssets, setDataAssets] = useState([]);
   const [assetAdded, setAssetAdded] = useState(false);
 
   console.log("assetAdded", assetAdded);
 
-  // console.log("setSelected", selectedCategory);
+  // console.log("setSelected", selectedSubCategory);
 
-  const userGlobal = useSelector((state) => state.user);
   console.log("userBranc", userGlobal);
   const branchId = userGlobal.id_cabang;
 
@@ -58,12 +61,14 @@ export default function DataAssetForm({
 
     // Ambil nilai dari form
     const { assetName, desc, price, qty, no_surat, warna } = e.target;
-    const categoryId = selectedCategory.value;
+    const subCategoryId = selectedSubCategory.value;
 
     // Buat instance FormData untuk mengumpulkan data yang akan dikirim
     const newAsset = new FormData();
     newAsset.append("name", assetName?.value);
-    newAsset.append("category_id", categoryId);
+
+    newAsset.append("CategoryId", idOnTabsCategory);
+    newAsset.append("sub_category_id", subCategoryId);
     newAsset.append("description", desc?.value);
     newAsset.append("price", price?.value || 0);
     newAsset.append("quantity", qty?.value);
@@ -81,6 +86,7 @@ export default function DataAssetForm({
       console.log("key value", key, value);
     }
 
+    console.log("ini action ya apa", action);
     if (action === "Add") {
       const response = await createDataAsset(newAsset);
       console.log("response upload", response);
@@ -108,10 +114,10 @@ export default function DataAssetForm({
         <div>
           <div>
             <h3 className="text-lg font-medium leading-6 text-gray-900">
-              {title} Asset
+              {title} Kendaraan
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {title} product's information.
+              {title} asset's information.
             </p>
           </div>
 
@@ -128,8 +134,75 @@ export default function DataAssetForm({
                 name="assetName"
                 id="assetName"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.name}
+                defaultValue={asset.name}
                 required
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="penanggungJawab"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Penangung Jawab - (PIC)
+              </label>
+              <input
+                type="text"
+                name="assetName"
+                id="assetName"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.name}
+                required
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="penanggungJawab"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Kepemilikan
+              </label>
+              <input
+                type="text"
+                name="assetName"
+                id="assetName"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.name}
+                required
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="penanggungJawab"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Tanggal terima dicabang
+              </label>
+              <input
+                type="text"
+                name="assetName"
+                id="assetName"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.name}
+                required
+              />
+            </div>
+
+            <div className="sm:col-span-2 ">
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Kondisi
+              </label>
+              <Dropdown
+                label="None"
+                options={subCategoryOption}
+                selectedValue={selectedSubCategory}
+                onChange={setSelectedSubCategory}
+                className="text-sm rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
               />
             </div>
 
@@ -146,7 +219,7 @@ export default function DataAssetForm({
                   name="desc"
                   rows={3}
                   className="p-2 block w-full rounded-md border border-gray-400 border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                  defaultValue={product.desc}
+                  defaultValue={asset.desc}
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500">
@@ -154,28 +227,54 @@ export default function DataAssetForm({
               </p>
             </div>
 
-            <div className="sm:col-span-2 sm:col-start-1">
+            <div className="sm:col-span-2 ">
               <label
                 htmlFor="category"
                 className="block text-sm font-medium text-gray-700"
               >
-                Category
+                Sub-Category
               </label>
               <Dropdown
-                label="Category"
-                options={categoryOptions}
-                selectedValue={selectedCategory}
-                onChange={setSelectedCategory}
+                label="None"
+                options={subCategoryOption}
+                selectedValue={selectedSubCategory}
+                onChange={setSelectedSubCategory}
                 className="text-sm rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
               />
             </div>
 
-            <div className="sm:col-span-2 sm:col-start-1">
+            <div className="sm:col-span-2 ">
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Merk
+              </label>
+              <Dropdown
+                label="None"
+                options={subCategoryOption}
+                selectedValue={selectedSubCategory}
+                onChange={setSelectedSubCategory}
+                className="text-sm rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+
+            <div className="sm:col-span-2 ">
+              <label
+                htmlFor="tahun"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Tahun
+              </label>
+              <Comboboxes />
+            </div>
+
+            <div className="sm:col-span-2 ">
               <label
                 htmlFor="no_surat"
                 className="block text-sm font-medium text-gray-700"
               >
-                No Surat
+                No. Polisi
               </label>
               <input
                 type="text"
@@ -183,16 +282,33 @@ export default function DataAssetForm({
                 name="no_surat"
                 id="no_surat"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.price}
+                defaultValue={asset.price}
               />
             </div>
 
-            <div className="sm:col-span-2 sm:col-start-1">
+            <div className="sm:col-span-2 ">
               <label
                 htmlFor="no_surat"
                 className="block text-sm font-medium text-gray-700"
               >
-                Color
+                No. Rangka
+              </label>
+              <input
+                type="text"
+                // min="0"
+                name="no_surat"
+                id="no_surat"
+                className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.price}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="no_surat"
+                className="block text-sm font-medium text-gray-700"
+              >
+                No. Mesin
               </label>
               <input
                 type="text"
@@ -200,12 +316,45 @@ export default function DataAssetForm({
                 name="warna"
                 id="warna"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.price}
+                defaultValue={asset.price}
+              />
+            </div>
+
+            <div className="sm:col-span-2 ">
+              <label
+                htmlFor="no_surat"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Tipe Kendaraan
+              </label>
+              <input
+                type="text"
+                // min="0"
+                name="warna"
+                id="warna"
+                className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.price}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="no_surat"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Warna
+              </label>
+              <input
+                type="text"
+                // min="0"
+                name="warna"
+                id="warna"
+                className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.price}
               />
             </div>
 
             {/* {(userGlobal.role !== "superadmin" || action === "edit") && ( */}
-            <div className="sm:col-span-2 sm:col-start-1">
+            <div className="sm:col-span-2">
               <label
                 htmlFor="qty"
                 className="block text-sm font-medium text-gray-700"
@@ -218,7 +367,7 @@ export default function DataAssetForm({
                 name="qty"
                 id="qty"
                 className="p-2 border border-gray-400 spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.Stocks?.[product.stockIdx]?.stock}
+                defaultValue={asset.Stocks?.[asset.stockIdx]?.stock}
               />
             </div>
             {/* )} */}

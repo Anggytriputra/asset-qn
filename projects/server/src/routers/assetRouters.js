@@ -5,7 +5,7 @@ const assetRouter = require("express").Router();
 assetRouter.get("/", assetControllers.getAsset);
 
 assetRouter.post(
-  "/",
+  "/t",
   //   userExtractor,
   fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
     "asset_image"
