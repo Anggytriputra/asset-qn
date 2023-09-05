@@ -75,7 +75,7 @@ async function login(req, res) {
       .query(insertQuery, [userId, expired, token, valid, status]);
 
     delete userExist[0].password;
-    console.log("userexist nih bro", userExist);
+    // console.log("userexist nih bro", userExist);
 
     res.status(200).send({
       message: "Login Success",
@@ -89,9 +89,9 @@ async function login(req, res) {
 
 async function getUserByToken(req, res) {
   try {
-    console.log("req nih params2", req.query.token);
+    // console.log("req nih params2", req.query.token);
     const Token = req.query.token;
-    console.log("token", Token);
+    // console.log("token", Token);
 
     const [userToken] = await db.promise().query(
       `SELECT * FROM m_tokens
@@ -100,7 +100,7 @@ async function getUserByToken(req, res) {
       AND expired > NOW();`
     );
 
-    console.log("user token", userToken);
+    // console.log("user token", userToken);
 
     const userId = userToken[0].user_id;
     const [findUser] = await db.promise().query(`SELECT  
@@ -114,7 +114,7 @@ async function getUserByToken(req, res) {
       left join m_cabang MC on RCK.id_cabang = MC.id
       WHERE MU.id = '${userId}'`);
 
-    console.log("userToken", findUser);
+    // console.log("userToken", findUser);
 
     delete findUser[0].password;
     return res

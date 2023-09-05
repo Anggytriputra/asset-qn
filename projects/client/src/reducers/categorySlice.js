@@ -41,7 +41,7 @@ export function fetchCategories(query = "") {
 }
 
 export function fetchSubCategories(id) {
-  console.log("id", id);
+  // console.log("id", id);
   return async (dispatch) => {
     try {
       if (id) {

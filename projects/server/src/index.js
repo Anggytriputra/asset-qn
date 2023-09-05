@@ -9,6 +9,7 @@ const {
   branchRouter,
   categoryRouter,
   assetRouter,
+  imageRouter,
 } = require("./routers");
 
 // const assetRouter2 = require("./service/asset.js");
@@ -27,9 +28,20 @@ app.use(express.json());
 
 // app.use(express.urlencoded({ extended: true }));
 
-app.use("/static", express.static(join(__dirname, "..", "public")));
+app.use(
+  "/static",
+  (req, res, next) => {
+    console.log("Akses ke folder static");
+    console.log("Request URL:", req.originalUrl);
+    next();
+  },
+  express.static(join(__dirname, "..", "public"))
+);
+
+//
 // console.log("assetRouter2", assetRouter2);
 app.use("/asset", assetRouter);
+app.use("/img", imageRouter);
 app.use("/auth", authRouter);
 app.use("/branch", branchRouter);
 app.use("/category", categoryRouter);

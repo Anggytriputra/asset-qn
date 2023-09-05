@@ -16,18 +16,24 @@ import { useState } from "react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Combobox } from "@headlessui/react";
 
-const people = [
-  { id: 1, name: "2023" },
-  // More users...
-];
+// const people = [
+//   { id: 1, name: "2023" },
+//   // More users...
+// ];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Comboboxes() {
+export default function Comboboxes({
+  people = [],
+  selectedValue = {},
+  setSelectedValue = {},
+}) {
+  // console.log("selected value comboboxes", selectedValue);
+  // console.log("peaople", people);
   const [query, setQuery] = useState("");
-  const [selectedPerson, setSelectedPerson] = useState(null);
+  // const [selectedPerson, setSelectedPerson] = useState(null);
 
   const filteredPeople =
     query === ""
@@ -39,8 +45,8 @@ export default function Comboboxes() {
   return (
     <Combobox
       as="div"
-      value={selectedPerson}
-      onChange={setSelectedPerson}
+      value={selectedValue}
+      onChange={setSelectedValue}
     >
       {/* <Combobox.Label className="block text-sm font-medium text-gray-700">
         Assigned to

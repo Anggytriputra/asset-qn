@@ -30,7 +30,7 @@ async function getSubCategories(req, res) {
         `SELECT * FROM m_sub_categories WHERE m_categories_id = ${categoriesId}`
       );
 
-    console.log("data", data[0]);
+    // console.log("data", data[0]);
     res.status(200).send({
       message: "Succefuly Get Data Sub-Category",
       data: data[0],

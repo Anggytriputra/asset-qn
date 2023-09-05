@@ -10,6 +10,13 @@ import {
 import { useSelector } from "react-redux";
 import LoadingButton from "./LoadingButton";
 import Comboboxes from "./Comboboxes";
+import {
+  OpMerk,
+  OpStnk,
+  OpTypeKendaraan,
+  OpYear,
+  opCondition,
+} from "../utils/option/optionValues";
 
 export default function DataKendaraanForm({
   action = "add",
@@ -18,40 +25,128 @@ export default function DataKendaraanForm({
   subCategoryOption = [],
   currPage,
   asset = {},
+  img = {},
   idOnTabsCategory,
+  addNewData,
+  setNewAddData,
 }) {
-  console.log("idOnCategory", idOnTabsCategory);
-  console.log("sub-category", subCategoryOption);
+  // console.log("aset Kendaraan", asset);
+
+  // console.log("sub category option ", subCategoryOption);
+  const receivedInBranch = asset.received_in_branch
+    ? new Date(asset.received_in_branch).toISOString().split("T")[0]
+    : "";
+
+  const expPjkOneYear = asset.exp_pjk_1_thn
+    ? new Date(asset.exp_pjk_1_thn).toISOString().split("T")[0]
+    : "";
+
+  const expPjkFiveYear = asset.exp_pjk_5_thn
+    ? new Date(asset.exp_pjk_5_thn).toISOString().split("T")[0]
+    : "";
+
+  const findIdCondition = opCondition.find(
+    (item) => item.label === asset.condition
+  )?.value;
+
+  const findIdMerk = OpMerk.find((item) => item.name === asset.merk)?.id;
+
+  const findIdYaer = OpYear.find((item) => item.name === asset.merk)?.id;
+
+  const findIdType = OpTypeKendaraan.find(
+    (item) => item.name === asset.tipe_kendaraan
+  )?.id;
+
+  const findIdStnk = OpStnk.find(
+    (item) => item.label === asset.status_stnk
+  )?.value;
+
+  const findIdSubCtgr = subCategoryOption.find(
+    (item) => item.label === asset.sub_category_name
+  )?.value;
+
+  // console.log("find condition id", findIdSubCtgr);
 
   const userGlobal = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
   const [image, setImage] = useState(
-    asset.image_urls
-      ? asset.image_urls.map((url) => ({
-          preview: `http://localhost:2000/${url}`,
+    img && img.length > 0
+      ? img.map((item) => ({
+          preview: `http://localhost:2000/static/asset/${item.images_url}`,
         }))
       : []
   );
 
   const [selectedSubCategory, setSelectedSubCategory] = useState(
-    asset.Category
-      ? { value: asset.Category?.id, label: asset.Category?.name }
+    asset.sub_category_name
+      ? { value: findIdSubCtgr, label: asset.sub_category_name }
       : subCategoryOption[0]
   );
 
-  console.log("selectedSubCategory", selectedSubCategory);
+  // console.log("selected sub category", selectedSubCategory);
+
+  const [selectedCondition, setSelectedCondition] = useState(
+    asset.condition
+      ? {
+          value: findIdCondition,
+          label: asset.condition,
+        }
+      : {}
+  );
+  const [selectedMerk, setSelectedMerk] = useState(
+    asset.merk
+      ? {
+          id: findIdMerk,
+          name: asset.merk,
+        }
+      : {}
+  );
+
+  const [selectedYear, setSelectedYear] = useState(
+    asset.year
+      ? {
+          id: findIdYaer,
+          name: asset.year,
+        }
+      : {}
+  );
+
+  console.log("Select year", selectedYear);
+
+  const [selectedTypeKendaraan, setSelectedTypeKendaraan] = useState(
+    asset.tipe_kendaraan
+      ? {
+          id: findIdType,
+          name: asset.tipe_kendaraan,
+        }
+      : {}
+  );
+
+  const [selectedstatusStnk, setSelectedstatusStnk] = useState(
+    asset.status_stnk
+      ? {
+          value: findIdStnk,
+          label: asset.status_stnk,
+        }
+      : {}
+  );
+
+  console.log("status stnk", selectedstatusStnk);
+  // console.log("selectedTypeKendaraan", selectedTypeKendaraan);
+  // console.log("selectedYear", selectedYear);
+  // console.log("selectedmerk", selectedMerk);
+  // console.log("selectedSubCategory", selectedSubCategory);
+
   const [dataAssets, setDataAssets] = useState([]);
   const [assetAdded, setAssetAdded] = useState(false);
 
-  console.log("assetAdded", assetAdded);
+  console.log("assetAdded kendaraan", assetAdded);
 
-  // console.log("setSelected", selectedSubCategory);
-
-  console.log("userBranc", userGlobal);
+  // console.log("userBranc", userGlobal);
   const branchId = userGlobal.id_cabang;
 
-  console.log("branch id ini bro", branchId);
+  // console.log("branch id ini bro", branchId);
 
   const title = action[0].toUpperCase() + action.substring(1);
 
@@ -60,19 +155,60 @@ export default function DataKendaraanForm({
     e.preventDefault();
 
     // Ambil nilai dari form
-    const { assetName, desc, price, qty, no_surat, warna } = e.target;
+    const {
+      assetName,
+      desc,
+      pic,
+      owner,
+      receivedInBranch,
+      noPolisi,
+      noRangka,
+      noMesin,
+      qty,
+      warna,
+      expTaxOneYear,
+      expTaxFiveYear,
+    } = e.target;
     const subCategoryId = selectedSubCategory.value;
+
+    const conditionLabel = selectedCondition.label;
+
+    const merkName = selectedMerk.name;
+
+    const yearName = selectedYear.name;
+
+    const typeKendaraanName = selectedTypeKendaraan.name;
+
+    const statusStnkName = selectedstatusStnk.label;
+
+    // const TypeKendaraanName =
 
     // Buat instance FormData untuk mengumpulkan data yang akan dikirim
     const newAsset = new FormData();
-    newAsset.append("name", assetName?.value);
 
     newAsset.append("CategoryId", idOnTabsCategory);
     newAsset.append("sub_category_id", subCategoryId);
+    newAsset.append("conditionLabel", conditionLabel);
+    newAsset.append("statusStnkName", statusStnkName);
+    newAsset.append("merk", merkName);
+    newAsset.append("year", yearName);
+    newAsset.append("noRangka", noRangka?.value);
+    newAsset.append("noMesin", noMesin?.value);
+    newAsset.append("typeKendaraanName", typeKendaraanName);
+
+    //
+    newAsset.append("pic", pic?.value);
+    newAsset.append("owner", owner?.value);
+    newAsset.append("receivedInBranch", receivedInBranch?.value);
+    newAsset.append("noPolisi", noPolisi?.value);
+    newAsset.append("expTaxOneYear", expTaxOneYear?.value);
+    newAsset.append("expTaxFiveYear", expTaxFiveYear?.value);
+
+    //
+
+    newAsset.append("name", assetName?.value);
     newAsset.append("description", desc?.value);
-    newAsset.append("price", price?.value || 0);
     newAsset.append("quantity", qty?.value);
-    newAsset.append("no_surat", no_surat?.value);
     newAsset.append("color", warna?.value);
     image.forEach((img, index) => {
       newAsset.append("asset_image", img); // asumsi img adalah File object
@@ -83,19 +219,20 @@ export default function DataKendaraanForm({
 
     // ... (tambahkan field lain yang Anda butuhkan)
     for (let [key, value] of newAsset.entries()) {
-      console.log("key value", key, value);
+      // console.log("key value", key, value);
     }
 
-    console.log("ini action ya apa", action);
     if (action === "Add") {
-      const response = await createDataAsset(newAsset);
-      console.log("response upload", response);
+      const response = await createDataAsset(newAsset, idOnTabsCategory);
+      // console.log("response upload", response);
       setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
+      setNewAddData(true);
     }
   }
+
   useEffect(() => {
     async function updateDataAsset() {
-      const newDataAsset = await fetchDataAsset();
+      const newDataAsset = await fetchDataAsset(idOnTabsCategory);
       setDataAssets(newDataAsset);
     }
 
@@ -134,74 +271,70 @@ export default function DataKendaraanForm({
                 name="assetName"
                 id="assetName"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.name}
-                required
+                defaultValue={asset.nama_asset}
+                // required
               />
             </div>
-
             <div className="sm:col-span-2">
               <label
-                htmlFor="penanggungJawab"
+                htmlFor="pic"
                 className="block text-sm font-medium text-gray-700"
               >
-                Penangung Jawab - (PIC)
+                Person In Charge - (PIC)
               </label>
               <input
                 type="text"
-                name="assetName"
-                id="assetName"
+                name="pic"
+                id="pic"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.name}
+                defaultValue={asset.pic}
                 required
               />
             </div>
-
             <div className="sm:col-span-2">
               <label
-                htmlFor="penanggungJawab"
+                htmlFor="owner"
                 className="block text-sm font-medium text-gray-700"
               >
-                Kepemilikan
+                Name of Owner
               </label>
               <input
                 type="text"
-                name="assetName"
-                id="assetName"
+                name="owner"
+                id="owner"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.name}
+                defaultValue={asset.owner_name}
                 required
               />
             </div>
-
             <div className="sm:col-span-2">
               <label
-                htmlFor="penanggungJawab"
+                htmlFor="receivedInBranch"
                 className="block text-sm font-medium text-gray-700"
               >
-                Tanggal terima dicabang
+                Received in Branch
               </label>
               <input
-                type="text"
-                name="assetName"
-                id="assetName"
+                type="date"
+                name="receivedInBranch"
+                id="receivedInBranch"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.name}
+                defaultValue={receivedInBranch}
                 required
               />
             </div>
-
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="category"
+                htmlFor="condition"
                 className="block text-sm font-medium text-gray-700"
               >
-                Kondisi
+                Condition
               </label>
               <Dropdown
                 label="None"
-                options={subCategoryOption}
-                selectedValue={selectedSubCategory}
-                onChange={setSelectedSubCategory}
+                options={opCondition}
+                selectedValue={selectedCondition}
+                onChange={setSelectedCondition}
                 className="text-sm rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -226,10 +359,9 @@ export default function DataKendaraanForm({
                 Write a description about your asset.
               </p>
             </div>
-
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="category"
+                htmlFor="sub_category"
                 className="block text-sm font-medium text-gray-700"
               >
                 Sub-Category
@@ -242,36 +374,35 @@ export default function DataKendaraanForm({
                 className="text-sm rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
               />
             </div>
-
-            <div className="sm:col-span-2 ">
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Merk
-              </label>
-              <Dropdown
-                label="None"
-                options={subCategoryOption}
-                selectedValue={selectedSubCategory}
-                onChange={setSelectedSubCategory}
-                className="text-sm rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
-              />
-            </div>
-
             <div className="sm:col-span-2 ">
               <label
                 htmlFor="tahun"
                 className="block text-sm font-medium text-gray-700"
               >
-                Tahun
+                Merk
               </label>
-              <Comboboxes />
+              <Comboboxes
+                people={OpMerk}
+                selectedValue={selectedMerk}
+                setSelectedValue={setSelectedMerk}
+              />
             </div>
-
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="no_surat"
+                htmlFor="tahun"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Year
+              </label>
+              <Comboboxes
+                people={OpYear}
+                selectedValue={selectedYear}
+                setSelectedValue={setSelectedYear}
+              />
+            </div>
+            <div className="sm:col-span-2 ">
+              <label
+                htmlFor="noPolisi"
                 className="block text-sm font-medium text-gray-700"
               >
                 No. Polisi
@@ -279,16 +410,15 @@ export default function DataKendaraanForm({
               <input
                 type="text"
                 // min="0"
-                name="no_surat"
-                id="no_surat"
+                name="noPolisi"
+                id="noPolisi"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.price}
+                defaultValue={asset.no_polisi}
               />
             </div>
-
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="no_surat"
+                htmlFor="noRangka"
                 className="block text-sm font-medium text-gray-700"
               >
                 No. Rangka
@@ -296,16 +426,15 @@ export default function DataKendaraanForm({
               <input
                 type="text"
                 // min="0"
-                name="no_surat"
-                id="no_surat"
+                name="noRangka"
+                id="noRangka"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.price}
+                defaultValue={asset.no_rangka}
               />
             </div>
-
             <div className="sm:col-span-2">
               <label
-                htmlFor="no_surat"
+                htmlFor="noMesin"
                 className="block text-sm font-medium text-gray-700"
               >
                 No. Mesin
@@ -313,32 +442,28 @@ export default function DataKendaraanForm({
               <input
                 type="text"
                 // min="0"
-                name="warna"
-                id="warna"
+                name="noMesin"
+                id="noMesin"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.price}
+                defaultValue={asset.no_mesin}
               />
             </div>
-
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="no_surat"
+                htmlFor="tahun"
                 className="block text-sm font-medium text-gray-700"
               >
                 Tipe Kendaraan
               </label>
-              <input
-                type="text"
-                // min="0"
-                name="warna"
-                id="warna"
-                className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.price}
+              <Comboboxes
+                people={OpTypeKendaraan}
+                selectedValue={selectedTypeKendaraan}
+                setSelectedValue={setSelectedTypeKendaraan}
               />
             </div>
             <div className="sm:col-span-2">
               <label
-                htmlFor="no_surat"
+                htmlFor="warna"
                 className="block text-sm font-medium text-gray-700"
               >
                 Warna
@@ -349,10 +474,9 @@ export default function DataKendaraanForm({
                 name="warna"
                 id="warna"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.price}
+                defaultValue={asset.warna}
               />
             </div>
-
             {/* {(userGlobal.role !== "superadmin" || action === "edit") && ( */}
             <div className="sm:col-span-2">
               <label
@@ -367,11 +491,57 @@ export default function DataKendaraanForm({
                 name="qty"
                 id="qty"
                 className="p-2 border border-gray-400 spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.Stocks?.[asset.stockIdx]?.stock}
+                defaultValue={asset.quantity}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="expTaxOneYear"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Exp Tanggal Pajak 1 Tahun
+              </label>
+              <input
+                type="date"
+                name="expTaxOneYear"
+                id="expTaxOneYear"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                defaultValue={expPjkOneYear}
+                // required
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="receivedInBranch"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Exp Tanggal Pajak 5 Tahun
+              </label>
+              <input
+                type="date"
+                name="expTaxFiveYear"
+                id="expTaxFiveYear"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                defaultValue={expPjkFiveYear}
+                // required
+              />
+            </div>
+            <div className="sm:col-span-2 ">
+              <label
+                htmlFor="statusStnk"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Status Stnk
+              </label>
+              <Dropdown
+                label="None"
+                options={OpStnk}
+                selectedValue={selectedstatusStnk}
+                onChange={setSelectedstatusStnk}
+                className="text-sm rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
               />
             </div>
             {/* )} */}
-
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">
                 Asset Image

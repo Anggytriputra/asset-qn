@@ -10,49 +10,85 @@ import {
 import { useSelector } from "react-redux";
 import LoadingButton from "./LoadingButton";
 import Comboboxes from "./Comboboxes";
+import {
+  OpMerkSpecialTools,
+  OpTipeSpecialTools,
+} from "../utils/option/optionValues";
 
 export default function DataSpecialToolsForm({
-  action = "add",
+  action = "Add",
   isLoading = false,
   setShowForm,
   categoryOptions = [],
   currPage,
-  product = {},
+  asset = {},
+  img = {},
   idOnTabsCategory,
+  addNewData,
+  setNewAddData,
 }) {
-  console.log("idOnCategory", idOnTabsCategory);
-  // console.log("setShowForm", setShowForm);
-  // console.log("categoryoption", categoryOptions);
-  // console.log("product", product);
-  // console.log("curPAGE", currPage);
+  console.log("asset nih", asset);
+
+  const procurumentDate = asset.procurument_date
+    ? new Date(asset.procurument_date).toISOString().split("T")[0]
+    : "";
+
+  const purchaseDate = asset.purchase_date
+    ? new Date(asset.purchase_date).toISOString().split("T")[0]
+    : "";
+
+  const receivedInBranch = asset.received_in_branch
+    ? new Date(asset.received_in_branch).toISOString().split("T")[0]
+    : "";
+
+  const findIdMerk = OpMerkSpecialTools.find(
+    (item) => item.name === asset.merk_special_tools
+  )?.id;
+
+  const findIdType = OpTipeSpecialTools.find(
+    (item) => item.name === asset.tipe_special_tools
+  )?.id;
 
   const dispatch = useDispatch();
   const [image, setImage] = useState(
-    product.image_urls
-      ? product.image_urls.map((url) => ({
-          preview: `http://localhost:2000/${url}`,
+    img && img.length > 0
+      ? img.map((item) => ({
+          preview: `http://localhost:2000/static/asset/${item.images_url}`,
         }))
       : []
   );
 
-  const [selectedCategory, setSelectedCategory] = useState(
-    product.Category
-      ? { value: product.Category?.id, label: product.Category?.name }
-      : categoryOptions[0]
-  );
+  // const [selectedCategory, setSelectedCategory] = useState(
+  //   asset.Category
+  //     ? { value: asset.Category?.id, label: asset.Category?.name }
+  //     : categoryOptions[0]
+  // );
+
   const [dataAssets, setDataAssets] = useState([]);
   const [assetAdded, setAssetAdded] = useState(false);
+  const [selectedMerk, setSelectedMerk] = useState(
+    asset.merk_special_tools
+      ? {
+          id: findIdMerk || "", // gunakan findIdMerk jika ada, atau string kosong
+          name: asset.merk_special_tools,
+        }
+      : {} // default value jika asset.merk_special_tools tidak ada
+  );
+  const [selectedType, setSelectedType] = useState(
+    asset.tipe_special_tools
+      ? { id: findIdType || "", name: asset.tipe_special_tools }
+      : {}
+  );
 
-  console.log("assetAdded", assetAdded);
-
-  // console.log("setSelected", selectedCategory);
+  useEffect(() => {
+    if (asset.merk) {
+      setSelectedMerk(asset.merk_special_tools);
+    }
+  }, [asset.merk]);
 
   const userGlobal = useSelector((state) => state.user);
 
-  console.log("userBranc", userGlobal);
   const branchId = userGlobal.id_cabang;
-
-  console.log("branch id ini bro", branchId);
 
   const title = action[0].toUpperCase() + action.substring(1);
 
@@ -61,47 +97,79 @@ export default function DataSpecialToolsForm({
     e.preventDefault();
 
     // Ambil nilai dari form
-    const { assetName, desc, price, qty, no_surat, warna } = e.target;
-    const categoryId = selectedCategory.value;
+    const {
+      assetName,
+      pic,
+      purchaseDate,
+      branchReceivedDate,
+      procurementDate,
+      desc,
+      serialNumber,
+      AccessoriesOne,
+      AccessoriesTwo,
+      AccessoriesThree,
+      // qty,
+    } = e.target;
+    // const categoryId = selectedCategory.value;
+    const merkName = selectedMerk.name;
+    const typeName = selectedType.name;
 
     // Buat instance FormData untuk mengumpulkan data yang akan dikirim
     const newAsset = new FormData();
     newAsset.append("name", assetName?.value);
-    newAsset.append("category_id", categoryId);
+    newAsset.append("pic", pic?.value);
+    newAsset.append("purchaseDate", purchaseDate?.value);
+    newAsset.append("procurementDate", procurementDate?.value);
+    newAsset.append("branchReceivedDate", branchReceivedDate?.value);
     newAsset.append("description", desc?.value);
-    newAsset.append("price", price?.value || 0);
-    newAsset.append("quantity", qty?.value);
-    newAsset.append("no_surat", no_surat?.value);
-    newAsset.append("color", warna?.value);
-    image.forEach((img, index) => {
-      newAsset.append("asset_image", img); // asumsi img adalah File object
-      console.log("testi", img, img instanceof File);
-    });
+    newAsset.append("serialNumber", serialNumber?.value);
+    newAsset.append("AccessoriesOne", AccessoriesOne?.value);
+    newAsset.append("AccessoriesTwo", AccessoriesTwo?.value);
+    newAsset.append("AccessoriesThree", AccessoriesThree?.value);
+    newAsset.append("category_id", idOnTabsCategory);
+
+    // newAsset.append("quantity", qty?.value);
+
+    newAsset.append("merkName", merkName);
+    newAsset.append("typeName", typeName);
 
     newAsset.append("branch_id", branchId);
 
+    image.forEach((img, index) => {
+      newAsset.append("asset_image", img); // asumsi img adalah File object
+      // console.log("testi", img, img instanceof File);
+    });
+
+    //
+
     // ... (tambahkan field lain yang Anda butuhkan)
     for (let [key, value] of newAsset.entries()) {
-      console.log("key value", key, value);
+      // console.log("key value", key, value);
     }
 
+    // console.log("action special tool", action);
+
     if (action === "Add") {
-      const response = await createDataAsset(newAsset);
+      const response = await createDataAsset(newAsset, idOnTabsCategory);
       console.log("response upload", response);
+      setNewAddData(true);
       setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
     }
   }
   useEffect(() => {
+    // console.log("assetAdded nih 1:", assetAdded);
+    // console.log("idOnTabsCategory:", idOnTabsCategory);
     async function updateDataAsset() {
-      const newDataAsset = await fetchDataAsset();
+      const newDataAsset = await fetchDataAsset(idOnTabsCategory);
       setDataAssets(newDataAsset);
     }
 
     if (assetAdded) {
+      console.log("asset Added 2", assetAdded);
       updateDataAsset();
       setShowForm(false);
     }
-  }, [assetAdded]);
+  }, [assetAdded, idOnTabsCategory]);
 
   return (
     <form
@@ -115,7 +183,7 @@ export default function DataSpecialToolsForm({
               {title} Special Tools
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {title} product's information.
+              {title} asset's information.
             </p>
           </div>
 
@@ -132,75 +200,75 @@ export default function DataSpecialToolsForm({
                 name="assetName"
                 id="assetName"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.name}
-                required
+                defaultValue={asset.name}
+                // required
               />
             </div>
 
             <div className="sm:col-span-2">
               <label
-                htmlFor="penanggungJawab"
+                htmlFor="pic"
                 className="block text-sm font-medium text-gray-700"
               >
                 Penangung Jawab - (PIC)
               </label>
               <input
                 type="text"
-                name="assetName"
-                id="assetName"
+                name="pic"
+                id="pic"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                // defaultValue={asset.name}
+                defaultValue={asset.pic}
                 required
               />
             </div>
 
             <div className="sm:col-span-2">
               <label
-                htmlFor="penanggungJawab"
+                htmlFor="purchaseDate"
                 className="block text-sm font-medium text-gray-700"
               >
                 Tanggal Pembelian
               </label>
               <input
-                type="text"
-                name="assetName"
-                id="assetName"
+                type="date"
+                name="purchaseDate"
+                id="purchaseDate"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                // defaultValue={asset.name}
+                defaultValue={purchaseDate}
                 required
               />
             </div>
 
             <div className="sm:col-span-2">
               <label
-                htmlFor="penanggungJawab"
+                htmlFor="procurementDate"
                 className="block text-sm font-medium text-gray-700"
               >
                 Tanggal Pengadaan
               </label>
               <input
-                type="text"
-                name="assetName"
-                id="assetName"
+                type="date"
+                name="procurementDate"
+                id="procurementDate"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                // defaultValue={asset.name}
+                defaultValue={procurumentDate}
                 required
               />
             </div>
 
             <div className="sm:col-span-2">
               <label
-                htmlFor="penanggungJawab"
+                htmlFor="branchReceivedDate"
                 className="block text-sm font-medium text-gray-700"
               >
                 Tanggal Terima diCabang
               </label>
               <input
-                type="text"
-                name="assetName"
-                id="assetName"
+                type="date"
+                name="branchReceivedDate"
+                id="branchReceivedDate"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                // defaultValue={asset.name}
+                defaultValue={receivedInBranch}
                 required
               />
             </div>
@@ -218,7 +286,7 @@ export default function DataSpecialToolsForm({
                   name="desc"
                   rows={3}
                   className="p-2 block w-full rounded-md border border-gray-400 border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                  defaultValue={product.desc}
+                  defaultValue={asset.desc}
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500">
@@ -228,27 +296,35 @@ export default function DataSpecialToolsForm({
 
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="tahun"
+                htmlFor="merk"
                 className="block text-sm font-medium text-gray-700"
               >
                 Merk
               </label>
-              <Comboboxes />
+              <Comboboxes
+                people={OpMerkSpecialTools}
+                selectedValue={selectedMerk}
+                setSelectedValue={setSelectedMerk}
+              />
             </div>
 
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="tahun"
+                htmlFor="tipe"
                 className="block text-sm font-medium text-gray-700"
               >
                 Tipe
               </label>
-              <Comboboxes />
+              <Comboboxes
+                people={OpTipeSpecialTools}
+                selectedValue={selectedType}
+                setSelectedValue={setSelectedType}
+              />
             </div>
 
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="no_surat"
+                htmlFor="serialNumber"
                 className="block text-sm font-medium text-gray-700"
               >
                 Serial Number
@@ -256,16 +332,16 @@ export default function DataSpecialToolsForm({
               <input
                 type="text"
                 // min="0"
-                name="no_surat"
-                id="no_surat"
+                name="serialNumber"
+                id="serialNumber"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.price}
+                defaultValue={asset.serial_number}
               />
             </div>
 
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="no_surat"
+                htmlFor="AccessoriesOne"
                 className="block text-sm font-medium text-gray-700"
               >
                 Accessories 1
@@ -273,16 +349,16 @@ export default function DataSpecialToolsForm({
               <input
                 type="text"
                 // min="0"
-                name="no_surat"
-                id="no_surat"
+                name="AccessoriesOne"
+                id="AccessoriesOne"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.price}
+                defaultValue={asset.accesories_one}
               />
             </div>
 
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="no_surat"
+                htmlFor="AccessoriesTwo"
                 className="block text-sm font-medium text-gray-700"
               >
                 Accessories 2
@@ -290,16 +366,16 @@ export default function DataSpecialToolsForm({
               <input
                 type="text"
                 // min="0"
-                name="no_surat"
-                id="no_surat"
+                name="AccessoriesTwo"
+                id="AccessoriesTwo"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.price}
+                defaultValue={asset.accesories_two}
               />
             </div>
 
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="no_surat"
+                htmlFor="AccessoriesThree"
                 className="block text-sm font-medium text-gray-700"
               >
                 Accessories 3
@@ -307,10 +383,10 @@ export default function DataSpecialToolsForm({
               <input
                 type="text"
                 // min="0"
-                name="no_surat"
-                id="no_surat"
+                name="AccessoriesThree"
+                id="AccessoriesThree"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.price}
+                defaultValue={asset.accesories_three}
               />
             </div>
 

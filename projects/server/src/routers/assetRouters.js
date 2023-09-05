@@ -2,15 +2,45 @@ const { assetControllers } = require("../controllers");
 const { fileUploader } = require("../middleware/multer");
 const assetRouter = require("express").Router();
 
-assetRouter.get("/", assetControllers.getAsset);
+assetRouter.get("/fc1", assetControllers.getAssetKendaraan);
+assetRouter.get("/fc2", assetControllers.getAssetSpecialTool);
+assetRouter.get("/fc3", assetControllers.getAssetStandardTool);
+assetRouter.get("/fc4", assetControllers.getAssetSafetyTool);
 
 assetRouter.post(
-  "/t",
+  "/c1",
   //   userExtractor,
   fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
     "asset_image"
   ),
-  assetControllers.createAsset
+  assetControllers.createAssetKendaraan
+);
+
+assetRouter.post(
+  "/c2",
+  //   userExtractor,
+  fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
+    "asset_image"
+  ),
+  assetControllers.createAssetSpecialTool
+);
+
+assetRouter.post(
+  "/c3",
+  //   userExtractor,
+  fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
+    "asset_image"
+  ),
+  assetControllers.createdStandardTool
+);
+
+assetRouter.post(
+  "/c4",
+  //   userExtractor,
+  fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
+    "asset_image"
+  ),
+  assetControllers.createSafetyTool
 );
 
 // assetRouter.patch(

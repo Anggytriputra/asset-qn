@@ -4,6 +4,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { errorAlertWithMessage } from "../helper/alerts";
 
 export default function ImageDragAndDrop({ className, image, setImage }) {
+  // console.log("image drga drop", image);
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (acceptedFiles?.length) {

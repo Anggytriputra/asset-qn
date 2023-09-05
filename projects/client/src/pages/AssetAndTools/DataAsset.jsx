@@ -21,7 +21,19 @@ import Spinner from "../../components/Spinner";
 import DataSpecialToolsForm from "../../components/DataSpecialTools";
 import DataStandardToolsForm from "../../components/DataStandardToolsForm";
 import DataSafetyToolsForm from "../../components/DataSafetyToolsForm";
-// import { NavigationDataAsset } from "../../components/NavigationDataAsset";
+import AssetKendaraanTableBody from "../../components/AssetKendaraanTableBody";
+import KendaraanTableBody from "../../components/tableBodyDataAsset/KendaraanTableBody";
+import SpecialToolsTableBody from "../../components/tableBodyDataAsset/SpecialToolsTableBody";
+import StandardToolsTableBody from "../../components/tableBodyDataAsset/StandardToolsTableBody";
+import SafetyToolsTableBody from "../../components/tableBodyDataAsset/SafetyToolsTableBody";
+import {
+  colsKendaraan,
+  colsSpecialTools,
+  colsStandardTools,
+  colsSafetyTools,
+} from "../../constant/headColsdataAsset";
+import { fetchImgByAssetId } from "../../service/dataAsset/resDataImg";
+import Pagination from "../../components/Pagination";
 
 const subCategoryOption = [{ value: 0, label: "None" }];
 
@@ -34,29 +46,46 @@ const DataAsset = () => {
     (state) => state.category.subCategories
   );
 
-  // console.log("sub category Global", subCategoryGlobal);
-
-  // console.log("user", userGlobal);
-  // const assetGlobal = useSelector((state) => state.asset);
   const activeTabId = localStorage.getItem("activeTab");
-  // console.log("active tab dataasset", activeTabId);
-
   const [searchParams, setSearchParams] = useSearchParams();
   const [showAddDataForm, setShowAddDataForm] = useState(false);
   const [showEditDataForm, setShowEditDataForm] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
-  console.log("activetab", activeTab);
+  const [addNewData, setNewAddData] = useState(false);
 
   // const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [dataAsset, setDataAsset] = useState([]);
 
+  console.log("dataAsset", dataAsset);
+
   const [subCategoriesFilter, setSubCategoryFilter] = useState([
     subCategoryOption[0],
   ]);
 
-  console.log("subCategoryFilter", subCategoriesFilter);
+  const [editedAsset, setEditedAsset] = useState({});
+  const [imgAssetById, setImgAssetById] = useState({});
+
+  // console.log("edited asset", editedAsset);
+  // console.log("img byid", imgAssetById);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fungsi async tambahan
+      if (editedAsset.id) {
+        try {
+          const dataImgByAssetId = await fetchImgByAssetId(editedAsset);
+          // console.log("dataImgByAssetId", dataImgByAssetId);
+          setImgAssetById(dataImgByAssetId.data.img);
+        } catch (error) {
+          console.log("Failed to fetch image", error);
+        }
+      }
+    };
+
+    fetchData(); // Jalankan fungsi async
+  }, [editedAsset.id]);
 
   useEffect(() => {
     if (!userGlobal.role) return;
@@ -72,6 +101,7 @@ const DataAsset = () => {
     if (savedTab) {
       setActiveTab(parseInt(savedTab, 10));
     }
+    // console.log("savetab", savedTab);
   }, []);
 
   useEffect(() => {
@@ -91,15 +121,17 @@ const DataAsset = () => {
   const tabs = Object.keys(categoriesGlobal)
     .filter((key) => key !== "isLoading")
     .map((key) => {
-      console.log("key", key);
+      const id = categoriesGlobal[key].id;
+      const current = id === activeTab;
+
       return {
-        id: categoriesGlobal[key].id,
+        id: id,
         name: categoriesGlobal[key].name_ctgr,
-        current: categoriesGlobal[key].id === activeTab,
+        current: current,
       };
     });
 
-  console.log("ini tabs", tabs);
+  // console.log("ini tabs", tabs);
 
   // atas sampai sini navigatiDataAsset.jsx
 
@@ -108,6 +140,8 @@ const DataAsset = () => {
     if (!activeTab) return;
     dispatch(fetchSubCategories(activeTab));
   }, [activeTab]);
+
+  // console.log("on activeTabs", activeTab);
 
   const newSubCategoriesOption = subCategoryGlobal.map((subCategory) => ({
     value: subCategory.id,
@@ -120,28 +154,83 @@ const DataAsset = () => {
     ...newSubCategoriesOption
   );
 
-  // console.log("subCategoryOption", subCategoryOption);
-
-  const reqData = {
-    idCategory: activeTab,
-    subCategoryId: subCategoriesFilter.value,
-  };
-
   useEffect(() => {
     const getAssets = async () => {
       try {
-        const assets = await fetchDataAsset(reqData);
+        const assets = await fetchDataAsset(
+          activeTab,
+          subCategoriesFilter.value
+        );
         // console.log("assets nih", assets);
         setDataAsset(assets.data.asset);
+
+        if (addNewData) {
+          setNewAddData(false);
+        }
       } catch (error) {
         console.log("error data asset", error);
         // Anda bisa menangani error di sini jika diperlukan
       }
     };
     getAssets();
-  }, [reqData.idCategory, reqData.subCategoryId]);
+  }, [activeTab, subCategoriesFilter.value, addNewData]);
+
+  function handleEditClick(assets, stockIdx) {
+    // console.log("asset handle", assets);
+    setEditedAsset(assets);
+    setShowEditDataForm(true);
+  }
 
   if (categoriesGlobal.isLoading) return <Spinner />;
+
+  //
+  //
+
+  let activeCols = [];
+  let activeTableBody = null;
+
+  const activeTabName = tabs.find((tab) => tab.current)?.name;
+
+  switch (activeTabName) {
+    case "Kendaraan":
+      activeCols = colsKendaraan;
+      activeTableBody = (
+        <KendaraanTableBody
+          asset={dataAsset}
+          onEdit={handleEditClick}
+        />
+      );
+      break;
+    case "Special Tools":
+      activeCols = colsSpecialTools;
+      activeTableBody = (
+        <SpecialToolsTableBody
+          asset={dataAsset}
+          onEdit={handleEditClick}
+        />
+      );
+      break;
+    case "Standard Tools":
+      activeCols = colsStandardTools;
+      activeTableBody = (
+        <StandardToolsTableBody
+          asset={dataAsset}
+          onEdit={handleEditClick}
+        />
+      );
+      break;
+    case "Safety Tools":
+      activeCols = colsSafetyTools;
+      activeTableBody = (
+        <SafetyToolsTableBody
+          asset={dataAsset}
+          onEdit={handleEditClick}
+        />
+      );
+      break;
+    default:
+      break;
+  }
 
   return (
     <div>
@@ -154,31 +243,73 @@ const DataAsset = () => {
         />
       </TransitionFade>
 
-      <TransitionFade show={showAddDataForm}>
+      <TransitionFade show={showEditDataForm || showAddDataForm}>
         {(() => {
           const currentTabName = tabs.find((tab) => tab.current)?.name;
+          let action = showEditDataForm ? "Edit" : "Add"; // Menentukan mode berdasarkan state
+
           switch (currentTabName) {
             case "Kendaraan":
               return (
                 <DataKendaraanForm
-                  action="Add"
-                  setShowForm={setShowAddDataForm}
-                  currPage={currentPage}
+                  action={action}
+                  setShowForm={
+                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
+                  }
                   subCategoryOption={subCategoryOption}
+                  currPage={currentPage}
                   idOnTabsCategory={activeTab}
+                  asset={editedAsset}
+                  img={imgAssetById}
+                  addNewData={addNewData}
+                  setNewAddData={setNewAddData}
                 />
               );
             case "Special Tools":
               return (
                 <DataSpecialToolsForm
-                  action="Add"
+                  action={action}
+                  setShowForm={
+                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
+                  }
+                  currPage={currentPage}
                   idOnTabsCategory={activeTab}
+                  asset={editedAsset}
+                  img={imgAssetById}
+                  addNewData={addNewData}
+                  setNewAddData={setNewAddData}
                 />
               );
             case "Standard Tools":
-              return <DataStandardToolsForm action="Add Data" />;
+              return (
+                <DataStandardToolsForm
+                  action={action}
+                  setShowForm={
+                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
+                  }
+                  currPage={currentPage}
+                  idOnTabsCategory={activeTab}
+                  asset={editedAsset}
+                  img={imgAssetById}
+                  addNewData={addNewData}
+                  setNewAddData={setNewAddData}
+                />
+              );
             case "Safety Tools":
-              return <DataSafetyToolsForm action="Add Data" />;
+              return (
+                <DataSafetyToolsForm
+                  action={action}
+                  setShowForm={
+                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
+                  }
+                  currPage={currentPage}
+                  idOnTabsCategory={activeTab}
+                  asset={editedAsset}
+                  img={imgAssetById}
+                  addNewData={addNewData}
+                  setNewAddData={setNewAddData}
+                />
+              );
             default:
               return null;
           }
@@ -202,18 +333,10 @@ const DataAsset = () => {
 
           <Table
             className="mb-4 py-6"
-            headCols={[
-              "Asset Name",
-              "Category",
-              "Sub Category",
-              "Description",
-              "Quantity",
-              "Branch",
-              "No Surat",
-              "Warna",
-            ]}
-            tableBody={<AssetTableBody asset={dataAsset} />}
+            headCols={activeCols}
+            tableBody={activeTableBody}
           />
+          <Pagination totalItems={20} />
         </div>
       </TransitionFade>
     </div>

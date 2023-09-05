@@ -9,47 +9,54 @@ import {
 
 import { useSelector } from "react-redux";
 import LoadingButton from "./LoadingButton";
+import axios from "axios";
 
 export default function DataSafetyToolsForm({
-  action = "add",
+  action = "Add",
   isLoading = false,
   setShowForm,
   categoryOptions = [],
   currPage,
-  product = {},
+  asset = {},
+  img = {},
+  idOnTabsCategory,
+  addNewData,
+  setNewAddData,
 }) {
-  // console.log("setShowForm", setShowForm);
-  // console.log("categoryoption", categoryOptions);
-  // console.log("product", product);
-  // console.log("curPAGE", currPage);
+  // console.log("idOnTabsCategory", idOnTabsCategory);
+
+  // console.log("img", img);
+
+  // console.log("aseet data edit", asset);
 
   const dispatch = useDispatch();
+
   const [image, setImage] = useState(
-    product.image_urls
-      ? product.image_urls.map((url) => ({
-          preview: `http://localhost:2000/${url}`,
+    img && img.length > 0
+      ? img.map((item) => ({
+          preview: `http://localhost:2000/static/asset/${item.images_url}`,
         }))
       : []
   );
 
+  // console.log("img", image);
+
   const [selectedCategory, setSelectedCategory] = useState(
-    product.Category
-      ? { value: product.Category?.id, label: product.Category?.name }
+    asset.Category
+      ? { value: asset.Category?.id, label: asset.Category?.name }
       : categoryOptions[0]
   );
   const [dataAssets, setDataAssets] = useState([]);
+
+  console.log("setDataAset", dataAssets);
   const [assetAdded, setAssetAdded] = useState(false);
-
-  console.log("assetAdded", assetAdded);
-
-  // console.log("setSelected", selectedCategory);
 
   const userGlobal = useSelector((state) => state.user);
 
-  console.log("userBranc", userGlobal);
   const branchId = userGlobal.id_cabang;
+  const userId = userGlobal.id;
 
-  console.log("branch id ini bro", branchId);
+  // console.log("userid", userId);
 
   const title = action[0].toUpperCase() + action.substring(1);
 
@@ -58,47 +65,53 @@ export default function DataSafetyToolsForm({
     e.preventDefault();
 
     // Ambil nilai dari form
-    const { assetName, desc, price, qty, no_surat, warna } = e.target;
-    const categoryId = selectedCategory.value;
+    const { assetName, desc, price, qty } = e.target;
+    // const categoryId = selectedCategory.value;
 
     // Buat instance FormData untuk mengumpulkan data yang akan dikirim
     const newAsset = new FormData();
     newAsset.append("name", assetName?.value);
-    newAsset.append("category_id", categoryId);
+    newAsset.append("CategoryId", idOnTabsCategory);
+    newAsset.append("userId", userId);
     newAsset.append("description", desc?.value);
-    newAsset.append("price", price?.value || 0);
     newAsset.append("quantity", qty?.value);
-    newAsset.append("no_surat", no_surat?.value);
-    newAsset.append("color", warna?.value);
+
     image.forEach((img, index) => {
       newAsset.append("asset_image", img); // asumsi img adalah File object
-      console.log("testi", img, img instanceof File);
+      // console.log("testi", img, img instanceof File);
     });
 
     newAsset.append("branch_id", branchId);
 
     // ... (tambahkan field lain yang Anda butuhkan)
     for (let [key, value] of newAsset.entries()) {
-      console.log("key value", key, value);
+      // console.log("key value", key, value);
     }
 
     if (action === "Add") {
-      const response = await createDataAsset(newAsset);
+      const response = await createDataAsset(newAsset, idOnTabsCategory);
       console.log("response upload", response);
       setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
+      setNewAddData(true);
     }
   }
   useEffect(() => {
     async function updateDataAsset() {
-      const newDataAsset = await fetchDataAsset();
-      setDataAssets(newDataAsset);
+      try {
+        const newDataAsset = await fetchDataAsset(idOnTabsCategory);
+        console.log("new DataAsset", newDataAsset);
+        setDataAssets(newDataAsset.data); // Pastikan Anda mengakses field yang benar di newDataAsset
+        updateDataAsset();
+        setShowForm(false); // Ini akan dipanggil setelah data berhasil di-fetch
+      } catch (error) {
+        console.log("Error fetching data", error);
+      }
     }
 
     if (assetAdded) {
-      updateDataAsset();
-      setShowForm(false);
+      setShowForm(false); // Ini akan dipanggil setelah data berhasil di-fetch
     }
-  }, [assetAdded]);
+  }, [assetAdded, idOnTabsCategory]);
 
   return (
     <form
@@ -109,10 +122,10 @@ export default function DataSafetyToolsForm({
         <div>
           <div>
             <h3 className="text-lg font-medium leading-6 text-gray-900">
-              {title} Standard Tools
+              {title} Safety Tools
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {title} product's information.
+              {title} asset's information.
             </p>
           </div>
 
@@ -129,7 +142,7 @@ export default function DataSafetyToolsForm({
                 name="assetName"
                 id="assetName"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.name}
+                defaultValue={asset.asset_name}
                 required
               />
             </div>
@@ -146,8 +159,8 @@ export default function DataSafetyToolsForm({
                 min="0"
                 name="qty"
                 id="qty"
-                className="p-2 border border-gray-400 spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={product.Stocks?.[product.stockIdx]?.stock}
+                className="p-2 border spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.quantity}
               />
             </div>
 
@@ -164,7 +177,7 @@ export default function DataSafetyToolsForm({
                   name="desc"
                   rows={3}
                   className="p-2 block w-full rounded-md border border-gray-400 border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                  defaultValue={product.desc}
+                  defaultValue={asset.desc}
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500">

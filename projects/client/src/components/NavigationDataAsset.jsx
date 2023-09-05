@@ -14,6 +14,7 @@ export default function NavigationDataAsset({
 }) {
   // const location = useLocation();
 
+  // console.log("tabs navigation", tabs);
   // useEffect(() => {
   //   // Fungsi untuk membaca activeTab dari localStorage dan set state
   //   const savedTab = localStorage.getItem("activeTab");
@@ -47,7 +48,9 @@ export default function NavigationDataAsset({
   //     };
   //   });
   const handleMobileSelectChange = (e) => {
-    const selectedTabId = e.target.value;
+    console.log("Event handler dipanggil dengan value:", e.target.value);
+    const selectedTabId = Number(e.target.value);
+    console.log("iniSelected", selectedTabId);
     setActiveTab(selectedTabId);
   };
 

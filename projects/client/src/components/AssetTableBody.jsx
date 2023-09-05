@@ -1,5 +1,5 @@
 // import { numToIDRCurrency } from "../helper/currency";
-import BrokenImg from "../assets/broken-img.png";
+import BrokenImg from "../assets/broken_img.png";
 
 export default function AssetTableBody({ asset = [], onEdit, onDelete }) {
   console.log("assetTableBody", asset);
