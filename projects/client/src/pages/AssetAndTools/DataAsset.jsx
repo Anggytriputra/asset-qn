@@ -52,13 +52,14 @@ const DataAsset = () => {
   const [showEditDataForm, setShowEditDataForm] = useState(false);
   const [activeTab, setActiveTab] = useState(1);
   const [addNewData, setNewAddData] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
 
   // const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [dataAsset, setDataAsset] = useState([]);
 
-  console.log("dataAsset", dataAsset);
+  // console.log("dataAsset", dataAsset);
 
   const [subCategoriesFilter, setSubCategoryFilter] = useState([
     subCategoryOption[0],
@@ -154,15 +155,21 @@ const DataAsset = () => {
     ...newSubCategoriesOption
   );
 
+  // console.log("active tab", activeTab);
+  // console.log("sub catgeory id", subCategoriesFilter.value);
   useEffect(() => {
+    setLoadingData(true);
     const getAssets = async () => {
       try {
+        // console.log("loadingData", loadingData);
         const assets = await fetchDataAsset(
           activeTab,
           subCategoriesFilter.value
         );
         // console.log("assets nih", assets);
         setDataAsset(assets.data.asset);
+        setLoadingData(false);
+        // console.log("loadingData", loadingData);
 
         if (addNewData) {
           setNewAddData(false);
@@ -181,7 +188,7 @@ const DataAsset = () => {
     setShowEditDataForm(true);
   }
 
-  if (categoriesGlobal.isLoading) return <Spinner />;
+  if (categoriesGlobal.isLoading || loadingData) return <Spinner />;
 
   //
   //
@@ -191,12 +198,14 @@ const DataAsset = () => {
 
   const activeTabName = tabs.find((tab) => tab.current)?.name;
 
+  console.log("active tab", activeTabName);
+
   switch (activeTabName) {
     case "Kendaraan":
       activeCols = colsKendaraan;
       activeTableBody = (
         <KendaraanTableBody
-          asset={dataAsset}
+          asset={dataAsset.rows}
           onEdit={handleEditClick}
         />
       );
@@ -205,7 +214,7 @@ const DataAsset = () => {
       activeCols = colsSpecialTools;
       activeTableBody = (
         <SpecialToolsTableBody
-          asset={dataAsset}
+          asset={dataAsset.rows}
           onEdit={handleEditClick}
         />
       );
@@ -214,7 +223,7 @@ const DataAsset = () => {
       activeCols = colsStandardTools;
       activeTableBody = (
         <StandardToolsTableBody
-          asset={dataAsset}
+          asset={dataAsset.rows}
           onEdit={handleEditClick}
         />
       );
@@ -223,7 +232,7 @@ const DataAsset = () => {
       activeCols = colsSafetyTools;
       activeTableBody = (
         <SafetyToolsTableBody
-          asset={dataAsset}
+          asset={dataAsset.rows}
           onEdit={handleEditClick}
         />
       );

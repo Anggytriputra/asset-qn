@@ -1,32 +1,25 @@
-// const db = require("./models");
 const { join } = require("path");
+require("dotenv").config({ path: join(__dirname, "../.env") });
+const db = require("./models");
 const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
-const db = require("./config/db.js");
 const {
-  authRouter,
-  branchRouter,
-  categoryRouter,
   assetRouter,
+  authRouter,
   imageRouter,
+  assetGlobalRouter,
 } = require("./routers");
+const categoryRouter = require("./routers/categoryRouter");
 
-// const assetRouter2 = require("./service/asset.js");
-
-require("dotenv").config();
+// require("dotenv").config();
 
 const PORT = process.env.PORT || 8000;
-// console.log("port ini masuk", process.env);
 
 const app = express();
 
-// console.log("dirnamenih", __dirname);
-
 app.use(cors());
 app.use(express.json());
-
-// app.use(express.urlencoded({ extended: true }));
 
 app.use(
   "/static",
@@ -35,28 +28,21 @@ app.use(
     console.log("Request URL:", req.originalUrl);
     next();
   },
-  express.static(join(__dirname, "..", "public"))
+  express.static(join(__dirname, "..", "public", "asset"))
 );
 
-//
-// console.log("assetRouter2", assetRouter2);
-app.use("/asset", assetRouter);
-app.use("/img", imageRouter);
+// console.log(join("test gambar", __dirname, "..", "public", "asset"));
+// console.log("__dirname:", __dirname);
+// console.log(
+//   "Full path:",
+//   join(__dirname, "..", "public", "asset", "kendaraan")
+// );
+
 app.use("/auth", authRouter);
-app.use("/branch", branchRouter);
+app.use("/asset", assetRouter);
+app.use("/asset-byname", assetGlobalRouter);
 app.use("/category", categoryRouter);
-// app.use("/asset2", assetRouter);
-
-app.use((req, res) => {
-  res.status(404).send("Maaf, rute tersebut tidak ada.");
-});
-
-// db.connect((err) => {
-//   if (!err) {
-//     console.log("Database Connected");
-//   }
-//   console.log(err);
-// });
+app.use("/img", imageRouter);
 
 app.get("/", (req, res) => {
   res.json({

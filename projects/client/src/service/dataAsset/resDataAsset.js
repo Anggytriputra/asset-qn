@@ -11,7 +11,7 @@ const fetchDataAsset = async (categoryId, subCategoryId) => {
   // console.log("categoryId nih", categoryId);
   // console.log("subcategoryId", subCategoryId);
   const id = categoryId;
-  // console.log("id ya", id);
+  console.log("id ya", id);
   try {
     const res = await axios.get(`http://localhost:2000/asset/fc${id}`, {
       params: {
@@ -20,9 +20,10 @@ const fetchDataAsset = async (categoryId, subCategoryId) => {
       },
     });
 
+    console.log("res fetch", res);
     return res;
   } catch (error) {
-    console.log("error", error);
+    console.log("error fetch", error);
     throw error;
   }
 };
@@ -38,12 +39,29 @@ const createDataAsset = async (data, id) => {
     });
     // console.log("res", res);
     successAlert(res.data.message);
-    return res.data;
+    return res;
   } catch (error) {
     console.log("err nih", error.response.data);
     errorAlertWithMessage(error.response.data.message);
     // throw error;
   }
 };
+
+// const fetchAssetByName = async (name) => {
+//   console.log("name", name);
+
+//   try {
+//     const res = await axios.get(`http://localhost:2000/asset-byname`, {
+//       params: {
+//         assetName: name,
+//       },
+//     });
+//     console.log("res fetchDataAsset name", res);
+//     return res;
+//   } catch (error) {
+//     console.log("error assetName", error);
+//     throw error;
+//   }
+// };
 
 export { createDataAsset, fetchDataAsset };

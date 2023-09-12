@@ -15,11 +15,13 @@ const initDataAsset = {
 };
 
 const assetSlice = createSlice({
-  name: "assets",
+  name: "asset",
+
   initialState: initDataAsset,
+
   reducers: {
     setAssets(state, action) {
-      return action.payload;
+      state.Assets = action.payload;
     },
     setLoading(state, action) {
       return { ...state, isLoading: action.payload };
@@ -29,27 +31,31 @@ const assetSlice = createSlice({
 
 export const { setAssets, setLoading } = assetSlice.actions;
 
-export function fetchAssets(query = "") {
-  const BASEURL = "http://localhost:2000/asset";
-  // console.log("queryfetcProductsliec", query);
+export function fetchAssetByname(query) {
+  const BASEURL = "http://localhost:2000/asset-byname";
+  console.log("queryfetcProductsliec", query);
 
   return async (dispatch) => {
     try {
-      // dispatch(setLoading(true));
-      // const res = await axios.get(`${BASEURL}?${query}`);
-      // // console.log("resasetslice", res.data.data);
-      // dispatch(
-      //   setAssets({
-      //     assets: res.data.data,
-      //     // totalItems: res.data,
-      //     // totalPages: res.data,
-      //   })
-      // );
-      // console.log("asset", res);
-      // dispatch(setLoading(false));
+      dispatch(setLoading(true));
+      const res = await axios.get(`${BASEURL}`, {
+        params: {
+          assetName: query,
+        },
+      });
+      console.log("resasetslice", res);
+      dispatch(
+        setAssets({
+          assets: res.data.asset.rows,
+          // totalItems: res.data.totalItems, // Jika ada totalItems dalam respons
+          // totalPages: res.data.totalPages, // Jika ada totalPages dalam respons
+        })
+      );
+      console.log("asset", res);
+      dispatch(setLoading(false));
     } catch (error) {
       // errorAlert();
-      // console.log(error.message);
+      console.log(error.message);
     }
   };
 }

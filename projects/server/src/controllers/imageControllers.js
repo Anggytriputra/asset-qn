@@ -1,12 +1,14 @@
+const db = require("../models");
+const { Op } = require("sequelize");
+const sequelize = db.sequelize;
 const moment = require("moment");
-const db = require("../config/db.js");
 
 async function getImgByAssetId(req, res) {
   try {
     const idAsset = parseInt(req.query.idAsset);
     console.log("req query id Asset", idAsset);
 
-    const [img] = await db.promise().query(
+    const [img] = await sequelize.query(
       `SELECT * FROM m_images
     WHERE m_asset_id = ${idAsset}`
     );

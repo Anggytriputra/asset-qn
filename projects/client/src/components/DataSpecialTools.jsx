@@ -29,6 +29,16 @@ export default function DataSpecialToolsForm({
 }) {
   console.log("asset nih", asset);
 
+  const assetInsMap = {};
+
+  if (asset.m_assets_ins && asset.m_assets_ins.length > 0) {
+    asset.m_assets_ins.forEach((assetIn) => {
+      assetInsMap[assetIn.m_form.column_name] = assetIn.value;
+    });
+  }
+
+  console.log("assets inMap", assetInsMap);
+
   const procurumentDate = asset.procurument_date
     ? new Date(asset.procurument_date).toISOString().split("T")[0]
     : "";
@@ -42,41 +52,43 @@ export default function DataSpecialToolsForm({
     : "";
 
   const findIdMerk = OpMerkSpecialTools.find(
-    (item) => item.name === asset.merk_special_tools
+    (item) => item.name === assetInsMap["Merk"]
   )?.id;
 
+  console.log("tetsing", assetInsMap["Merk"]);
+  console.log("tetsing 2", findIdMerk);
+
   const findIdType = OpTipeSpecialTools.find(
-    (item) => item.name === asset.tipe_special_tools
+    (item) => item.name === assetInsMap["Tipe"]
   )?.id;
 
   const dispatch = useDispatch();
   const [image, setImage] = useState(
     img && img.length > 0
       ? img.map((item) => ({
-          preview: `http://localhost:2000/static/asset/${item.images_url}`,
+          preview: `http://localhost:2000/static/specialTools/${item.images_url}`,
         }))
       : []
   );
 
-  // const [selectedCategory, setSelectedCategory] = useState(
-  //   asset.Category
-  //     ? { value: asset.Category?.id, label: asset.Category?.name }
-  //     : categoryOptions[0]
-  // );
-
   const [dataAssets, setDataAssets] = useState([]);
   const [assetAdded, setAssetAdded] = useState(false);
   const [selectedMerk, setSelectedMerk] = useState(
-    asset.merk_special_tools
+    assetInsMap
       ? {
           id: findIdMerk || "", // gunakan findIdMerk jika ada, atau string kosong
-          name: asset.merk_special_tools,
+          name: assetInsMap["Merk"],
         }
       : {} // default value jika asset.merk_special_tools tidak ada
   );
+  console.log("selectedMerk", selectedMerk);
+
   const [selectedType, setSelectedType] = useState(
-    asset.tipe_special_tools
-      ? { id: findIdType || "", name: asset.tipe_special_tools }
+    assetInsMap
+      ? {
+          id: findIdType || "",
+          name: assetInsMap["Tipe"],
+        }
       : {}
   );
 
@@ -89,6 +101,7 @@ export default function DataSpecialToolsForm({
   const userGlobal = useSelector((state) => state.user);
 
   const branchId = userGlobal.id_cabang;
+  const userId = userGlobal.id;
 
   const title = action[0].toUpperCase() + action.substring(1);
 
@@ -134,6 +147,7 @@ export default function DataSpecialToolsForm({
     newAsset.append("typeName", typeName);
 
     newAsset.append("branch_id", branchId);
+    newAsset.append("userId", userId);
 
     image.forEach((img, index) => {
       newAsset.append("asset_image", img); // asumsi img adalah File object
@@ -151,7 +165,7 @@ export default function DataSpecialToolsForm({
 
     if (action === "Add") {
       const response = await createDataAsset(newAsset, idOnTabsCategory);
-      console.log("response upload", response);
+      // console.log("response upload", response);
       setNewAddData(true);
       setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
     }
@@ -170,6 +184,8 @@ export default function DataSpecialToolsForm({
       setShowForm(false);
     }
   }, [assetAdded, idOnTabsCategory]);
+
+  // Membuat objek untuk menyimpan column_name dan value dari assets.m_assets_ins
 
   return (
     <form
@@ -217,7 +233,7 @@ export default function DataSpecialToolsForm({
                 name="pic"
                 id="pic"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.pic}
+                defaultValue={assetInsMap["Person In Charge - (PIC)"]}
                 required
               />
             </div>
@@ -234,7 +250,7 @@ export default function DataSpecialToolsForm({
                 name="purchaseDate"
                 id="purchaseDate"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={purchaseDate}
+                defaultValue={assetInsMap["Tanggal Pembelian"]}
                 required
               />
             </div>
@@ -251,7 +267,7 @@ export default function DataSpecialToolsForm({
                 name="procurementDate"
                 id="procurementDate"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={procurumentDate}
+                defaultValue={assetInsMap["Tanggal Pengadaan"]}
                 required
               />
             </div>
@@ -268,7 +284,7 @@ export default function DataSpecialToolsForm({
                 name="branchReceivedDate"
                 id="branchReceivedDate"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={receivedInBranch}
+                defaultValue={assetInsMap["Tanggal Terima dicabang"]}
                 required
               />
             </div>
@@ -335,7 +351,7 @@ export default function DataSpecialToolsForm({
                 name="serialNumber"
                 id="serialNumber"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.serial_number}
+                defaultValue={assetInsMap["Serial Number"]}
               />
             </div>
 
@@ -352,7 +368,7 @@ export default function DataSpecialToolsForm({
                 name="AccessoriesOne"
                 id="AccessoriesOne"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.accesories_one}
+                defaultValue={assetInsMap["Accessories 1"]}
               />
             </div>
 
@@ -369,7 +385,7 @@ export default function DataSpecialToolsForm({
                 name="AccessoriesTwo"
                 id="AccessoriesTwo"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.accesories_two}
+                defaultValue={assetInsMap["Accessories 2"]}
               />
             </div>
 
@@ -386,7 +402,7 @@ export default function DataSpecialToolsForm({
                 name="AccessoriesThree"
                 id="AccessoriesThree"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.accesories_three}
+                defaultValue={assetInsMap["Accessories 3"]}
               />
             </div>
 

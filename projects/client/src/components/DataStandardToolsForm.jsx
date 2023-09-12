@@ -30,18 +30,10 @@ export default function DataStandardToolsForm({
 
   const dispatch = useDispatch();
 
-  // const [image, setImage] = useState(
-  //   asset.image_urls
-  //     ? asset.image_urls.map((url) => ({
-  //         preview: `http://localhost:2000/${url}`,
-  //       }))
-  //     : []
-  // );
-
   const [image, setImage] = useState(
     img && img.length > 0
       ? img.map((item) => ({
-          preview: `http://localhost:2000/static/asset/${item.images_url}`,
+          preview: `http://localhost:2000/static/standardTools/${item.images_url}`,
         }))
       : []
   );
@@ -96,8 +88,8 @@ export default function DataStandardToolsForm({
     if (action === "Add") {
       const response = await createDataAsset(newAsset, idOnTabsCategory);
       // console.log("response upload", response);
-      setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
       setNewAddData(true);
+      setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
     }
   }
   useEffect(() => {
@@ -110,7 +102,7 @@ export default function DataStandardToolsForm({
 
     if (assetAdded) {
       updateDataAsset();
-      setShowForm(false);
+      // setShowForm(false);
     }
   }, [assetAdded, idOnTabsCategory]);
 
@@ -143,7 +135,7 @@ export default function DataStandardToolsForm({
                 name="assetName"
                 id="assetName"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.asset_name}
+                defaultValue={asset.name}
                 required
               />
             </div>
@@ -161,7 +153,7 @@ export default function DataStandardToolsForm({
                 name="qty"
                 id="qty"
                 className="p-2 border spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.quantity}
+                defaultValue={asset.m_stock.quantity}
               />
             </div>
 

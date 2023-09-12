@@ -9,6 +9,7 @@ import SideBar from "./components/SideBar";
 
 import Testing from "./pages/Testing";
 import DataAsset from "./pages/AssetAndTools/DataAsset";
+import SearchIdAsset from "./pages/SearchIdAsset";
 
 const dataurl = [
   { id: 1, url_master: "/", name: "Login" },
@@ -18,15 +19,17 @@ const dataurl = [
   { id: 5, url_master: "/settings", name: "Settings" },
   { id: 6, url_master: "/report", name: "Report" },
   { id: 7, url_master: "/asset-tools/data-assets", name: "DataAsset" },
+  { id: 7, url_master: "/asset-tools/search", name: "SearchIdAsset" },
 ];
 
 const PAGES = {
   Login: <Login />,
-  Home: <Home />,
+  Home: <SideBar element={<Home />} />,
   Dashboard: <Dashboard />,
   AssetTools: <AssetTools />,
   Report: <Report />,
   Testing: <Testing />,
+  SearchIdAsset: <SideBar element={<SearchIdAsset />} />,
   DataAsset: <SideBar element={<DataAsset />} />,
 };
 

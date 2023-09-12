@@ -30,9 +30,19 @@ export default function DataKendaraanForm({
   addNewData,
   setNewAddData,
 }) {
-  // console.log("aset Kendaraan", asset);
+  console.log("aset Kendaraan", asset);
+  console.log("sub ctgr", subCategoryOption);
 
-  // console.log("sub category option ", subCategoryOption);
+  const assetInsMap = {};
+
+  if (asset.m_assets_ins && asset.m_assets_ins.length > 0) {
+    asset.m_assets_ins.forEach((assetIn) => {
+      assetInsMap[assetIn.m_form.column_name] = assetIn.value;
+    });
+  }
+
+  console.log("assetInMaps Kendaraan", assetInsMap);
+
   const receivedInBranch = asset.received_in_branch
     ? new Date(asset.received_in_branch).toISOString().split("T")[0]
     : "";
@@ -49,23 +59,29 @@ export default function DataKendaraanForm({
     (item) => item.label === asset.condition
   )?.value;
 
-  const findIdMerk = OpMerk.find((item) => item.name === asset.merk)?.id;
+  const findIdMerk = OpMerk.find(
+    (item) => item.name === assetInsMap["Merk"]
+  )?.id;
 
-  const findIdYaer = OpYear.find((item) => item.name === asset.merk)?.id;
+  // console.log("test id merk", findIdMerk);
+
+  const findIdYaer = OpYear.find(
+    (item) => item.name === assetInsMap["Year"]
+  )?.id;
 
   const findIdType = OpTypeKendaraan.find(
-    (item) => item.name === asset.tipe_kendaraan
+    (item) => item.name === assetInsMap["Year"]
   )?.id;
 
   const findIdStnk = OpStnk.find(
-    (item) => item.label === asset.status_stnk
+    (item) => item.label === assetInsMap["Status Stnk"]
   )?.value;
 
   const findIdSubCtgr = subCategoryOption.find(
-    (item) => item.label === asset.sub_category_name
+    (item) => item.label === assetInsMap["Sub-Category"]
   )?.value;
 
-  // console.log("find condition id", findIdSubCtgr);
+  // console.log("find id sub ctgr", findIdSubCtgr);
 
   const userGlobal = useSelector((state) => state.user);
 
@@ -73,14 +89,14 @@ export default function DataKendaraanForm({
   const [image, setImage] = useState(
     img && img.length > 0
       ? img.map((item) => ({
-          preview: `http://localhost:2000/static/asset/${item.images_url}`,
+          preview: `http://localhost:2000/static/kendaraan/${item.images_url}`,
         }))
       : []
   );
 
   const [selectedSubCategory, setSelectedSubCategory] = useState(
-    asset.sub_category_name
-      ? { value: findIdSubCtgr, label: asset.sub_category_name }
+    assetInsMap
+      ? { value: findIdSubCtgr, label: assetInsMap["Sub-Category"] }
       : subCategoryOption[0]
   );
 
@@ -95,19 +111,19 @@ export default function DataKendaraanForm({
       : {}
   );
   const [selectedMerk, setSelectedMerk] = useState(
-    asset.merk
+    assetInsMap
       ? {
           id: findIdMerk,
-          name: asset.merk,
+          name: assetInsMap["Merk"],
         }
       : {}
   );
 
   const [selectedYear, setSelectedYear] = useState(
-    asset.year
+    assetInsMap
       ? {
           id: findIdYaer,
-          name: asset.year,
+          name: assetInsMap["Year"],
         }
       : {}
   );
@@ -124,10 +140,10 @@ export default function DataKendaraanForm({
   );
 
   const [selectedstatusStnk, setSelectedstatusStnk] = useState(
-    asset.status_stnk
+    assetInsMap
       ? {
           value: findIdStnk,
-          label: asset.status_stnk,
+          label: assetInsMap["Status Stnk"],
         }
       : {}
   );
@@ -145,6 +161,7 @@ export default function DataKendaraanForm({
 
   // console.log("userBranc", userGlobal);
   const branchId = userGlobal.id_cabang;
+  const userId = userGlobal.id;
 
   // console.log("branch id ini bro", branchId);
 
@@ -216,6 +233,7 @@ export default function DataKendaraanForm({
     });
 
     newAsset.append("branch_id", branchId);
+    newAsset.append("userId", userId);
 
     // ... (tambahkan field lain yang Anda butuhkan)
     for (let [key, value] of newAsset.entries()) {
@@ -224,9 +242,12 @@ export default function DataKendaraanForm({
 
     if (action === "Add") {
       const response = await createDataAsset(newAsset, idOnTabsCategory);
-      // console.log("response upload", response);
-      setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
-      setNewAddData(true);
+
+      if (response.status === 200) {
+        console.log("response upload", response);
+        setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
+        setNewAddData(true);
+      }
     }
   }
 
@@ -271,7 +292,7 @@ export default function DataKendaraanForm({
                 name="assetName"
                 id="assetName"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.nama_asset}
+                defaultValue={asset.name}
                 // required
               />
             </div>
@@ -287,7 +308,7 @@ export default function DataKendaraanForm({
                 name="pic"
                 id="pic"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.pic}
+                defaultValue={assetInsMap["Person In Charge - (PIC)"]}
                 required
               />
             </div>
@@ -303,7 +324,7 @@ export default function DataKendaraanForm({
                 name="owner"
                 id="owner"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.owner_name}
+                defaultValue={assetInsMap["Name of Owner"]}
                 required
               />
             </div>
@@ -413,7 +434,7 @@ export default function DataKendaraanForm({
                 name="noPolisi"
                 id="noPolisi"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.no_polisi}
+                defaultValue={assetInsMap["No. Polisi"]}
               />
             </div>
             <div className="sm:col-span-2 ">
@@ -429,7 +450,7 @@ export default function DataKendaraanForm({
                 name="noRangka"
                 id="noRangka"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.no_rangka}
+                defaultValue={assetInsMap["No. Rangka"]}
               />
             </div>
             <div className="sm:col-span-2">
@@ -445,7 +466,7 @@ export default function DataKendaraanForm({
                 name="noMesin"
                 id="noMesin"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.no_mesin}
+                defaultValue={assetInsMap["No. Mesin"]}
               />
             </div>
             <div className="sm:col-span-2 ">
@@ -474,7 +495,7 @@ export default function DataKendaraanForm({
                 name="warna"
                 id="warna"
                 className="p-2 border border-gray-400 spin-hidden block  w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.warna}
+                defaultValue={assetInsMap["Warna"]}
               />
             </div>
             {/* {(userGlobal.role !== "superadmin" || action === "edit") && ( */}
@@ -491,7 +512,7 @@ export default function DataKendaraanForm({
                 name="qty"
                 id="qty"
                 className="p-2 border border-gray-400 spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.quantity}
+                defaultValue={asset.m_stock.quantity}
               />
             </div>
             <div className="sm:col-span-2">
@@ -506,7 +527,7 @@ export default function DataKendaraanForm({
                 name="expTaxOneYear"
                 id="expTaxOneYear"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={expPjkOneYear}
+                defaultValue={assetInsMap["Exp tgl Pajak 1 Tahun"]}
                 // required
               />
             </div>
@@ -522,7 +543,7 @@ export default function DataKendaraanForm({
                 name="expTaxFiveYear"
                 id="expTaxFiveYear"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={expPjkFiveYear}
+                defaultValue={assetInsMap["Exp tgl Pajak 5 Tahun"]}
                 // required
               />
             </div>

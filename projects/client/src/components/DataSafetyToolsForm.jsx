@@ -27,19 +27,19 @@ export default function DataSafetyToolsForm({
 
   // console.log("img", img);
 
-  // console.log("aseet data edit", asset);
+  console.log("aseet data edit", asset);
 
   const dispatch = useDispatch();
 
   const [image, setImage] = useState(
     img && img.length > 0
       ? img.map((item) => ({
-          preview: `http://localhost:2000/static/asset/${item.images_url}`,
+          preview: `http://localhost:2000/static/safetyTools/${item.images_url}`,
         }))
       : []
   );
 
-  // console.log("img", image);
+  console.log("img", image);
 
   const [selectedCategory, setSelectedCategory] = useState(
     asset.Category
@@ -102,7 +102,7 @@ export default function DataSafetyToolsForm({
         console.log("new DataAsset", newDataAsset);
         setDataAssets(newDataAsset.data); // Pastikan Anda mengakses field yang benar di newDataAsset
         updateDataAsset();
-        setShowForm(false); // Ini akan dipanggil setelah data berhasil di-fetch
+        // setShowForm(false); // Ini akan dipanggil setelah data berhasil di-fetch
       } catch (error) {
         console.log("Error fetching data", error);
       }
@@ -142,7 +142,7 @@ export default function DataSafetyToolsForm({
                 name="assetName"
                 id="assetName"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.asset_name}
+                defaultValue={asset.name}
                 required
               />
             </div>
@@ -160,7 +160,7 @@ export default function DataSafetyToolsForm({
                 name="qty"
                 id="qty"
                 className="p-2 border spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.quantity}
+                defaultValue={asset.m_stock.quantity}
               />
             </div>
 

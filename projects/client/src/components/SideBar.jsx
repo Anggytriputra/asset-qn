@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { Button, Input } from "@material-tailwind/react";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import {
   AcademicCapIcon,
@@ -19,10 +20,13 @@ import logo from "../assets/logo.jpg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../reducers/userSlice";
+import ModalSearch from "./ModalSearch";
+import { fetchAssetByName } from "../service/dataAsset/resDataAsset";
+import { fetchAssetByname } from "../reducers/assetSlice";
 
 const navigation = [
-  { name: "Home", path: "/home", icon: HomeIcon },
-  { name: "Dashboard", path: "/dashboard", icon: AcademicCapIcon },
+  // { name: "Home", path: "/home", icon: HomeIcon },
+  // { name: "Dashboard", path: "/dashboard", icon: AcademicCapIcon },
   {
     name: "Asset & Tools",
     icon: TruckIcon,
@@ -60,13 +64,23 @@ export default function SideBar({ element }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
   const currentPath = useLocation().pathname;
 
   function handleLogOut() {
     dispatch(logout());
     localStorage.removeItem("token");
     navigate("/");
+  }
+
+  function handleSearchByName(e) {
+    e.preventDefault();
+    dispatch(fetchAssetByname(searchValue));
+    console.log("search value2", searchValue);
+    navigate("/asset-tools/search");
   }
 
   return (
@@ -202,6 +216,28 @@ export default function SideBar({ element }) {
             </div>
             <div className="mt-5 flex flex-1 flex-col">
               <nav className="flex-1 space-y-1 px-2 pb-4">
+                <Link
+                  to="/home"
+                  className="text-indigo-100 hover:bg-indigo-600 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                >
+                  <HomeIcon
+                    className="mr-3 h-6 w-6 flex-shrink-0 text-indigo-300"
+                    aria-hidden="true"
+                  />
+                  Home
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="text-indigo-100 hover:bg-indigo-600 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                >
+                  <AcademicCapIcon
+                    className="mr-3 h-6 w-6 flex-shrink-0 text-indigo-300"
+                    aria-hidden="true"
+                  />
+                  Dashboard
+                </Link>
+                {/* Sisipkan tautan menu utama lainnya jika diperlukan */}
+
                 {navigation.map((item) => (
                   <Disclosure
                     as="div"
@@ -215,17 +251,15 @@ export default function SideBar({ element }) {
                             aria-hidden="true"
                           />
                           {item.name}
-                          {item.subNavigation && (
-                            <ChevronDownIcon
-                              className={classNames(
-                                open
-                                  ? "text-indigo-200 rotate-180"
-                                  : "text-indigo-300",
-                                "ml-auto h-5 w-5 transform"
-                              )}
-                              aria-hidden="true"
-                            />
-                          )}
+                          <ChevronDownIcon
+                            className={classNames(
+                              open
+                                ? "text-indigo-200 rotate-180"
+                                : "text-indigo-300",
+                              "ml-auto h-5 w-5 transform"
+                            )}
+                            aria-hidden="true"
+                          />
                         </Disclosure.Button>
                         <Disclosure.Panel className="space-y-1">
                           {item.subNavigation &&
@@ -261,19 +295,38 @@ export default function SideBar({ element }) {
               />
             </button>
             <div className="flex flex-1 justify-between px-4">
-              <div className="flex flex-1"></div>
-              <div className="ml-4 flex items-center md:ml-6">
-                {/* <button
-                  type="button"
-                  className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              <div className="flex flex-1">
+                {/* disini seacrh */}
+                <form
+                  className="flex w-full md:ml-0"
+                  onSubmit={handleSearchByName}
                 >
-                  <span className="sr-only">View notifications</span>
-                  <BellIcon
-                    className="h-6 w-6"
-                    aria-hidden="true"
-                  />
-                </button> */}
-
+                  <label
+                    htmlFor="search-field"
+                    className="sr-only"
+                  >
+                    Search
+                  </label>
+                  <div className="relative w-full text-gray-400 focus-within:text-gray-600">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                      <MagnifyingGlassIcon
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <input
+                      id="search-field"
+                      className="block h-full w-full border-transparent py-2 pl-8 pr-3 text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:text-sm"
+                      placeholder="Search by name"
+                      type="search"
+                      name="search"
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="ml-4 flex items-center md:ml-6">
                 {/* Profile dropdown */}
                 <Menu
                   as="div"

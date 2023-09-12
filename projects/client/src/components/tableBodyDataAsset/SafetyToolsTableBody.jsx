@@ -2,7 +2,7 @@
 import BrokenImg from "../../assets/broken_img.png";
 
 export default function SafetyToolsTableBody({ asset = [], onEdit, onDelete }) {
-  // console.log("assetTableBody standrd Tool", asset);
+  console.log("assetTableBody standrd Tool", asset);
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
       {asset.map((assets) => (
@@ -14,25 +14,29 @@ export default function SafetyToolsTableBody({ asset = [], onEdit, onDelete }) {
                 <img
                   className="h-10 w-10"
                   src={
-                    `http://localhost:2000/static/asset/${assets.images_url}` ||
-                    BrokenImg
+                    assets?.m_images && assets.m_images.length > 0
+                      ? `http://localhost:2000/static/safetyTools/${assets.m_images[0].images_url}`
+                      : BrokenImg
                   }
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null;
                     currentTarget.src = BrokenImg;
                   }}
-                  alt={asset.asset_name}
+                  alt={assets.name}
                 />
               </div>
               <div className="ml-4">
                 <div className="font-medium text-gray-900 truncate max-w-[200px]">
-                  {assets.asset_name}
+                  {assets.name}
                 </div>
               </div>
             </div>
           </td>
           <td className="px-3 py-4 text-sm text-gray-500">
-            <div className="text-gray-900">{assets.cabang_name}</div>
+            <div className="text-gray-900">{assets.m_cabang.cabang_name}</div>
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500">
+            <div className="text-gray-900">{assets.m_category.name}</div>
           </td>
           <td className="px-3 py-4 text-sm text-gray-500">
             <div
@@ -42,7 +46,9 @@ export default function SafetyToolsTableBody({ asset = [], onEdit, onDelete }) {
                   : "bg-red-100 text-red-800"
               }`}
             >
-              <span className="max-w-[100px] truncate">{assets.quantity}</span>
+              <span className="max-w-[100px] truncate">
+                {assets.m_stock.quantity}
+              </span>
             </div>
           </td>
 
@@ -50,21 +56,21 @@ export default function SafetyToolsTableBody({ asset = [], onEdit, onDelete }) {
             <div className="text-gray-900">{assets.desc}</div>
           </td>
           {/* <td className="px-3 py-4 text-sm text-gray-500">
-            <div className="text-gray-900 truncate max-w-[90px]">
-              {assets.description}
-            </div>
-          </td> */}
+          <div className="text-gray-900 truncate max-w-[90px]">
+            {assets.description}
+          </div>
+        </td> */}
           {/* <td className="px-3 py-4 text-sm text-gray-500">
-            <div className="text-gray-900 line-clamp-3">
-              {assets.stock || "—"}
-            </div>
-          </td> */}
+          <div className="text-gray-900 line-clamp-3">
+            {assets.stock || "—"}
+          </div>
+        </td> */}
 
           {/* <td className="px-3 py-4 text-sm text-gray-500">
-            <div className="text-gray-900 line-clamp-3">
-              {assets.cabang_name}
-            </div>
-          </td> */}
+          <div className="text-gray-900 line-clamp-3">
+            {assets.cabang_name}
+          </div>
+        </td> */}
           <td className="px-3 py-4 text-sm text-gray-500">
             <div className="text-gray-900 line-clamp-3">{assets.no_surat}</div>
           </td>

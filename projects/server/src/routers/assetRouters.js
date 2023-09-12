@@ -10,7 +10,7 @@ assetRouter.get("/fc4", assetControllers.getAssetSafetyTool);
 assetRouter.post(
   "/c1",
   //   userExtractor,
-  fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
+  fileUploader({ destinationFolder: "kendaraan", prefix: "PIMG" }).array(
     "asset_image"
   ),
   assetControllers.createAssetKendaraan
@@ -19,7 +19,7 @@ assetRouter.post(
 assetRouter.post(
   "/c2",
   //   userExtractor,
-  fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
+  fileUploader({ destinationFolder: "specialTools", prefix: "PIMG" }).array(
     "asset_image"
   ),
   assetControllers.createAssetSpecialTool
@@ -28,7 +28,7 @@ assetRouter.post(
 assetRouter.post(
   "/c3",
   //   userExtractor,
-  fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
+  fileUploader({ destinationFolder: "standardTools", prefix: "PIMG" }).array(
     "asset_image"
   ),
   assetControllers.createdStandardTool
@@ -37,7 +37,7 @@ assetRouter.post(
 assetRouter.post(
   "/c4",
   //   userExtractor,
-  fileUploader({ destinationFolder: "asset", prefix: "PIMG" }).array(
+  fileUploader({ destinationFolder: "safetyTools", prefix: "PIMG" }).array(
     "asset_image"
   ),
   assetControllers.createSafetyTool
