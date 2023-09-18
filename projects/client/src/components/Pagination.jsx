@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import ReactPaginate from "react-paginate";
 
 export default function Pagination({
-  itemsPerPage = 12,
+  itemsPerPage = 6,
   itemsInPage,
   totalItems,
   totalPages = 0,
@@ -11,6 +11,7 @@ export default function Pagination({
 }) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = startItem + itemsInPage - 1;
+  // console.log("total itrm", totalItems);
 
   useEffect(() => {
     if (totalPages && currentPage > totalPages) setCurrentPage(totalPages);

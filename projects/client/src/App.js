@@ -9,7 +9,13 @@ import SideBar from "./components/SideBar";
 
 import Testing from "./pages/Testing";
 import DataAsset from "./pages/AssetAndTools/DataAsset";
-import SearchIdAsset from "./pages/SearchIdAsset";
+import DetailsAsset from "./pages/DetailsAsset";
+import SearchByAssetName from "./pages/SearchByAssetName";
+import { useState } from "react";
+import { Modal } from "./components/Modal";
+import RequestAsset from "./pages/RequestAsset";
+import TransferAsset from "./pages/AssetAndTools/TransferAsset";
+// import DetailsAsset from "./components/DetailsAsset";
 
 const dataurl = [
   { id: 1, url_master: "/", name: "Login" },
@@ -19,7 +25,15 @@ const dataurl = [
   { id: 5, url_master: "/settings", name: "Settings" },
   { id: 6, url_master: "/report", name: "Report" },
   { id: 7, url_master: "/asset-tools/data-assets", name: "DataAsset" },
-  { id: 7, url_master: "/asset-tools/search", name: "SearchIdAsset" },
+  { id: 8, url_master: "/asset-tools/search", name: "SearchIdAsset" },
+  { id: 9, url_master: "/request-asset", name: "RequestAsset" },
+  { id: 10, url_master: "/asset-tools/transfer-assets", name: "TransferAsset" },
+  { id: 11, url_master: "/testing", name: "Testing" },
+  // {
+  //   id: 9,
+  //   url_master: `/asset-tools/search/Details/:assetId`,
+  //   name: "DetailAsset",
+  // },
 ];
 
 const PAGES = {
@@ -28,18 +42,21 @@ const PAGES = {
   Dashboard: <Dashboard />,
   AssetTools: <AssetTools />,
   Report: <Report />,
-  Testing: <Testing />,
-  SearchIdAsset: <SideBar element={<SearchIdAsset />} />,
+  Testing: <SideBar element={<Testing />} />,
+  SearchIdAsset: <SideBar element={<SearchByAssetName />} />,
+  DetailAsset: <SideBar element={<DetailsAsset />} />,
   DataAsset: <SideBar element={<DataAsset />} />,
+  TransferAsset: <SideBar element={<TransferAsset />} />,
+  RequestAsset: <SideBar element={<RequestAsset />} />,
 };
 
 function App() {
+  const [openModal, setOpenModal] = useState(false);
+  // console.log("open moda App", openModal);
   const location = useLocation();
 
   return (
     <div className="min-h-full flex flex-col">
-      {/* {location.pathname !== "/" && <SideBar />} */}
-
       <Routes>
         {dataurl.map((url) => {
           return (
@@ -50,19 +67,14 @@ function App() {
             />
           );
         })}
+
+        <Route
+          path="/asset-tools/search/Details/:assetId"
+          element={<SideBar element={<DetailsAsset />} />}
+        />
       </Routes>
     </div>
   );
 }
 
 export default App;
-
-// const tabs = Object.keys(categoriesGlobal)
-//   .filter((key) => key !== "isLoading")
-//   .map((key) => {
-//     return {
-//       id: categoriesGlobal[key].id,
-//       name: categoriesGlobal[key].name_ctgr,
-//       current: categoriesGlobal[key].id === activeTab,
-//     };
-//   });

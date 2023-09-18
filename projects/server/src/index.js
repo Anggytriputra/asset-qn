@@ -9,6 +9,8 @@ const {
   authRouter,
   imageRouter,
   assetGlobalRouter,
+  transHOrderRouter,
+  branchRouter,
 } = require("./routers");
 const categoryRouter = require("./routers/categoryRouter");
 
@@ -41,8 +43,10 @@ app.use(
 app.use("/auth", authRouter);
 app.use("/asset", assetRouter);
 app.use("/asset-byname", assetGlobalRouter);
-app.use("/category", categoryRouter);
 app.use("/img", imageRouter);
+app.use("/transh", transHOrderRouter);
+app.use("/category", categoryRouter);
+app.use("/branch", branchRouter);
 
 app.get("/", (req, res) => {
   res.json({

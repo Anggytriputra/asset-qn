@@ -1,5 +1,6 @@
 import React from "react";
 import BrokenImg from "../../assets/broken_img.png";
+import { Link } from "react-router-dom";
 
 export default function Kendaraan2TableBody({ asset = [], onEdit, onDelete }) {
   // console.log("asset table kendaraan", asset);
@@ -21,19 +22,25 @@ export default function Kendaraan2TableBody({ asset = [], onEdit, onDelete }) {
             <td className="py-4 pl-4 pr-3 text-sm sm:pl-6 text-gray-500">
               <div className="flex items-center">
                 <div className="h-10 w-10 flex-shrink-0">
-                  <img
-                    className="h-10 w-10"
-                    src={
-                      assets?.m_images && assets.m_images.length > 0
-                        ? `http://localhost:2000/static/kendaraan/${assets.m_images[0].images_url}`
-                        : BrokenImg
-                    }
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = BrokenImg;
-                    }}
-                    alt={assets.name}
-                  />
+                  <Link
+                    to={`/asset-tools/search/Details/${assets.id}`}
+                    state={{ asset: assets }}
+                    className="relative group"
+                  >
+                    <img
+                      className="h-10 w-10 transition duration-300 transform group-hover:brightness-50 "
+                      src={
+                        assets?.m_images && assets.m_images.length > 0
+                          ? `http://localhost:2000/static/kendaraan/${assets.m_images[0].images_url}`
+                          : BrokenImg
+                      }
+                      onError={({ currentTarget }) => {
+                        currentTarget.onerror = null;
+                        currentTarget.src = BrokenImg;
+                      }}
+                      alt={assets.name}
+                    />
+                  </Link>
                 </div>
                 <div className="ml-4">
                   <div className="font-medium text-gray-900 truncate max-w-[200px]">
@@ -45,13 +52,13 @@ export default function Kendaraan2TableBody({ asset = [], onEdit, onDelete }) {
 
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
-                {assets.m_cabang.cabang_name}
+                {assets.m_category.name}
               </div>
             </td>
 
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
-                {assets.m_category.name}
+                {assets.m_cabang.cabang_name}
               </div>
             </td>
 
@@ -60,66 +67,6 @@ export default function Kendaraan2TableBody({ asset = [], onEdit, onDelete }) {
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
                 {assets.desc}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Person In Charge - (PIC)"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Name of Owner"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{"rusak"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{assetInsMap["Merk"] || "-"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{assetInsMap["Year"] || "-"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["No. Polisi"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["No. Rangka"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["No. Mesin"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Exp tgl Pajak 1 Tahun"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Exp tgl Pajak 5 Tahun"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["tanggal terima dicabang"] || "-"}
               </div>
             </td>
 

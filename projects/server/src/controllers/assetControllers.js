@@ -7,14 +7,28 @@ const forms = db.m_form;
 
 async function getAssetKendaraan(req, res) {
   try {
-    console.log("m_assets", db.m_assets);
-    console.log("m_assets_in", db.m_assets_in);
+    const itemsPerPage = 6;
 
+    const page = parseInt(req.query.page);
     console.log("req query", req.query);
     const idCategory = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
 
     console.log("categoryId", idCategory);
+
+    // const offsetLimit = {};
+    // if (page) {
+    //   offsetLimit.limit = itemsPerPage;
+    //   offsetLimit.offset = (page - 1) * itemsPerPage;
+    // }
+
+    const offsetLimit = {};
+    if (page) {
+      offsetLimit.limit = itemsPerPage;
+      offsetLimit.offset = (page - 1) * itemsPerPage;
+    }
+
+    console.log("ofset limit", offsetLimit);
 
     const assetNameClause = assetname
       ? { name: { [Op.like]: "%" + assetname + "%" } }
@@ -22,21 +36,21 @@ async function getAssetKendaraan(req, res) {
 
     // console.log("ini idCatgory kendaraan", idCategory);
 
-    console.log("m_assetIn", db.m_assets_in.getTableName());
+    // console.log("m_assetIn", db.m_assets_in.getTableName());
 
     const asset = await db.m_assets.findAndCountAll({
-      subQuery: false,
+      // subQuery: false,
       attributes: {
         exclude: ["createdAt", "updatedAt", "createdBy"],
       },
       where: {
         m_category_id: idCategory,
-        ...assetNameClause,
+        // ...assetNameClause,
       },
       include: [
         {
           model: db.m_assets_in,
-          attributes: ["id", "m_form_id", "value", "m_asset_id"],
+          attributes: ["m_form_id", "value", "m_asset_id"],
           include: [
             {
               model: db.m_form,
@@ -63,13 +77,24 @@ async function getAssetKendaraan(req, res) {
           attributes: ["id", "name"],
         },
       ],
+      ...offsetLimit,
     });
 
-    // console.log(asset);
+    console.log("asset ya count", asset);
+
+    const assetCount = await db.m_assets.count({
+      where: {
+        m_category_id: idCategory,
+        // ...assetNameClause,
+      },
+    });
+
+    console.log("count", assetCount);
 
     res.status(200).send({
       message: "SuccessFuly get data kendaraan",
-      asset,
+      ...asset, // Menggunakan spread operator untuk mengganti properti count
+      count: assetCount, // Menambahkan properti count yang baru
     });
   } catch (error) {
     console.log("error get kendaraan", error);

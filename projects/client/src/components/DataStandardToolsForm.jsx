@@ -153,7 +153,7 @@ export default function DataStandardToolsForm({
                 name="qty"
                 id="qty"
                 className="p-2 border spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.m_stock.quantity}
+                // defaultValue={asset.m_stock.quantity}
               />
             </div>
 

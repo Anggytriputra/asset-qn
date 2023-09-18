@@ -33,7 +33,7 @@ export const { setAssets, setLoading } = assetSlice.actions;
 
 export function fetchAssetByname(query) {
   const BASEURL = "http://localhost:2000/asset-byname";
-  console.log("queryfetcProductsliec", query);
+  // console.log("queryfetcProductsliec", query);
 
   return async (dispatch) => {
     try {
@@ -43,7 +43,7 @@ export function fetchAssetByname(query) {
           assetName: query,
         },
       });
-      console.log("resasetslice", res);
+      // console.log("resasetslice", res);
       dispatch(
         setAssets({
           assets: res.data.asset.rows,
@@ -51,7 +51,7 @@ export function fetchAssetByname(query) {
           // totalPages: res.data.totalPages, // Jika ada totalPages dalam respons
         })
       );
-      console.log("asset", res);
+      // console.log("asset", res);
       dispatch(setLoading(false));
     } catch (error) {
       // errorAlert();

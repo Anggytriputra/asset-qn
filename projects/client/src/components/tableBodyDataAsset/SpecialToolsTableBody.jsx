@@ -6,7 +6,7 @@ export default function SpecialToolsTableBody({
   onEdit,
   onDelete,
 }) {
-  console.log("assetTableBody Special Tool", asset);
+  console.log("assetTableBody Special Tool", asset.name);
 
   return (
     <tbody className="divide-y divide-gray-200 bg-white">

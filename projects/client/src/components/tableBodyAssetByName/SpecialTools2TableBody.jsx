@@ -1,4 +1,5 @@
 // import { numToIDRCurrency } from "../helper/currency";
+import { Link } from "react-router-dom";
 import BrokenImg from "../../assets/broken_img.png";
 
 export default function SpecialTools2TableBody({
@@ -6,7 +7,7 @@ export default function SpecialTools2TableBody({
   onEdit,
   onDelete,
 }) {
-  console.log("assetTableBody Special Tool", asset);
+  // console.log("assetTableBody Special Tool", asset);
 
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
@@ -27,19 +28,25 @@ export default function SpecialTools2TableBody({
             <td className="py-4 pl-4 pr-3 text-sm sm:pl-6 text-gray-500">
               <div className="flex items-center">
                 <div className="h-10 w-10 flex-shrink-0">
-                  <img
-                    className="h-10 w-10"
-                    src={
-                      assets?.m_images && assets.m_images.length > 0
-                        ? `http://localhost:2000/static/specialTools/${assets.m_images[0].images_url}`
-                        : BrokenImg
-                    }
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = BrokenImg;
-                    }}
-                    alt={assets.name}
-                  />
+                  <Link
+                    to={`/asset-tools/search/Details/${assets.id}`}
+                    state={{ asset: assets }}
+                    className="relative group"
+                  >
+                    <img
+                      className="h-10 w-10 transition duration-300 transform group-hover:brightness-50"
+                      src={
+                        assets?.m_images && assets.m_images.length > 0
+                          ? `http://localhost:2000/static/specialTools/${assets.m_images[0].images_url}`
+                          : BrokenImg
+                      }
+                      onError={({ currentTarget }) => {
+                        currentTarget.onerror = null;
+                        currentTarget.src = BrokenImg;
+                      }}
+                      alt={assets.name}
+                    />
+                  </Link>
                 </div>
                 <div className="ml-4">
                   <div className="font-medium text-gray-900 truncate max-w-[200px]">
@@ -66,67 +73,6 @@ export default function SpecialTools2TableBody({
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
                 {assets.desc}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Person In Charge - (PIC)"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{assetInsMap["Merk"] || "-"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{assetInsMap["Tipe"] || "-"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Tanggal Pembelian"]}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Tanggal Terima dicabang"]}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Tanggal Pengadaan"]}
-              </div>
-            </td>
-
-            {/* <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Tanggal Pembelian"] || "-"}
-              </div>
-            </td> */}
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Serial Number"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Accessories 1"] || "-"}
-              </div>
-            </td>
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Accessories 2"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Accessories 3"] || "-"}
               </div>
             </td>
 

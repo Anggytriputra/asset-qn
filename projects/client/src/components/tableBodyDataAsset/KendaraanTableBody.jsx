@@ -2,7 +2,7 @@ import React from "react";
 import BrokenImg from "../../assets/broken_img.png";
 
 export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
-  // console.log("asset table kendaraan", asset);
+  console.log("asset table kendaraan", asset);
   // console.log("asset table kendaraan", asset[0]?.m_images.images_url);
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
@@ -63,7 +63,7 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               </div>
             </td>
 
-            <td className="px-3 py-4 text-sm text-gray-500">
+            {/* <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">
                 {assetInsMap["Person In Charge - (PIC)"] || "-"}
               </div>
@@ -121,7 +121,7 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               <div className="text-gray-900">
                 {assetInsMap["tanggal terima dicabang"] || "-"}
               </div>
-            </td>
+            </td> */}
 
             {/* ... */}
 

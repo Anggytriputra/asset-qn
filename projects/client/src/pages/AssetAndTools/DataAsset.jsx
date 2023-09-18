@@ -59,7 +59,7 @@ const DataAsset = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [dataAsset, setDataAsset] = useState([]);
 
-  // console.log("dataAsset", dataAsset);
+  console.log("dataAsset", dataAsset);
 
   const [subCategoriesFilter, setSubCategoryFilter] = useState([
     subCategoryOption[0],
@@ -166,8 +166,8 @@ const DataAsset = () => {
           activeTab,
           subCategoriesFilter.value
         );
-        // console.log("assets nih", assets);
-        setDataAsset(assets.data.asset);
+        console.log("assets nih", assets);
+        setDataAsset(assets.data);
         setLoadingData(false);
         // console.log("loadingData", loadingData);
 
@@ -183,7 +183,7 @@ const DataAsset = () => {
   }, [activeTab, subCategoriesFilter.value, addNewData]);
 
   function handleEditClick(assets, stockIdx) {
-    // console.log("asset handle", assets);
+    console.log("asset handle", assets);
     setEditedAsset(assets);
     setShowEditDataForm(true);
   }
@@ -345,7 +345,7 @@ const DataAsset = () => {
             headCols={activeCols}
             tableBody={activeTableBody}
           />
-          <Pagination totalItems={20} />
+          {/* <Pagination itemsInPage={DataAsset.rows.length} /> */}
         </div>
       </TransitionFade>
     </div>

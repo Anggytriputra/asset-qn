@@ -16,13 +16,14 @@ import Kendaraan2TableBody from "../components/tableBodyAssetByName/Kendaraan2Ta
 import StandardTools2TableBody from "../components/tableBodyAssetByName/StandardTools2TableBody";
 import SafetyTools2TableBody from "../components/tableBodyAssetByName/SafetyTools2TableBody";
 import SpecialTools2TableBody from "../components/tableBodyAssetByName/SpecialTools2TableBody";
+import AssetNotFound from "../components/AssetNotFound";
 
-const SearchIdAsset = () => {
+const SearchByAssetName = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const assetGlobal = useSelector((state) => state.asset);
 
-  console.log("asset Global", assetGlobal);
-  // console.log("asset Global satset", assetGlobal.Assets.assets);
+  // console.log("asset Global", assetGlobal);
+  // console.log("asset Global satset", assetGlobal);
 
   const columnNameConstant = [
     "Asset Name",
@@ -32,33 +33,11 @@ const SearchIdAsset = () => {
   ];
 
   if (assetGlobal.isLoading || !assetGlobal?.Assets?.assets?.length) {
-    return <Spinner />;
+    return <AssetNotFound />;
   }
 
-  // const columnNames = assetGlobal?.Assets?.assets[0]?.m_assets_ins?.map(
-  //   (item) => item?.m_form?.column_name
-  // );
-
-  // columnNames.unshift(...columnNameConstant);
-
-  // console.log("column name", columnNames);
-
   const categoryName = assetGlobal?.Assets?.assets[0]?.m_category?.name;
-  // Pilih kolom berdasarkan categoryName
-  const selectedColumns =
-    categoryName === "Kendaraan"
-      ? colsKendaraan
-      : categoryName === "Special Tools"
-      ? colsSpecialTools
-      : categoryName === "Standard Tools"
-      ? colsStandardTools
-      : categoryName === "Safety Tools"
-      ? colsSafetyTools
-      : []; // Atau Anda bisa memberikan nilai default jika tidak ada yang cocok
 
-  console.log("Selected Columns:", selectedColumns);
-
-  // Pilih komponen body tabel berdasarkan categoryName
   let tableBodyComponent = null;
   if (categoryName === "Kendaraan") {
     tableBodyComponent = (
@@ -89,15 +68,19 @@ const SearchIdAsset = () => {
       <TransitionFade>
         <Table
           className="mb-4"
-          headCols={selectedColumns}
+          headCols={
+            categoryName === "Standard Tools" || categoryName === "Safety Tools"
+              ? ["Asset Name", "Category", "Branch", "Quantity", "Description"]
+              : ["Asset Name", "Category", "Branch", "Description"]
+          }
           tableBody={tableBodyComponent}
         />
 
         <Pagination
           //   itemsInPage={}
-          totalItems={5}
-          totalPages={6}
-          currentPage={5}
+          totalItems={12}
+          totalPages={2}
+          currentPage={1}
           setCurrentPage={setCurrentPage}
         />
       </TransitionFade>
@@ -105,4 +88,4 @@ const SearchIdAsset = () => {
   );
 };
 
-export default SearchIdAsset;
+export default SearchByAssetName;

@@ -9,8 +9,13 @@ async function getImgByAssetId(req, res) {
     console.log("req query id Asset", idAsset);
 
     const [img] = await sequelize.query(
-      `SELECT * FROM m_images
-    WHERE m_asset_id = ${idAsset}`
+      `SELECT MI.*, 
+      MA.m_category_id,
+      MC.name
+      FROM m_images MI
+      LEFT JOIN m_assets MA ON MI.m_asset_id = MA.id
+      LEFT JOIN m_categories MC ON MA.m_category_id = MC.id
+      WHERE m_asset_id = ${idAsset}`
     );
     res.status(200).send({
       message: "Succesfuly get data image by asset id",

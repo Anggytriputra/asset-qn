@@ -1,4 +1,5 @@
 // import { numToIDRCurrency } from "../helper/currency";
+import { Link } from "react-router-dom";
 import BrokenImg from "../../assets/broken_img.png";
 
 export default function SafetyTools2TableBody({
@@ -15,19 +16,25 @@ export default function SafetyTools2TableBody({
           <td className="py-4 pl-4 pr-3 text-sm sm:pl-6 text-gray-500">
             <div className="flex items-center">
               <div className="h-10 w-10 flex-shrink-0">
-                <img
-                  className="h-10 w-10"
-                  src={
-                    assets?.m_images && assets.m_images.length > 0
-                      ? `http://localhost:2000/static/safetyTools/${assets.m_images[0].images_url}`
-                      : BrokenImg
-                  }
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = BrokenImg;
-                  }}
-                  alt={assets.name}
-                />
+                <Link
+                  to={`/asset-tools/search/Details/${assets.id}`}
+                  state={{ asset: assets }}
+                  className="relative group"
+                >
+                  <img
+                    className="h-10 w-10 transition duration-300 transform group-hover:brightness-50"
+                    src={
+                      assets?.m_images && assets.m_images.length > 0
+                        ? `http://localhost:2000/static/safetyTools/${assets.m_images[0].images_url}`
+                        : BrokenImg
+                    }
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = BrokenImg;
+                    }}
+                    alt={assets.name}
+                  />
+                </Link>
               </div>
               <div className="ml-4">
                 <div className="font-medium text-gray-900 truncate max-w-[200px]">

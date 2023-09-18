@@ -1,9 +1,11 @@
 import axios from "axios";
 
-const fetchImgByAssetId = async (editedAsset) => {
+// id dari edit from dan details
+const fetchImgByAssetId = async (id) => {
   // console.log("test img");
 
-  const idAsset = editedAsset.id;
+  // const idAsset = editedAsset.id || id;
+  const idAsset = id;
   // console.log("edited img2", idAsset);
 
   try {

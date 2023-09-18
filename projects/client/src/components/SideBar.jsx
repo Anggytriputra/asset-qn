@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Button, Input } from "@material-tailwind/react";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import {
@@ -10,6 +10,8 @@ import {
   WrenchScrewdriverIcon,
   XMarkIcon,
   ChartBarIcon,
+  PlusIcon,
+  FolderPlusIcon,
 } from "@heroicons/react/24/outline";
 import {
   ChevronDownIcon,
@@ -18,11 +20,15 @@ import {
 } from "@heroicons/react/20/solid";
 import logo from "../assets/logo.jpg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../reducers/userSlice";
 import ModalSearch from "./ModalSearch";
 import { fetchAssetByName } from "../service/dataAsset/resDataAsset";
 import { fetchAssetByname } from "../reducers/assetSlice";
+import ModalForm, { Modal } from "./Modal";
+import ReqFormControl from "./ReqFormControl";
+import { fetchCategories } from "../reducers/categorySlice";
+import { requestAsset } from "../reducers/transReqOrderSlice";
 
 const navigation = [
   // { name: "Home", path: "/home", icon: HomeIcon },
@@ -31,7 +37,7 @@ const navigation = [
     name: "Asset & Tools",
     icon: TruckIcon,
     subNavigation: [
-      { name: "Data Assets", path: "/asset-tools/data-assets" },
+      { name: "Assets In", path: "/asset-tools/data-assets" },
       { name: "Transfer Assets", path: "/asset-tools/transfer-assets" },
       { name: "Return Assets", path: "/asset-tools/return-assets" },
     ],
@@ -59,16 +65,31 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function SideBar({ element }) {
+export default function SideBar({ element, handleOpenModal }) {
   // console.log("elementt nih", element);
+  // console.log("handleOpenModal nih", handleOpenModal);
+  const CategoryGlobal = useSelector((state) => state.category);
+  // console.log("category sidbar", CategoryGlobal);
+
+  const userGlobal = useSelector((state) => state.user);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [selectedCategory, setSelectedCategory] = useState();
+  // console.log("select nih", selectedCategory);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
   const currentPath = useLocation().pathname;
+
+  const categoryId = selectedCategory ? selectedCategory.value : null;
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [openModal]);
 
   function handleLogOut() {
     dispatch(logout());
@@ -79,8 +100,37 @@ export default function SideBar({ element }) {
   function handleSearchByName(e) {
     e.preventDefault();
     dispatch(fetchAssetByname(searchValue));
-    console.log("search value2", searchValue);
+    // console.log("search value2", searchValue);
     navigate("/asset-tools/search");
+  }
+
+  function handleOpenModal() {
+    setOpenModal(true);
+  }
+  function handleCloseModal() {
+    setOpenModal(false);
+  }
+
+  function handleReqAsset(e) {
+    console.log("eeee", e);
+
+    e.preventDefault();
+    const name = e.target.assetName.value;
+    const quantity = e.target.qty.value;
+    const desc = e.target.desc.value;
+
+    console.log("ctgr ya adalah", desc);
+    dispatch(
+      requestAsset({
+        name: name,
+        qty: quantity,
+        desc: desc,
+        userId: userGlobal.id,
+        branchName: userGlobal.cabang_name,
+        categoryId: categoryId,
+      })
+    );
+    // setOpenAddModal(false);
   }
 
   return (
@@ -202,7 +252,6 @@ export default function SideBar({ element }) {
             </div>
           </Dialog>
         </Transition.Root>
-
         {/* Static sidebar for desktop */}
         <div className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
@@ -235,6 +284,17 @@ export default function SideBar({ element }) {
                     aria-hidden="true"
                   />
                   Dashboard
+                </Link>
+
+                <Link
+                  to="/request-asset"
+                  className="text-indigo-100 hover:bg-indigo-600 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+                >
+                  <FolderPlusIcon
+                    className="mr-3 h-6 w-6 flex-shrink-0 text-indigo-300"
+                    aria-hidden="true"
+                  />
+                  Request Asset
                 </Link>
                 {/* Sisipkan tautan menu utama lainnya jika diperlukan */}
 
@@ -278,9 +338,22 @@ export default function SideBar({ element }) {
                   </Disclosure>
                 ))}
               </nav>
+              <div className="mb-40 items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-100">
+                <button
+                  onClick={handleOpenModal}
+                  className="text-indigo-100 hover:bg-slate-600 group flex items-center px-2 py-2 text-sm font-medium rounded-md mt-auto"
+                >
+                  <PlusIcon
+                    className="mr-3 h-6 w-6 flex-shrink-0 text-indigo-300"
+                    aria-hidden="true"
+                  />
+                  Request Asset
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
         <div className="flex flex-1 flex-col md:pl-64">
           <div className="sticky top-0 z-10 flex h-16 flex-shrink-0 bg-white shadow">
             <button
@@ -379,7 +452,24 @@ export default function SideBar({ element }) {
           <main className="flex-1">
             <div className="py-6 ">
               <div className="w-[90%] sm:w-full mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-                <div className="pb-4 min-h-screen">{element}</div>
+                <div className="pb-4 min-h-screen">
+                  <ModalForm
+                    openModal
+                    title="Asset"
+                    open={openModal}
+                    setOpen={setOpenModal}
+                    action="request"
+                    onSubmit={handleReqAsset}
+                    children={
+                      <ReqFormControl
+                        category={CategoryGlobal.categories}
+                        selectedCategory={selectedCategory}
+                        setSelectedCategory={setSelectedCategory}
+                      />
+                    }
+                  />
+                  {element}
+                </div>
               </div>
             </div>
           </main>
