@@ -27,7 +27,7 @@ export default function StandardToolsDetail({
   const [image, setImage] = useState(
     img.assets && img.assets.length > 0
       ? img.assets.map((item) => ({
-          preview: `http://localhost:2000/static/safetyTools/${item.images_url}`,
+          preview: `http://localhost:2000/static/standardTools/${item.images_url}`,
         }))
       : []
   );

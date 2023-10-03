@@ -6,12 +6,15 @@ import { fetchImagesByAssetId } from "../reducers/imageSlice";
 import Spinner from "../components/Spinner";
 import SpecialToolsDetails from "../components/formDetailsAsset/SpecialToolsDetails";
 import StandardToolsDetail from "../components/formDetailsAsset/StandardToolsDetail";
+import SafetyToolDetail from "../components/formDetailsAsset/SafetyToolDetail";
 
 const DetailsAsset = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const { assetId } = useParams();
   const asset = location.state.asset;
+
+  console.log("apaan nih", asset);
 
   const imageGlobal = useSelector((state) => state.image);
   console.log("image global", imageGlobal);
@@ -45,7 +48,7 @@ const DetailsAsset = () => {
           img={imageGlobal.images}
         />
       ) : categoryName === "Safety Tools" ? (
-        <StandardToolsDetail
+        <SafetyToolDetail
           asset={asset}
           img={imageGlobal.images}
         />

@@ -24,7 +24,7 @@ export function fetchAllBranches() {
   return async (dispatch) => {
     try {
       const data = await axios.get("http://localhost:2000/branch");
-      console.log("data nih branchslice", data);
+      // console.log("data nih branchslice", data);
       dispatch(setBranch(data.data.branches));
     } catch (error) {
       console.log(error.res);

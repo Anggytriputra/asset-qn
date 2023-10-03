@@ -22,7 +22,8 @@ const SearchByAssetName = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const assetGlobal = useSelector((state) => state.asset);
 
-  // console.log("asset Global", assetGlobal);
+  console.log("asset Global", assetGlobal);
+  console.log("asset Global 2", assetGlobal.Assets);
   // console.log("asset Global satset", assetGlobal);
 
   const columnNameConstant = [
@@ -57,6 +58,8 @@ const SearchByAssetName = () => {
     );
   }
 
+  if (assetGlobal.isLoading) return <Spinner />;
+
   return (
     <div>
       <div className="sm:flex sm:items-center ml-4 mr-4 py-6">
@@ -77,10 +80,10 @@ const SearchByAssetName = () => {
         />
 
         <Pagination
-          //   itemsInPage={}
-          totalItems={12}
-          totalPages={2}
-          currentPage={1}
+          itemsInPage={assetGlobal.Assets.assets.length}
+          totalItems={assetGlobal.Assets.totalItems}
+          totalPages={assetGlobal.Assets.totalPages}
+          currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
       </TransitionFade>

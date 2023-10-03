@@ -5,6 +5,7 @@ import Dropdown from "./DropDown";
 import {
   createDataAsset,
   fetchDataAsset,
+  updateDataAsset,
 } from "../service/dataAsset/resDataAsset.js";
 
 import { useSelector } from "react-redux";
@@ -26,8 +27,12 @@ export default function DataSpecialToolsForm({
   idOnTabsCategory,
   addNewData,
   setNewAddData,
+  ownerG,
+  assetName,
 }) {
   console.log("asset nih", asset);
+
+  const cL = asset && asset.m_category ? asset.m_category.id : "";
 
   const assetInsMap = {};
 
@@ -41,10 +46,6 @@ export default function DataSpecialToolsForm({
 
   const procurumentDate = asset.procurument_date
     ? new Date(asset.procurument_date).toISOString().split("T")[0]
-    : "";
-
-  const purchaseDate = asset.purchase_date
-    ? new Date(asset.purchase_date).toISOString().split("T")[0]
     : "";
 
   const receivedInBranch = asset.received_in_branch
@@ -63,13 +64,17 @@ export default function DataSpecialToolsForm({
   )?.id;
 
   const dispatch = useDispatch();
-  const [image, setImage] = useState(
-    img && img.length > 0
-      ? img.map((item) => ({
-          preview: `http://localhost:2000/static/specialTools/${item.images_url}`,
-        }))
-      : []
-  );
+  const [image, setImage] = useState([]);
+
+  useEffect(() => {
+    setImage(
+      img && img.length > 0
+        ? img.map((item) => ({
+            preview: `http://localhost:2000/static/specialTools/${item.images_url}`,
+          }))
+        : []
+    );
+  }, [img]);
 
   const [dataAssets, setDataAssets] = useState([]);
   const [assetAdded, setAssetAdded] = useState(false);
@@ -81,7 +86,17 @@ export default function DataSpecialToolsForm({
         }
       : {} // default value jika asset.merk_special_tools tidak ada
   );
-  console.log("selectedMerk", selectedMerk);
+
+  const [selectAssetName, setSelectAssetName] = useState({});
+
+  const [selectOwner, setSelectOwner] = useState(
+    asset && asset.owner && Object.keys(asset.owner).length > 0
+      ? {
+          id: asset.owner.id,
+          name: asset.owner.name,
+        }
+      : {}
+  );
 
   const [selectedType, setSelectedType] = useState(
     assetInsMap
@@ -111,11 +126,6 @@ export default function DataSpecialToolsForm({
 
     // Ambil nilai dari form
     const {
-      assetName,
-      pic,
-      purchaseDate,
-      branchReceivedDate,
-      procurementDate,
       desc,
       serialNumber,
       AccessoriesOne,
@@ -124,16 +134,18 @@ export default function DataSpecialToolsForm({
       // qty,
     } = e.target;
     // const categoryId = selectedCategory.value;
+    const assetName = selectAssetName ? selectAssetName.name : null;
+    const ownerId = selectOwner ? selectOwner.id : null;
     const merkName = selectedMerk.name;
     const typeName = selectedType.name;
 
     // Buat instance FormData untuk mengumpulkan data yang akan dikirim
     const newAsset = new FormData();
-    newAsset.append("name", assetName?.value);
-    newAsset.append("pic", pic?.value);
-    newAsset.append("purchaseDate", purchaseDate?.value);
-    newAsset.append("procurementDate", procurementDate?.value);
-    newAsset.append("branchReceivedDate", branchReceivedDate?.value);
+    newAsset.append("name", assetName);
+
+    newAsset.append("ownerId", ownerId);
+
+    // newAsset.append("branchReceivedDate", branchReceivedDate?.value);
     newAsset.append("description", desc?.value);
     newAsset.append("serialNumber", serialNumber?.value);
     newAsset.append("AccessoriesOne", AccessoriesOne?.value);
@@ -165,25 +177,35 @@ export default function DataSpecialToolsForm({
 
     if (action === "Add") {
       const response = await createDataAsset(newAsset, idOnTabsCategory);
-      // console.log("response upload", response);
-      setNewAddData(true);
-      setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
-    }
-  }
-  useEffect(() => {
-    // console.log("assetAdded nih 1:", assetAdded);
-    // console.log("idOnTabsCategory:", idOnTabsCategory);
-    async function updateDataAsset() {
-      const newDataAsset = await fetchDataAsset(idOnTabsCategory);
-      setDataAssets(newDataAsset);
+      if (response && response.status === 200) {
+        setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
+        setNewAddData(true);
+        setShowForm(false);
+      }
     }
 
-    if (assetAdded) {
-      console.log("asset Added 2", assetAdded);
-      updateDataAsset();
-      setShowForm(false);
+    if (action === "Edit") {
+      const response = await updateDataAsset(cL, asset.id, newAsset);
+      if (response && response.status === 200) {
+        setNewAddData(true);
+        setShowForm(false);
+      }
     }
-  }, [assetAdded, idOnTabsCategory]);
+  }
+  // useEffect(() => {
+  //   // console.log("assetAdded nih 1:", assetAdded);
+  //   // console.log("idOnTabsCategory:", idOnTabsCategory);
+  //   async function getAsset() {
+  //     const newDataAsset = await fetchDataAsset(idOnTabsCategory);
+  //     setDataAssets(newDataAsset);
+  //   }
+
+  //   if (assetAdded) {
+  //     console.log("asset Added 2", assetAdded);
+  //     getAsset();
+  //     setShowForm(false);
+  //   }
+  // }, [assetAdded, idOnTabsCategory]);
 
   // Membuat objek untuk menyimpan column_name dan value dari assets.m_assets_ins
 
@@ -211,68 +233,28 @@ export default function DataSpecialToolsForm({
               >
                 Asset Name
               </label>
-              <input
-                type="text"
-                name="assetName"
-                id="assetName"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.name}
-                // required
+              <Comboboxes
+                people={assetName}
+                selectedValue={selectAssetName}
+                setSelectedValue={setSelectAssetName}
               />
             </div>
 
             <div className="sm:col-span-2">
               <label
-                htmlFor="pic"
+                htmlFor="owner"
                 className="block text-sm font-medium text-gray-700"
               >
-                Penangung Jawab - (PIC)
+                Name of Owner
               </label>
-              <input
-                type="text"
-                name="pic"
-                id="pic"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Person In Charge - (PIC)"]}
-                required
+              <Comboboxes
+                people={ownerG}
+                selectedValue={selectOwner}
+                setSelectedValue={setSelectOwner}
               />
             </div>
 
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="purchaseDate"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Tanggal Pembelian
-              </label>
-              <input
-                type="date"
-                name="purchaseDate"
-                id="purchaseDate"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Tanggal Pembelian"]}
-                required
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="procurementDate"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Tanggal Pengadaan
-              </label>
-              <input
-                type="date"
-                name="procurementDate"
-                id="procurementDate"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Tanggal Pengadaan"]}
-                required
-              />
-            </div>
-
-            <div className="sm:col-span-2">
+            {/* <div className="sm:col-span-2">
               <label
                 htmlFor="branchReceivedDate"
                 className="block text-sm font-medium text-gray-700"
@@ -287,7 +269,7 @@ export default function DataSpecialToolsForm({
                 defaultValue={assetInsMap["Tanggal Terima dicabang"]}
                 required
               />
-            </div>
+            </div> */}
 
             <div className="sm:col-span-6">
               <label

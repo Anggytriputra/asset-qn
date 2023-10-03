@@ -74,27 +74,27 @@ async function createTransHOrder(req, res) {
     const branchId = branch.dataValues.id;
     console.log("cabangName", branchId);
 
-    const transactionHeader = await db.m_transh_orders.create({
-      m_cabang_id: branchId,
-      m_user_id: userId,
-      m_status_id: 1,
-      createdBy: userId,
-    });
+    // const transactionHeader = await db.m_transh_orders.create({
+    //   m_cabang_id: branchId,
+    //   m_user_id: userId,
+    //   m_status_id: 1,
+    //   createdBy: userId,
+    // });
 
-    const transactionHeaderId = transactionHeader.dataValues.id;
-    console.log("trans h nih", transactionHeaderId);
+    // const transactionHeaderId = transactionHeader.dataValues.id;
+    // console.log("trans h nih", transactionHeaderId);
 
-    const transDetails = await db.m_transd_orders.create({
-      m_transh_order_id: transactionHeaderId,
-      name: name,
-      qty: qty,
-      desc: desc,
-      m_category_id: categoryId,
-    });
+    // const transDetails = await db.m_transd_orders.create({
+    //   m_transh_order_id: transactionHeaderId,
+    //   name: name,
+    //   qty: qty,
+    //   desc: desc,
+    //   m_category_id: categoryId,
+    // });
 
     return res.status(200).send({
-      th: transactionHeader.dataValues,
-      td: transDetails.dataValues,
+      // th: transactionHeader.dataValues,
+      // td: transDetails.dataValues,
       message: "Request Asset succefully",
     });
   } catch (error) {

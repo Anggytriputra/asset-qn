@@ -1,8 +1,10 @@
 import React from "react";
 import BrokenImg from "../../assets/broken_img.png";
+import { Link } from "react-router-dom";
 
 export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
   console.log("asset table kendaraan", asset);
+  console.log("on edit", asset);
   // console.log("asset table kendaraan", asset[0]?.m_images.images_url);
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
@@ -21,19 +23,25 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
             <td className="py-4 pl-4 pr-3 text-sm sm:pl-6 text-gray-500">
               <div className="flex items-center">
                 <div className="h-10 w-10 flex-shrink-0">
-                  <img
-                    className="h-10 w-10"
-                    src={
-                      assets?.m_images && assets.m_images.length > 0
-                        ? `http://localhost:2000/static/kendaraan/${assets.m_images[0].images_url}`
-                        : BrokenImg
-                    }
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = BrokenImg;
-                    }}
-                    alt={assets.name}
-                  />
+                  <Link
+                    to={`/asset-tools/search/Details/${assets.id}`}
+                    state={{ asset: assets }}
+                    className="relative group"
+                  >
+                    <img
+                      className="h-10 w-10"
+                      src={
+                        assets?.m_images && assets.m_images.length > 0
+                          ? `http://localhost:2000/static/kendaraan/${assets.m_images[0].images_url}`
+                          : BrokenImg
+                      }
+                      onError={({ currentTarget }) => {
+                        currentTarget.onerror = null;
+                        currentTarget.src = BrokenImg;
+                      }}
+                      alt={assets.name}
+                    />
+                  </Link>
                 </div>
                 <div className="ml-4">
                   <div className="font-medium text-gray-900 truncate max-w-[200px]">
@@ -55,7 +63,25 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               </div>
             </td>
 
-            {/* Sisipkan seluruh kolom Anda disini, sebagai contoh: */}
+            {/* <td className="px-3 py-4 text-sm text-gray-500">
+              <div className="text-gray-900">
+                {assets.m_status_condition.name || "-"}
+              </div>
+            </td> */}
+
+            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <span
+                className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+                  assets.m_status_condition.name === "Service"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : assets.m_status_condition.name === "Bad"
+                    ? "bg-red-100 text-red-500"
+                    : "bg-green-100 text-green-800"
+                }`}
+              >
+                {assets.m_status_condition.name || "-"}
+              </span>
+            </td>
 
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
@@ -134,7 +160,7 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               </button>
               <button
                 className="text-red-600 hover:text-red-900 ml-4"
-                onClick={() => onDelete(assets.id)}
+                // onClick={() => onDelete(assets.id)}
               >
                 Delete
                 <span className="sr-only">{assets.name}</span>

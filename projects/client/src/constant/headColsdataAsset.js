@@ -5,6 +5,7 @@ export const colsKendaraan = [
   "Branch",
   "Category",
   // "Sub-Category",
+  "Condition Status",
   "Description",
   // "PIC",
   // "Name Owner",
@@ -25,6 +26,7 @@ export const colsSpecialTools = [
   "Asset Name",
   "Branch",
   "Category",
+  "Condition Status",
   "Description",
   // "PIC",
   // "Merk",
@@ -42,6 +44,7 @@ export const colsStandardTools = [
   "Asset Name",
   "Branch",
   "Category",
+  "Condition Status",
   "Quantity",
   "Description",
 ];
@@ -50,6 +53,7 @@ export const colsSafetyTools = [
   "Asset Name",
   "Branch",
   "Category",
+  "Condition Status",
   "Quantity",
   "Description",
 ];

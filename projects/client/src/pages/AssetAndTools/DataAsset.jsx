@@ -34,6 +34,8 @@ import {
 } from "../../constant/headColsdataAsset";
 import { fetchImgByAssetId } from "../../service/dataAsset/resDataImg";
 import Pagination from "../../components/Pagination";
+import { fetchAllOwner } from "../../reducers/ownerSlice";
+import { fetchAssetNameByCategor } from "../../reducers/assetNameSlice";
 
 const subCategoryOption = [{ value: 0, label: "None" }];
 
@@ -41,10 +43,16 @@ const DataAsset = () => {
   const dispatch = useDispatch();
 
   const userGlobal = useSelector((state) => state.user);
+
   const categoriesGlobal = useSelector((state) => state.category.categories);
   const subCategoryGlobal = useSelector(
     (state) => state.category.subCategories
   );
+
+  const assetNameGlobal = useSelector((state) => state.assetName);
+  console.log("assetName adalah", assetNameGlobal);
+
+  const ownerGlobal = useSelector((state) => state.owner);
 
   const activeTabId = localStorage.getItem("activeTab");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,30 +61,32 @@ const DataAsset = () => {
   const [activeTab, setActiveTab] = useState(1);
   const [addNewData, setNewAddData] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
+  console.log("loading data", loadingData);
 
   // const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [dataAsset, setDataAsset] = useState([]);
 
-  console.log("dataAsset", dataAsset);
+  // console.log("dataAsset ya bro", dataAsset);
 
   const [subCategoriesFilter, setSubCategoryFilter] = useState([
     subCategoryOption[0],
   ]);
 
-  const [editedAsset, setEditedAsset] = useState({});
+  const [editedAssetId, setEditedAsset] = useState({});
+  console.log("edited asset", editedAssetId.id);
   const [imgAssetById, setImgAssetById] = useState({});
 
-  // console.log("edited asset", editedAsset);
+  // console.log("edited asset", editedAssetId);
   // console.log("img byid", imgAssetById);
 
   useEffect(() => {
     const fetchData = async () => {
       // Fungsi async tambahan
-      if (editedAsset.id) {
+      if (editedAssetId.id) {
         try {
-          const dataImgByAssetId = await fetchImgByAssetId(editedAsset);
+          const dataImgByAssetId = await fetchImgByAssetId(editedAssetId.id);
           // console.log("dataImgByAssetId", dataImgByAssetId);
           setImgAssetById(dataImgByAssetId.data.img);
         } catch (error) {
@@ -86,7 +96,7 @@ const DataAsset = () => {
     };
 
     fetchData(); // Jalankan fungsi async
-  }, [editedAsset.id]);
+  }, [editedAssetId.id]);
 
   useEffect(() => {
     if (!userGlobal.role) return;
@@ -155,6 +165,11 @@ const DataAsset = () => {
     ...newSubCategoriesOption
   );
 
+  useEffect(() => {
+    dispatch(fetchAllOwner());
+    dispatch(fetchAssetNameByCategor(activeTab));
+  }, [activeTab]);
+
   // console.log("active tab", activeTab);
   // console.log("sub catgeory id", subCategoriesFilter.value);
   useEffect(() => {
@@ -164,7 +179,9 @@ const DataAsset = () => {
         // console.log("loadingData", loadingData);
         const assets = await fetchDataAsset(
           activeTab,
-          subCategoriesFilter.value
+          subCategoriesFilter.value,
+          userGlobal.id_cabang,
+          userGlobal.role
         );
         console.log("assets nih", assets);
         setDataAsset(assets.data);
@@ -183,22 +200,19 @@ const DataAsset = () => {
   }, [activeTab, subCategoriesFilter.value, addNewData]);
 
   function handleEditClick(assets, stockIdx) {
-    console.log("asset handle", assets);
+    console.log("nih ", assets);
     setEditedAsset(assets);
     setShowEditDataForm(true);
   }
 
   if (categoriesGlobal.isLoading || loadingData) return <Spinner />;
 
-  //
-  //
-
   let activeCols = [];
   let activeTableBody = null;
 
   const activeTabName = tabs.find((tab) => tab.current)?.name;
 
-  console.log("active tab", activeTabName);
+  // console.log("active tab", activeTabName);
 
   switch (activeTabName) {
     case "Kendaraan":
@@ -257,6 +271,8 @@ const DataAsset = () => {
           const currentTabName = tabs.find((tab) => tab.current)?.name;
           let action = showEditDataForm ? "Edit" : "Add"; // Menentukan mode berdasarkan state
 
+          console.log("action saat ini", action);
+
           switch (currentTabName) {
             case "Kendaraan":
               return (
@@ -265,13 +281,15 @@ const DataAsset = () => {
                   setShowForm={
                     action === "Add" ? setShowAddDataForm : setShowEditDataForm
                   }
-                  subCategoryOption={subCategoryOption}
+                  subCategoryOption={subCategoryGlobal}
                   currPage={currentPage}
                   idOnTabsCategory={activeTab}
-                  asset={editedAsset}
-                  img={imgAssetById}
+                  asset={action === "Add" ? {} : editedAssetId}
+                  img={action === "Add" ? {} : imgAssetById}
                   addNewData={addNewData}
                   setNewAddData={setNewAddData}
+                  ownerG={ownerGlobal.allOwner}
+                  assetName={assetNameGlobal.assetName}
                 />
               );
             case "Special Tools":
@@ -283,10 +301,12 @@ const DataAsset = () => {
                   }
                   currPage={currentPage}
                   idOnTabsCategory={activeTab}
-                  asset={editedAsset}
-                  img={imgAssetById}
+                  asset={action === "Add" ? {} : editedAssetId}
+                  img={action === "Add" ? {} : imgAssetById}
                   addNewData={addNewData}
                   setNewAddData={setNewAddData}
+                  ownerG={ownerGlobal.allOwner}
+                  assetName={assetNameGlobal.assetName}
                 />
               );
             case "Standard Tools":
@@ -298,10 +318,12 @@ const DataAsset = () => {
                   }
                   currPage={currentPage}
                   idOnTabsCategory={activeTab}
-                  asset={editedAsset}
-                  img={imgAssetById}
+                  asset={action === "Add" ? {} : editedAssetId}
+                  img={action === "Add" ? {} : imgAssetById}
                   addNewData={addNewData}
                   setNewAddData={setNewAddData}
+                  ownerG={ownerGlobal.allOwner}
+                  assetName={assetNameGlobal.assetName}
                 />
               );
             case "Safety Tools":
@@ -313,10 +335,12 @@ const DataAsset = () => {
                   }
                   currPage={currentPage}
                   idOnTabsCategory={activeTab}
-                  asset={editedAsset}
-                  img={imgAssetById}
+                  asset={action === "Add" ? {} : editedAssetId}
+                  img={action === "Add" ? {} : imgAssetById}
                   addNewData={addNewData}
                   setNewAddData={setNewAddData}
+                  ownerG={ownerGlobal.allOwner}
+                  assetName={assetNameGlobal.assetName}
                 />
               );
             default:
@@ -345,7 +369,13 @@ const DataAsset = () => {
             headCols={activeCols}
             tableBody={activeTableBody}
           />
-          {/* <Pagination itemsInPage={DataAsset.rows.length} /> */}
+          <Pagination
+            itemsInPage={dataAsset.rows ? dataAsset.rows.length : 0}
+            totalItems={dataAsset.count}
+            totalPages={Math.ceil(dataAsset.count / 6)}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </TransitionFade>
     </div>

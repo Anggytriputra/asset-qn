@@ -1,5 +1,6 @@
 const { assetControllers } = require("../controllers");
 const { fileUploader } = require("../middleware/multer");
+// const userExtractor = require("../middleware/userExtractor");
 const assetRouter = require("express").Router();
 
 assetRouter.get("/fc1", assetControllers.getAssetKendaraan);
@@ -36,20 +37,47 @@ assetRouter.post(
 
 assetRouter.post(
   "/c4",
-  //   userExtractor,
+  // userExtractor,
   fileUploader({ destinationFolder: "safetyTools", prefix: "PIMG" }).array(
     "asset_image"
   ),
   assetControllers.createSafetyTool
 );
 
-// assetRouter.patch(
-//   "/:id",
-//   //   userExtractor,
-//   fileUploader({ destinationFolder: "products", prefix: "PIMG" }).single(
-//     "product_image"
-//   ),
-//   productController.updateProduct
-// );
+assetRouter.patch(
+  "/update_asset1",
+  //   userExtractor,
+  fileUploader({ destinationFolder: "kendaraan", prefix: "PIMG" }).array(
+    "asset_image"
+  ),
+  assetControllers.updateAssetKendaraan
+);
+
+assetRouter.patch(
+  "/update_asset2",
+  //   userExtractor,
+  fileUploader({ destinationFolder: "specialTools", prefix: "PIMG" }).array(
+    "asset_image"
+  ),
+  assetControllers.updateAssetSpecialtool
+);
+
+assetRouter.patch(
+  "/update_asset3",
+  //   userExtractor,
+  fileUploader({ destinationFolder: "standardTools", prefix: "PIMG" }).array(
+    "asset_image"
+  ),
+  assetControllers.updateAssetStandardTool
+);
+
+assetRouter.patch(
+  "/update_asset4",
+  //   userExtractor,
+  fileUploader({ destinationFolder: "safetyTools", prefix: "PIMG" }).array(
+    "asset_image"
+  ),
+  assetControllers.updateAssetSafetyTool
+);
 
 module.exports = assetRouter;

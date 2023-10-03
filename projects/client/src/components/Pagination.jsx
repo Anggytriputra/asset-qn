@@ -12,6 +12,7 @@ export default function Pagination({
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = startItem + itemsInPage - 1;
   // console.log("total itrm", totalItems);
+  // console.log("total itemsInPage", itemsInPage);
 
   useEffect(() => {
     if (totalPages && currentPage > totalPages) setCurrentPage(totalPages);

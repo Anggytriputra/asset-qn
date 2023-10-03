@@ -2,6 +2,21 @@ import { Fragment } from "react";
 import { Transition, Listbox } from "@headlessui/react";
 import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="none"
+  viewBox="0 0 24 24"
+  strokeWidth={1.5}
+  stroke="currentColor"
+  className="w-6 h-6"
+>
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    d="M4.5 12.75l6 6 9-13.5"
+  />
+</svg>;
+
 function Dropdown({
   name,
   className = "",
@@ -19,7 +34,7 @@ function Dropdown({
       className={className}
       name={name}
     >
-      <div className="relative">
+      <div className="relative mt-1">
         <Listbox.Button className="relative cursor-pointer w-full rounded-lg  py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-600 sm:text-sm">
           <span className="block">
             {selectedValue?.value ? selectedValue?.label : label}
@@ -40,7 +55,7 @@ function Dropdown({
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Listbox.Options className="absolute mt-1 max-h-60 z-10 w-max overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-indigo-600 ring-opacity-5 focus:outline-none sm:text-sm">
+          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
             {options.map((option, optionIdx) => (
               <Listbox.Option
                 key={optionIdx}

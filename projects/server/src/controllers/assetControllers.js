@@ -9,10 +9,13 @@ async function getAssetKendaraan(req, res) {
   try {
     const itemsPerPage = 6;
 
+    console.log("get kueri kendaraan", req.query);
     const page = parseInt(req.query.page);
     console.log("req query", req.query);
     const idCategory = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
+    const branchId = parseInt(req.query.branchId);
+    const userRole = req.query.userRole;
 
     console.log("categoryId", idCategory);
 
@@ -34,18 +37,23 @@ async function getAssetKendaraan(req, res) {
       ? { name: { [Op.like]: "%" + assetname + "%" } }
       : {};
 
-    // console.log("ini idCatgory kendaraan", idCategory);
+    const branchIdClause =
+      userRole === "Super Admin"
+        ? {}
+        : userRole === "Warehouse HO"
+        ? {}
+        : { m_cabang_id: branchId };
 
-    // console.log("m_assetIn", db.m_assets_in.getTableName());
+    console.log("branchClauseid", branchIdClause);
 
     const asset = await db.m_assets.findAndCountAll({
-      // subQuery: false,
+      subQuery: false,
       attributes: {
         exclude: ["createdAt", "updatedAt", "createdBy"],
       },
       where: {
         m_category_id: idCategory,
-        // ...assetNameClause,
+        ...branchIdClause,
       },
       include: [
         {
@@ -57,6 +65,16 @@ async function getAssetKendaraan(req, res) {
               attributes: ["id", "column_name", "m_category_id"],
             },
           ],
+        },
+
+        {
+          model: db.m_status_condition,
+          attributes: ["id", "name"],
+        },
+        {
+          model: db.m_owner,
+          as: "owner",
+          attributes: ["id", "name"],
         },
         {
           model: db.m_cabang,
@@ -76,8 +94,13 @@ async function getAssetKendaraan(req, res) {
           model: db.m_categories,
           attributes: ["id", "name"],
         },
+        {
+          model: db.m_sub_categories,
+          attributes: ["id", "name"],
+        },
       ],
       ...offsetLimit,
+      order: [["id", "DESC"]],
     });
 
     console.log("asset ya count", asset);
@@ -108,10 +131,18 @@ async function getAssetSpecialTool(req, res) {
     const categoryId = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
     // const subCategoryId = parseInt(req.query.subCategoryId);
+    const branchId = parseInt(req.query.branchId);
+    const userRole = req.query.userRole;
 
     const assetNameClause = assetname
       ? { name: { [Op.like]: "%" + assetname + "%" } }
       : {};
+    const branchIdClause =
+      userRole === "Super Admin"
+        ? {}
+        : userRole === "Warehouse HO"
+        ? {}
+        : { m_cabang_id: branchId };
 
     console.log("categoryIdSpecialTool", categoryId);
 
@@ -123,6 +154,7 @@ async function getAssetSpecialTool(req, res) {
       where: {
         m_category_id: categoryId,
         ...assetNameClause,
+        ...branchIdClause,
       },
       include: [
         {
@@ -140,6 +172,15 @@ async function getAssetSpecialTool(req, res) {
           attributes: ["id", "cabang_name"],
         },
         {
+          model: db.m_owner,
+          as: "owner",
+          attributes: ["id", "name"],
+        },
+        {
+          model: db.m_status_condition,
+          attributes: ["id", "name"],
+        },
+        {
           model: db.m_stock,
           attributes: ["id", "quantity"],
         },
@@ -156,9 +197,17 @@ async function getAssetSpecialTool(req, res) {
       ],
     });
 
+    const assetCount = await db.m_assets.count({
+      where: {
+        m_category_id: categoryId,
+        // ...assetNameClause,
+      },
+    });
+
     res.status(200).send({
       message: "Succesfuly get data special tool",
-      asset,
+      ...asset, // Menggunakan spread operator untuk mengganti properti count
+      count: assetCount,
     });
   } catch (error) {
     console.log("err", error);
@@ -172,11 +221,15 @@ async function getAssetStandardTool(req, res) {
 
     const categoryId = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
-    // const subCategoryId = parseInt(req.query.subCategoryId);
+    const branchId = parseInt(req.query.branchId);
+    const userRole = req.query.userRole;
 
     const assetNameClause = assetname
       ? { name: { [Op.like]: "%" + assetname + "%" } }
       : {};
+
+    const branchIdClause =
+      userRole === "Super Admin" ? {} : { m_cabang_id: branchId };
 
     console.log("categoryIdSpecialTool", categoryId);
 
@@ -188,11 +241,16 @@ async function getAssetStandardTool(req, res) {
       where: {
         m_category_id: categoryId,
         ...assetNameClause,
+        ...branchIdClause,
       },
       include: [
         {
           model: db.m_cabang,
           attributes: ["id", "cabang_name"],
+        },
+        {
+          model: db.m_status_condition,
+          attributes: ["id", "name"],
         },
         {
           model: db.m_stock,
@@ -209,11 +267,12 @@ async function getAssetStandardTool(req, res) {
           attributes: ["id", "name"],
         },
       ],
+      order: [["id", "DESC"]],
     });
 
     return res.status(200).send({
       message: "Succefuly get data standrd tools",
-      asset,
+      ...asset,
     });
   } catch (error) {
     console.log("err", error);
@@ -227,11 +286,15 @@ async function getAssetSafetyTool(req, res) {
 
     const categoryId = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
-    // const subCategoryId = parseInt(req.query.subCategoryId);
+    const branchId = parseInt(req.query.branchId);
+    const userRole = req.query.userRole;
 
     const assetNameClause = assetname
       ? { name: { [Op.like]: "%" + assetname + "%" } }
       : {};
+
+    const branchIdClause =
+      userRole === "Super Admin" ? {} : { m_cabang_id: branchId };
 
     console.log("categoryIdSpecialTool", categoryId);
 
@@ -243,11 +306,16 @@ async function getAssetSafetyTool(req, res) {
       where: {
         m_category_id: categoryId,
         ...assetNameClause,
+        ...branchIdClause,
       },
       include: [
         {
           model: db.m_cabang,
           attributes: ["id", "cabang_name"],
+        },
+        {
+          model: db.m_status_condition,
+          attributes: ["id", "name"],
         },
         {
           model: db.m_stock,
@@ -264,10 +332,12 @@ async function getAssetSafetyTool(req, res) {
           attributes: ["id", "name"],
         },
       ],
+
+      order: [["id", "DESC"]],
     });
     return res.status(200).send({
       message: "Succefuly get data safety tools",
-      asset,
+      ...asset,
     });
   } catch (error) {
     console.log("err", error);
@@ -284,14 +354,13 @@ async function createAssetKendaraan(req, res) {
     console.log("req body kendaraan", req.body);
     const {
       description,
-      conditionLabel,
+      // conditionLabel,
       merk,
       year,
       noRangka,
       noMesin,
-      typeKendaraanName,
-      pic,
-      owner,
+      // typeKendaraanName,
+
       receivedInBranch,
       noPolisi,
       expTaxOneYear,
@@ -302,6 +371,7 @@ async function createAssetKendaraan(req, res) {
     } = req.body;
 
     const CategoryId = parseInt(req.body.CategoryId);
+    const ownerId = parseInt(req.body.ownerId);
     const sub_category_id = parseInt(req.body.sub_category_id);
     const branchId = parseInt(req.body.branch_id);
     const userId = parseInt(req.body.userId);
@@ -310,8 +380,7 @@ async function createAssetKendaraan(req, res) {
     console.log("re body kendaraan", req.body);
 
     if (
-      sub_category_id == 0 ||
-      conditionLabel === "None" ||
+      // sub_category_id == 0 ||
       statusStnkName === "None" ||
       !name ||
       !description ||
@@ -319,17 +388,34 @@ async function createAssetKendaraan(req, res) {
       !year ||
       !noRangka ||
       !noMesin ||
-      !typeKendaraanName ||
-      !pic ||
-      !owner ||
-      !receivedInBranch ||
+      !ownerId ||
       !noPolisi ||
       !expTaxOneYear ||
       !expTaxFiveYear ||
-      !quantity ||
       !color
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
+
+    const noPolisiExist = await db.m_assets_in.findOne({
+      where: { value: noPolisi },
+    });
+
+    if (noPolisiExist?.dataValues)
+      return res.status(400).send({ message: "No police already exist" });
+
+    const noRangkaExist = await db.m_assets_in.findOne({
+      where: { value: noRangka },
+    });
+
+    if (noRangkaExist?.dataValues)
+      return res.status(400).send({ message: "No rangka already exist" });
+
+    const noMesinExist = await db.m_assets_in.findOne({
+      where: { value: noMesin },
+    });
+
+    if (noMesinExist?.dataValues)
+      return res.status(400).send({ message: "No mesin already exist" });
 
     if (!req.files || req.files.length === 0) {
       return res.status(400).send({ message: "No Images files uploaded" });
@@ -346,9 +432,9 @@ async function createAssetKendaraan(req, res) {
       return obj ? obj.id : null;
     };
 
-    const picId = findIdByColumnName(mForm, "Person In Charge - (PIC)");
-    const nameOfOwnerId = findIdByColumnName(mForm, "Name of Owner");
-    const subCategoryId = findIdByColumnName(mForm, "Sub-Category");
+    // const picId = findIdByColumnName(mForm, "Person In Charge - (PIC)");
+    // const nameOfOwnerId = findIdByColumnName(mForm, "Name of Owner");
+    // const subCategoryId = findIdByColumnName(mForm, "Sub-Category");
     const merkId = findIdByColumnName(mForm, "Merk");
     const yearId = findIdByColumnName(mForm, "Year");
     const noPolisiId = findIdByColumnName(mForm, "No. Polisi");
@@ -370,20 +456,18 @@ async function createAssetKendaraan(req, res) {
     const [stockResult] = await sequelize.query(
       `INSERT INTO m_stock(quantity) VALUES (?)`,
       {
-        replacements: [quantity], // menggunakan opsi 'replacements'
+        replacements: [1], // menggunakan opsi 'replacements'
         type: sequelize.QueryTypes.INSERT,
       }
     );
 
-    console.log("stockResult", stockResult);
-    console.log("branchId", branchId);
-    // ambil idStock
+    // // // ambil idStock
     const stockId = stockResult;
 
-    // Masukkan data ke tabel m_assets
+    // // // Masukkan data ke tabel m_assets
     const [resAsset] = await sequelize.query(
-      `INSERT INTO m_assets (\`desc\`, name, m_sub_category_id, 
-      m_category_id, m_cabang_id, m_stock_id, createdBy) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO m_assets (\`desc\`, name, m_sub_category_id,
+      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
           description,
@@ -393,16 +477,18 @@ async function createAssetKendaraan(req, res) {
           branchId,
           stockId,
           userId,
+          ownerId,
+          4,
         ],
         type: sequelize.QueryTypes.INSERT,
       }
     );
 
-    console.log("resassetId", resAsset);
+    // console.log("resassetId", resAsset);
 
     const assetId = resAsset;
 
-    console.log("subCatgoriesId", sub_category_id);
+    // console.log("subCatgoriesId", sub_category_id);
 
     const [mSubcatgories] = await sequelize.query(
       `SELECT * FROM m_sub_categories WHERE id = ?`,
@@ -412,33 +498,9 @@ async function createAssetKendaraan(req, res) {
       }
     );
 
-    // console.log("mSub Catgories", mSubcatgories.name);
+    // // console.log("mSub Catgories", mSubcatgories.name);
 
     const subCtgrName = mSubcatgories.name;
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [picId, pic, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [nameOfOwnerId, owner, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [subCategoryId, subCtgrName, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
 
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
@@ -476,14 +538,6 @@ async function createAssetKendaraan(req, res) {
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
         replacements: [noMesinId, noMesin, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [warnaId, color, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -537,7 +591,7 @@ async function createAssetKendaraan(req, res) {
     // // Kirim respons sukses ke client
     return res.status(200).send({
       message: "Asset created successfully",
-      asset: resAsset,
+      // asset: resAsset,
     });
   } catch (error) {
     console.log("error createKendaraan", error);
@@ -561,10 +615,8 @@ async function createAssetSpecialTool(req, res) {
 
     const {
       name,
-      pic,
-      purchaseDate,
-      procurementDate,
-      branchReceivedDate,
+      // pic,
+      // branchReceivedDate,
       serialNumber,
       AccessoriesOne,
       AccessoriesTwo,
@@ -578,22 +630,28 @@ async function createAssetSpecialTool(req, res) {
     console.log("payload", payload);
 
     const CategoryId = parseInt(req.body.category_id);
+    const ownerId = parseInt(req.body.ownerId);
     const branchId = parseInt(req.body.branch_id);
     const userId = parseInt(req.body.userId);
 
     if (
       !name ||
+      !ownerId ||
+      !CategoryId ||
+      // !branchReceivedDate ||
       !description ||
-      !pic ||
-      !purchaseDate ||
-      !procurementDate ||
-      !branchReceivedDate ||
       !serialNumber ||
       !merkName ||
-      !typeName ||
-      !pic
+      !typeName
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
+
+    const serialNumberExist = await db.m_assets_in.findOne({
+      where: { value: serialNumber },
+    });
+
+    if (serialNumberExist?.dataValues)
+      return res.status(400).send({ message: "Serial number already exist" });
 
     if (!req.files || req.files.length === 0) {
       return res.status(400).send({ message: "No Images files uploaded" });
@@ -608,16 +666,10 @@ async function createAssetSpecialTool(req, res) {
       return obj ? obj.id : null;
     };
 
-    const picId = findIdByColumnName(mForm, "Person In Charge - (PIC)");
-
-    const purchaseDateId = findIdByColumnName(mForm, "Tanggal Pembelian");
-
-    const procurementDateId = findIdByColumnName(mForm, "Tanggal Pengadaan");
-
-    const branchReceivedDateId = findIdByColumnName(
-      mForm,
-      "Tanggal Terima dicabang"
-    );
+    // const branchReceivedDateId = findIdByColumnName(
+    //   mForm,
+    //   "Tanggal Terima dicabang"
+    // );
 
     const serialNumberId = findIdByColumnName(mForm, "Serial Number");
     const AccessoriesOneId = findIdByColumnName(mForm, "Accessories 1");
@@ -634,19 +686,17 @@ async function createAssetSpecialTool(req, res) {
     const [stockResult] = await sequelize.query(
       `INSERT INTO m_stock(quantity) VALUES (?)`,
       {
-        replacements: [quantity], // menggunakan opsi 'replacements'
+        replacements: [1], // menggunakan opsi 'replacements'
         type: sequelize.QueryTypes.INSERT,
       }
     );
 
-    console.log("stockResult", stockResult);
-    console.log("branchId", branchId);
-    // ambil idStock
+    // // ambil idStock
     const stockId = stockResult;
 
     const [resAsset] = await sequelize.query(
-      `INSERT INTO m_assets (\`desc\`, name, 
-      m_category_id, m_cabang_id, m_stock_id, createdBy) VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO m_assets (\`desc\`, name,
+      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
           description,
@@ -655,52 +705,17 @@ async function createAssetSpecialTool(req, res) {
           branchId,
           stockId,
           userId,
+          ownerId,
+          4,
         ],
         type: sequelize.QueryTypes.INSERT,
       }
     );
 
-    // console.log("res Special Tool", resAsset);
+    // // console.log("res Special Tool", resAsset);
     const assetId = resAsset;
 
-    console.log("assetId", assetId);
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [picId, pic, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [purchaseDateId, purchaseDate, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [procurementDateId, procurementDate, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [
-          branchReceivedDateId,
-          branchReceivedDate,
-          assetId,
-          userId,
-        ],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
+    // console.log("assetId", assetId);
 
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
@@ -761,19 +776,8 @@ async function createAssetSpecialTool(req, res) {
       );
     }
 
-    for (let file of req.files) {
-      const imagePath = file.filename;
-      await sequelize.query(
-        `INSERT INTO m_images(m_asset_id, images_url) VALUES (?, ?)`,
-        {
-          replacements: [assetId, imagePath],
-          type: sequelize.QueryTypes.INSERT,
-        }
-      );
-    }
-
     return res.status(200).send({
-      data: resAsset,
+      // data: resAsset,
       message: "Special Tools created succefully",
     });
   } catch (error) {
@@ -793,10 +797,18 @@ async function createdStandardTool(req, res) {
     // console.log("quntity", quantity);
     const branchId = parseInt(req.body.branch_id);
     const userId = parseInt(req.body.userId);
+    const ownerId = parseInt(req.body.ownerId);
 
     console.log("branchId", branchId);
 
-    if (!name || !description || !quantity)
+    if (
+      !name ||
+      name === undefined ||
+      name === null ||
+      !description ||
+      !quantity ||
+      !ownerId
+    )
       return res.status(400).send({ message: "Please Complete Your Data" });
 
     if (!req.files || req.files.length === 0) {
@@ -819,8 +831,8 @@ async function createdStandardTool(req, res) {
     // const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
     const [resAsset] = await sequelize.query(
-      `INSERT INTO m_assets (\`desc\`, name, 
-      m_category_id, m_cabang_id, m_stock_id, createdBy) VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO m_assets (\`desc\`, name,
+      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
           description,
@@ -829,6 +841,8 @@ async function createdStandardTool(req, res) {
           branchId,
           stockId,
           userId,
+          ownerId,
+          4,
         ],
         type: sequelize.QueryTypes.INSERT,
       }
@@ -861,11 +875,12 @@ async function createdStandardTool(req, res) {
 
 async function createSafetyTool(req, res) {
   try {
-    console.log("req body safetyTools", req.query);
+    console.log("req body safetyTools", req.body);
 
     const { name, description } = req.body;
     const CategoryId = parseInt(req.body.CategoryId);
     const quantity = parseInt(req.body.quantity);
+    const ownerId = parseInt(req.body.ownerId);
 
     // console.log("quntity", quantity);
     const branchId = parseInt(req.body.branch_id);
@@ -873,7 +888,7 @@ async function createSafetyTool(req, res) {
 
     console.log("branchId", branchId);
 
-    if (!name || !description || !quantity)
+    if (!name || !description || !quantity || !ownerId)
       return res.status(400).send({ message: "Please Complete Your Data" });
 
     if (!req.files || req.files.length === 0) {
@@ -897,7 +912,7 @@ async function createSafetyTool(req, res) {
 
     const [resAsset] = await sequelize.query(
       `INSERT INTO m_assets (\`desc\`, name, 
-      m_category_id, m_cabang_id, m_stock_id, createdBy) VALUES (?, ?, ?, ?, ?, ?)`,
+      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
           description,
@@ -906,6 +921,8 @@ async function createSafetyTool(req, res) {
           branchId,
           stockId,
           userId,
+          ownerId,
+          4,
         ],
         type: sequelize.QueryTypes.INSERT,
       }
@@ -936,6 +953,451 @@ async function createSafetyTool(req, res) {
   }
 }
 
+async function updateAssetKendaraan(req, res) {
+  try {
+    console.log("req body update asset", req.body);
+    console.log("assetId ya", req.query);
+
+    // const assetId = parseInt(req.params.id);
+    const {
+      statusStnkName,
+      noPolisi,
+      merk,
+      year,
+      noRangka,
+      noMesin,
+      expTaxOneYear,
+      expTaxFiveYear,
+      name,
+      description,
+      color,
+    } = req.body;
+
+    const assetId = parseInt(req.query.assetId);
+    const CategoryId = parseInt(req.body.CategoryId);
+    const sub_category_id = parseInt(req.body.sub_category_id);
+    const branchId = parseInt(req.body.branch_id);
+    const ownerId = parseInt(req.body.ownerId);
+    const userId = parseInt(req.body.userId);
+    // const quantity = parseInt(req.body.quantity);
+
+    console.log("re body kendaraan", req.body);
+
+    console.log("test update");
+    if (
+      !sub_category_id ||
+      !name ||
+      !description ||
+      !statusStnkName ||
+      !merk ||
+      !year ||
+      !noRangka ||
+      !noMesin ||
+      !ownerId ||
+      !noPolisi ||
+      !expTaxOneYear ||
+      !expTaxFiveYear ||
+      !color
+    )
+      return res.status(400).send({ message: "Please Complete Your Data" });
+
+    const noPolisiExist = await db.m_assets_in.findOne({
+      where: { value: noPolisi },
+    });
+
+    const noRangkaExist = await db.m_assets_in.findOne({
+      where: { value: noRangka },
+    });
+
+    const noMesinExist = await db.m_assets_in.findOne({
+      where: { value: noMesin },
+    });
+
+    if (
+      noPolisiExist &&
+      noPolisiExist.dataValues &&
+      noPolisiExist.dataValues.m_asset_id !== assetId
+    )
+      return res.status(400).send({
+        message: "Police number already exists for a different asset",
+      });
+
+    if (
+      noRangkaExist &&
+      noRangkaExist.dataValues &&
+      noRangkaExist.dataValues.m_asset_id !== assetId
+    )
+      return res.status(400).send({
+        message: "Rangka number already exists for a different asset",
+      });
+
+    if (
+      noMesinExist &&
+      noMesinExist.dataValues &&
+      noMesinExist.dataValues.m_asset_id !== assetId
+    )
+      return res.status(400).send({
+        message: "Mesi number already exists for a different asset",
+      });
+
+    const mForm = await db.m_form.findAll({
+      attributes: ["id", "column_name"],
+      where: { m_category_id: CategoryId },
+    });
+
+    const findIdByColumnName = (array, columnName) => {
+      const obj = array.find((item) => item.column_name === columnName);
+      return obj ? obj.id : null;
+    };
+
+    // const picId = findIdByColumnName(mForm, "Person In Charge - (PIC)");
+    // const subCategoryId = findIdByColumnName(mForm, "Sub-Category");
+    const merkId = findIdByColumnName(mForm, "Merk");
+    const yearId = findIdByColumnName(mForm, "Year");
+    const noPolisiId = findIdByColumnName(mForm, "No. Polisi");
+    const noRangkaId = findIdByColumnName(mForm, "No. Rangka");
+    const noMesinId = findIdByColumnName(mForm, "No. Mesin");
+    const tipeKendaraanId = findIdByColumnName(mForm, "Tipe Kendaraan");
+    const warnaId = findIdByColumnName(mForm, "Warna");
+    const expTglPajak1TahunId = findIdByColumnName(
+      mForm,
+      "Exp tgl Pajak 1 Tahun"
+    );
+    const expTglPajak5TahunId = findIdByColumnName(
+      mForm,
+      "Exp tgl Pajak 5 Tahun"
+    );
+    const statusStnkId = findIdByColumnName(mForm, "Status Stnk");
+
+    const asset = await db.m_assets.update(
+      {
+        name: name,
+        desc: description,
+        m_owner_id: ownerId,
+        m_sub_category_id: sub_category_id,
+        updatedBy: userId,
+      },
+      {
+        where: {
+          id: assetId,
+        },
+      }
+    );
+
+    // merk
+    await db.m_assets_in.update(
+      { value: merk, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: merkId },
+      }
+    );
+
+    // year
+    await db.m_assets_in.update(
+      { value: year, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: yearId },
+      }
+    );
+
+    // noPolisi
+    await db.m_assets_in.update(
+      { value: noPolisi, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: noPolisiId },
+      }
+    );
+
+    // noRangka
+    await db.m_assets_in.update(
+      { value: noRangka, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: noRangkaId },
+      }
+    );
+
+    // // noMesin
+    await db.m_assets_in.update(
+      { value: noMesin, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: noMesinId },
+      }
+    );
+
+    // // warna
+    await db.m_assets_in.update(
+      { value: color, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: warnaId },
+      }
+    );
+
+    // // expTglPajak1Tahun
+    await db.m_assets_in.update(
+      { value: expTaxOneYear, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: expTglPajak1TahunId },
+      }
+    );
+
+    // // expTglPajak5Tahun
+    await db.m_assets_in.update(
+      { value: expTaxFiveYear, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: expTglPajak5TahunId },
+      }
+    );
+
+    // // status stnk
+    await db.m_assets_in.update(
+      { value: statusStnkName, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: statusStnkId },
+      }
+    );
+
+    return res.status(200).send({
+      // data: asset,
+      message: "Kendaraan updated succefully",
+    });
+  } catch (error) {
+    console.log("err", error);
+    res.status(400).send(error);
+  }
+}
+
+async function updateAssetSpecialtool(req, res) {
+  try {
+    console.log("req body update asset", req.body);
+    console.log("assetId ya", req.query);
+
+    const {
+      name,
+      description,
+      serialNumber,
+      AccessoriesOne,
+      AccessoriesTwo,
+      AccessoriesThree,
+      merkName,
+      typeName,
+    } = req.body;
+
+    const assetId = parseInt(req.query.assetId);
+    const categoryId = parseInt(req.body.category_id);
+    const ownerId = parseInt(req.body.ownerId);
+    const branchId = parseInt(req.body.branch_id);
+    const userId = parseInt(req.body.userId);
+
+    if (!name || !description || !serialNumber || !merkName || !typeName)
+      return res.status(400).send({ message: "Please Complete Your Data" });
+
+    const serialNumberExist = await db.m_assets_in.findOne({
+      where: { value: serialNumber },
+    });
+
+    if (
+      serialNumberExist &&
+      serialNumberExist.dataValues &&
+      serialNumberExist.dataValues.m_asset_id !== assetId
+    )
+      return res.status(400).send({
+        message: "Serial number already exists for a different asset",
+      });
+
+    console.log("serinumber exist", serialNumberExist);
+
+    const mForm = await db.m_form.findAll({
+      attributes: ["id", "column_name"],
+      where: { m_category_id: categoryId },
+    });
+
+    const findIdByColumnName = (array, columnName) => {
+      const obj = array.find((item) => item.column_name === columnName);
+      return obj ? obj.id : null;
+    };
+
+    console.log("findColumn Name", findIdByColumnName);
+
+    const serialNumberId = findIdByColumnName(mForm, "Serial Number");
+    const AccessoriesOneId = findIdByColumnName(mForm, "Accessories 1");
+    const AccessoriesTwoId = findIdByColumnName(mForm, "Accessories 2");
+    const AccessoriesThreeId = findIdByColumnName(mForm, "Accessories 3");
+    const merkNameId = findIdByColumnName(mForm, "Merk");
+    const typeNameId = findIdByColumnName(mForm, "Tipe");
+
+    const asset = await db.m_assets.update(
+      {
+        name: name,
+        desc: description,
+        m_owner_id: ownerId,
+        // m_sub_category_id: sub_category_id,
+        updatedBy: userId,
+      },
+      {
+        where: {
+          id: assetId,
+        },
+      }
+    );
+
+    // serialNumber
+    await db.m_assets_in.update(
+      { value: serialNumber, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: serialNumberId },
+      }
+    );
+
+    // AccessoriesOne
+    await db.m_assets_in.update(
+      { value: AccessoriesOne, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: AccessoriesOneId },
+      }
+    );
+
+    // AccessoriesTwo
+    await db.m_assets_in.update(
+      { value: AccessoriesTwo, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: AccessoriesTwoId },
+      }
+    );
+
+    // AccessoriesThree
+    await db.m_assets_in.update(
+      { value: AccessoriesThree, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: AccessoriesThreeId },
+      }
+    );
+
+    // merkName
+    await db.m_assets_in.update(
+      { value: merkName, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: merkNameId },
+      }
+    );
+
+    // typeName
+    await db.m_assets_in.update(
+      { value: typeName, updatedBy: userId },
+      {
+        where: { m_asset_id: assetId, m_form_id: typeNameId },
+      }
+    );
+
+    return res.status(200).send({
+      // data: asset,
+      message: "Special tool updated succefully",
+    });
+  } catch (error) {
+    console.log("err", error);
+    res.status(400).send(error);
+  }
+}
+
+async function updateAssetStandardTool(req, res) {
+  try {
+    console.log("req body update standrTool", req.body);
+    console.log("req query standrTool", req.query);
+
+    const { name, description } = req.body;
+
+    const assetId = parseInt(req.query.assetId);
+    const CategoryId = parseInt(req.body.CategoryId);
+    const qty = parseInt(req.body.quantity);
+    const branchId = parseInt(req.body.branch_id);
+    const userId = parseInt(req.body.userId);
+    const ownerId = parseInt(req.body.ownerId);
+
+    const asset = await db.m_assets.findOne({
+      where: { id: assetId },
+    });
+
+    console.log("asset", asset.dataValues);
+
+    const stock = await db.m_stock.update(
+      { quantity: qty },
+      { where: { id: asset.dataValues.m_stock_id } }
+    );
+
+    const assets = await db.m_assets.update(
+      {
+        name: name,
+        desc: description,
+        m_owner_id: ownerId,
+        // m_sub_category_id: sub_category_id,
+        updatedBy: userId,
+      },
+      {
+        where: {
+          id: assetId,
+        },
+      }
+    );
+
+    return res.status(200).send({
+      // data: asset,
+      message: "Standard tool updated succefully",
+    });
+  } catch (error) {
+    console.log("err", error);
+    res.status(400).send(error);
+  }
+}
+
+async function updateAssetSafetyTool(req, res) {
+  try {
+    console.log("req body update standrTool", req.body);
+    console.log("req query standrTool", req.query);
+
+    const { name, description } = req.body;
+
+    const assetId = parseInt(req.query.assetId);
+    const CategoryId = parseInt(req.body.CategoryId);
+    const qty = parseInt(req.body.quantity);
+    const branchId = parseInt(req.body.branch_id);
+    const userId = parseInt(req.body.userId);
+    const ownerId = parseInt(req.body.ownerId);
+
+    const asset = await db.m_assets.findOne({
+      where: { id: assetId },
+    });
+
+    console.log("asset", asset.dataValues);
+
+    const stock = await db.m_stock.update(
+      { quantity: qty },
+      { where: { id: asset.dataValues.m_stock_id } }
+    );
+
+    const assets = await db.m_assets.update(
+      {
+        name: name,
+        desc: description,
+        m_owner_id: ownerId,
+        // m_sub_category_id: sub_category_id,
+        updatedBy: userId,
+      },
+      {
+        where: {
+          id: assetId,
+        },
+      }
+    );
+
+    return res.status(200).send({
+      // data: asset,
+      message: "Safety tool updated succefully",
+    });
+  } catch (error) {
+    console.log("err", error);
+    res.status(400).send(error);
+  }
+}
+
 module.exports = {
   getAssetKendaraan,
   getAssetSpecialTool,
@@ -945,4 +1407,8 @@ module.exports = {
   createAssetSpecialTool,
   createdStandardTool,
   createSafetyTool,
+  updateAssetKendaraan,
+  updateAssetSpecialtool,
+  updateAssetStandardTool,
+  updateAssetSafetyTool,
 };

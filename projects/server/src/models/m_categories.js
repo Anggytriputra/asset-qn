@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "m_categories",
+      timestamps: false,
     }
   );
   return m_categories;

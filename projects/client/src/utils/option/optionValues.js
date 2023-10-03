@@ -66,6 +66,7 @@ const OpMerkSpecialTools = [
   { id: 3, name: "Ilsinctech" },
   { id: 4, name: "Tekcn" },
   { id: 5, name: "Joinwit" },
+  { id: 6, name: "Acer" },
 ];
 
 const OpTipeSpecialTools = [
@@ -75,6 +76,7 @@ const OpTipeSpecialTools = [
   { id: 4, name: "4018" },
   { id: 5, name: "H-5" },
   { id: 6, name: "Swift Kf-4" },
+  { id: 7, name: "Think Pad" },
 ];
 
 module.exports = {

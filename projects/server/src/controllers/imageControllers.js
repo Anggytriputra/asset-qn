@@ -6,7 +6,7 @@ const moment = require("moment");
 async function getImgByAssetId(req, res) {
   try {
     const idAsset = parseInt(req.query.idAsset);
-    console.log("req query id Asset", idAsset);
+    console.log("req query id Asset", req.query);
 
     const [img] = await sequelize.query(
       `SELECT MI.*, 

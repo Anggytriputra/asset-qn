@@ -23,6 +23,7 @@
     "react-router-dom": "^6.14.2",
     "react-scripts": "5.0.1",
     "react-tailwindcss-datepicker": "^1.6.6",
+    "redux-thunk": "^2.4.2",
     "sweetalert2": "^11.7.22",
     "web-vitals": "^2.1.4"
   },

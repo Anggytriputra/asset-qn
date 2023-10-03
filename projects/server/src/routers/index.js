@@ -6,6 +6,11 @@ const imageRouter = require("./imageRouter");
 const assetRouter = require("./assetRouters");
 const assetGlobalRouter = require("./assetGlobalRouters");
 const transHOrderRouter = require("./transHOrderRouters");
+const transferAssetRouter = require("./transferAssetRouter");
+const userGlobalRouter = require("./userGlobalRouter");
+const returnAssetRouter = require("./returnAssetRouter");
+const statusGlobalRouters = require("./statusGlobalRouters");
+const assetNameGlobalRouter = require("./assetNameGlobalRouter");
 
 module.exports = {
   authRouter,
@@ -15,4 +20,9 @@ module.exports = {
   imageRouter,
   assetGlobalRouter,
   transHOrderRouter,
+  transferAssetRouter,
+  userGlobalRouter,
+  statusGlobalRouters,
+  returnAssetRouter,
+  assetNameGlobalRouter,
 };

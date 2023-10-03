@@ -38,6 +38,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "m_tokens",
+      tableName: "m_tokens",
+      updatedAt: false,
     }
   );
   return m_tokens;

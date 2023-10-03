@@ -7,6 +7,12 @@ const imageController = require("./imageControllers");
 // const formControllers = require("./formControllers");
 const assetGlobalControllers = require("./assetGlobalControllers");
 const transHOrderControllers = require("./transHOrderControllers");
+const transferAssetController = require("./trasnferAssetControllers");
+const returnAssetControllers = require("./returnAssetControllers");
+const userGlobalControllers = require("./userGlobalControllers");
+const statusGlobalControllers = require("./statusGlobalControllers");
+const ownerControllers = require("./ownerControllers");
+const assetNameGlobalController = require("./assetNameGlobalController");
 
 module.exports = {
   authControllers,
@@ -16,4 +22,10 @@ module.exports = {
   imageController,
   assetGlobalControllers,
   transHOrderControllers,
+  transferAssetController,
+  returnAssetControllers,
+  userGlobalControllers,
+  statusGlobalControllers,
+  ownerControllers,
+  assetNameGlobalController,
 };

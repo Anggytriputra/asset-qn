@@ -37,6 +37,7 @@ async function getSubCategories(req, res) {
     });
   } catch (error) {
     console.log("err sub ctgr", error);
+    res.status(400).send(error);
   }
 }
 

@@ -29,8 +29,10 @@ export default function Comboboxes({
   people = [],
   selectedValue = {},
   setSelectedValue = {},
+  isInputDisabled = true,
 }) {
-  // console.log("selected value comboboxes", selectedValue);
+  console.log("selected value comboboxes", selectedValue);
+  // console.log("peaople", people);
   // console.log("peaople", people);
   const [query, setQuery] = useState("");
   // const [selectedPerson, setSelectedPerson] = useState(null);
@@ -47,6 +49,7 @@ export default function Comboboxes({
       as="div"
       value={selectedValue}
       onChange={setSelectedValue}
+      disabled={!isInputDisabled}
     >
       {/* <Combobox.Label className="block text-sm font-medium text-gray-700">
         Assigned to

@@ -2,18 +2,7 @@ import { useState } from "react";
 import ImageDragAndDrop from "../ImageDragAndDrop";
 import ListImages from "../ListImages";
 
-export default function KendaraanDetails({
-  //   action = "add",
-  //   isLoading = false,
-  //   setShowForm,
-  //   subCategoryOption = [],
-  //   currPage,
-  asset = {},
-  img = {},
-  //   idOnTabsCategory,
-  //   addNewData,
-  //   setNewAddData,
-}) {
+export default function KendaraanDetails({ asset = {}, img = {} }) {
   // console.log("img", img);
   const assetInsMap = {};
 

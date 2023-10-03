@@ -22,8 +22,6 @@ import logo from "../assets/logo.jpg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../reducers/userSlice";
-import ModalSearch from "./ModalSearch";
-import { fetchAssetByName } from "../service/dataAsset/resDataAsset";
 import { fetchAssetByname } from "../reducers/assetSlice";
 import ModalForm, { Modal } from "./Modal";
 import ReqFormControl from "./ReqFormControl";
@@ -37,7 +35,7 @@ const navigation = [
     name: "Asset & Tools",
     icon: TruckIcon,
     subNavigation: [
-      { name: "Assets In", path: "/asset-tools/data-assets" },
+      { name: "Assets", path: "/asset-tools/data-assets" },
       { name: "Transfer Assets", path: "/asset-tools/transfer-assets" },
       { name: "Return Assets", path: "/asset-tools/return-assets" },
     ],
@@ -47,7 +45,7 @@ const navigation = [
     name: "Settings",
     icon: WrenchScrewdriverIcon,
     subNavigation: [
-      { name: "Asset", path: "/setting/asset" },
+      { name: "Asset", path: "/settings/asset-name" },
       { name: "Jenis Asset", path: "/setting/jenis-asset" },
       { name: "Role Access", path: "/setting/role-access" },
     ],
@@ -286,7 +284,7 @@ export default function SideBar({ element, handleOpenModal }) {
                   Dashboard
                 </Link>
 
-                <Link
+                {/* <Link
                   to="/request-asset"
                   className="text-indigo-100 hover:bg-indigo-600 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
                 >
@@ -295,7 +293,7 @@ export default function SideBar({ element, handleOpenModal }) {
                     aria-hidden="true"
                   />
                   Request Asset
-                </Link>
+                </Link> */}
                 {/* Sisipkan tautan menu utama lainnya jika diperlukan */}
 
                 {navigation.map((item) => (
@@ -338,7 +336,7 @@ export default function SideBar({ element, handleOpenModal }) {
                   </Disclosure>
                 ))}
               </nav>
-              <div className="mb-40 items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-100">
+              {/* <div className="mb-40 items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-100">
                 <button
                   onClick={handleOpenModal}
                   className="text-indigo-100 hover:bg-slate-600 group flex items-center px-2 py-2 text-sm font-medium rounded-md mt-auto"
@@ -349,7 +347,7 @@ export default function SideBar({ element, handleOpenModal }) {
                   />
                   Request Asset
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -453,7 +451,7 @@ export default function SideBar({ element, handleOpenModal }) {
             <div className="py-6 ">
               <div className="w-[90%] sm:w-full mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
                 <div className="pb-4 min-h-screen">
-                  <ModalForm
+                  {/* <ModalForm
                     openModal
                     title="Asset"
                     open={openModal}
@@ -467,7 +465,7 @@ export default function SideBar({ element, handleOpenModal }) {
                         setSelectedCategory={setSelectedCategory}
                       />
                     }
-                  />
+                  /> */}
                   {element}
                 </div>
               </div>

@@ -5,11 +5,13 @@ import Dropdown from "./DropDown";
 import {
   createDataAsset,
   fetchDataAsset,
+  updateDataAsset,
 } from "../service/dataAsset/resDataAsset.js";
 
 import { useSelector } from "react-redux";
 import LoadingButton from "./LoadingButton";
 import axios from "axios";
+import Comboboxes from "./Comboboxes";
 
 export default function DataSafetyToolsForm({
   action = "Add",
@@ -22,24 +24,39 @@ export default function DataSafetyToolsForm({
   idOnTabsCategory,
   addNewData,
   setNewAddData,
+  ownerG,
+  assetName,
 }) {
-  // console.log("idOnTabsCategory", idOnTabsCategory);
-
-  // console.log("img", img);
-
+  console.log("action nih", action);
   console.log("aseet data edit", asset);
 
   const dispatch = useDispatch();
-
-  const [image, setImage] = useState(
-    img && img.length > 0
-      ? img.map((item) => ({
-          preview: `http://localhost:2000/static/safetyTools/${item.images_url}`,
-        }))
-      : []
+  const cL = asset && asset.m_category ? asset.m_category.id : "";
+  const [selectOwner, setSelectOwner] = useState(
+    asset && asset.owner && Object.keys(asset.owner).length > 0
+      ? {
+          id: asset.owner.id,
+          name: asset.owner.name,
+        }
+      : {}
   );
 
+  const [selectAssetName, setSelectAssetName] = useState({});
+
+  console.log("ini assset name adalah", selectAssetName);
+  const [image, setImage] = useState([]);
+
   console.log("img", image);
+
+  useEffect(() => {
+    setImage(
+      img && img.length > 0
+        ? img.map((item) => ({
+            preview: `http://localhost:2000/static/safetyTools/${item.images_url}`,
+          }))
+        : []
+    );
+  }, [img]);
 
   const [selectedCategory, setSelectedCategory] = useState(
     asset.Category
@@ -65,12 +82,16 @@ export default function DataSafetyToolsForm({
     e.preventDefault();
 
     // Ambil nilai dari form
-    const { assetName, desc, price, qty } = e.target;
+    const { desc, price, qty } = e.target;
     // const categoryId = selectedCategory.value;
+    const name = selectAssetName ? selectAssetName.name : null;
+    const ownerId = selectOwner ? selectOwner.id : null;
 
     // Buat instance FormData untuk mengumpulkan data yang akan dikirim
     const newAsset = new FormData();
-    newAsset.append("name", assetName?.value);
+    // newAsset.append("name", assetName?.value);
+    newAsset.append("name", name);
+    newAsset.append("ownerId", ownerId);
     newAsset.append("CategoryId", idOnTabsCategory);
     newAsset.append("userId", userId);
     newAsset.append("description", desc?.value);
@@ -90,9 +111,19 @@ export default function DataSafetyToolsForm({
 
     if (action === "Add") {
       const response = await createDataAsset(newAsset, idOnTabsCategory);
-      console.log("response upload", response);
-      setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
-      setNewAddData(true);
+      if (response && response.status === 200) {
+        setAssetAdded(!assetAdded); // Mengganti nilai state untuk memicu useEffect
+        setNewAddData(true);
+        setShowForm(false);
+      }
+    }
+
+    if (action === "Edit") {
+      const response = await updateDataAsset(cL, asset.id, newAsset);
+      if (response && response.status === 200) {
+        setNewAddData(true);
+        setShowForm(false);
+      }
     }
   }
   useEffect(() => {
@@ -109,7 +140,7 @@ export default function DataSafetyToolsForm({
     }
 
     if (assetAdded) {
-      setShowForm(false); // Ini akan dipanggil setelah data berhasil di-fetch
+      // setShowForm(false); // Ini akan dipanggil setelah data berhasil di-fetch
     }
   }, [assetAdded, idOnTabsCategory]);
 
@@ -137,13 +168,24 @@ export default function DataSafetyToolsForm({
               >
                 Asset Name
               </label>
-              <input
-                type="text"
-                name="assetName"
-                id="assetName"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={asset.name}
-                required
+              <Comboboxes
+                people={assetName}
+                selectedValue={selectAssetName}
+                setSelectedValue={setSelectAssetName}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="owner"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name of Owner
+              </label>
+              <Comboboxes
+                people={ownerG}
+                selectedValue={selectOwner}
+                setSelectedValue={setSelectOwner}
               />
             </div>
 
@@ -160,7 +202,9 @@ export default function DataSafetyToolsForm({
                 name="qty"
                 id="qty"
                 className="p-2 border spin-hidden block w-full min-w-0 flex-1 rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
-                // defaultValue={asset.m_stock.quantity}
+                defaultValue={
+                  asset && asset.m_stock ? asset.m_stock.quantity : 0
+                }
               />
             </div>
 

@@ -36,6 +36,7 @@ export default function OrderTable({ asset = [], onEdit, onDelete }) {
             <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">{assets.m_cabang.cabang_name}</div>
             </td>
+
             <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
                 {transD.m_category.name}

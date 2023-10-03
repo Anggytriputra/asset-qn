@@ -2,7 +2,7 @@ import { useState } from "react";
 import ImageDragAndDrop from "../ImageDragAndDrop";
 import ListImages from "../ListImages";
 
-export default function StandardToolsDetail({
+export default function SafetyToolDetail({
   //   action = "add",
   //   isLoading = false,
   //   setShowForm,

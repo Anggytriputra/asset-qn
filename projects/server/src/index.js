@@ -11,8 +11,14 @@ const {
   assetGlobalRouter,
   transHOrderRouter,
   branchRouter,
+  transferAssetRouter,
+  userGlobalRouter,
+  statusGlobalRouters,
+  returnAssetRouter,
+  assetNameGlobalRouter,
 } = require("./routers");
 const categoryRouter = require("./routers/categoryRouter");
+const ownerRouters = require("./routers/ownerRouters");
 
 // require("dotenv").config();
 
@@ -41,12 +47,18 @@ app.use(
 // );
 
 app.use("/auth", authRouter);
-app.use("/asset", assetRouter);
+app.use("/api/asset", assetRouter);
 app.use("/asset-byname", assetGlobalRouter);
 app.use("/img", imageRouter);
 app.use("/transh", transHOrderRouter);
 app.use("/category", categoryRouter);
 app.use("/branch", branchRouter);
+app.use("/status", statusGlobalRouters);
+app.use("/owner", ownerRouters);
+app.use("/api/transfer-asset", transferAssetRouter);
+app.use("/api/return-asset", returnAssetRouter);
+app.use("/api/asset-name-by-categoryId", assetNameGlobalRouter);
+app.use("/users", userGlobalRouter);
 
 app.get("/", (req, res) => {
   res.json({

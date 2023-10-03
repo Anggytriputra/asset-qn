@@ -15,6 +15,11 @@ import { useState } from "react";
 import { Modal } from "./components/Modal";
 import RequestAsset from "./pages/RequestAsset";
 import TransferAsset from "./pages/AssetAndTools/TransferAsset";
+import DetailTransferAsset from "./pages/DetailTransferAsset";
+import ReturnAsset from "./pages/AssetAndTools/ReturnAsset";
+import ProtectedPage from "./midlleware/ProtectedPage";
+import DetailReturnAsset from "./pages/DetailReturnAsset";
+import SettingsAssetName from "./pages/settings/SettingsAssetName";
 // import DetailsAsset from "./components/DetailsAsset";
 
 const dataurl = [
@@ -22,13 +27,18 @@ const dataurl = [
   { id: 2, url_master: "/home", name: "Home" },
   { id: 3, url_master: "/dashboard", name: "Dashboard" },
   { id: 4, url_master: "/asset-tools", name: "AssetTools" },
-  { id: 5, url_master: "/settings", name: "Settings" },
+  { id: 5, url_master: "/settings/asset-name", name: "SettingsAssetName" },
   { id: 6, url_master: "/report", name: "Report" },
   { id: 7, url_master: "/asset-tools/data-assets", name: "DataAsset" },
   { id: 8, url_master: "/asset-tools/search", name: "SearchIdAsset" },
   { id: 9, url_master: "/request-asset", name: "RequestAsset" },
   { id: 10, url_master: "/asset-tools/transfer-assets", name: "TransferAsset" },
-  { id: 11, url_master: "/testing", name: "Testing" },
+  {
+    id: 11,
+    url_master: "/asset-tools/return-assets",
+    name: "ReturnAsset",
+  },
+  { id: 12, url_master: "/testing", name: "Testing" },
   // {
   //   id: 9,
   //   url_master: `/asset-tools/search/Details/:assetId`,
@@ -48,6 +58,16 @@ const PAGES = {
   DataAsset: <SideBar element={<DataAsset />} />,
   TransferAsset: <SideBar element={<TransferAsset />} />,
   RequestAsset: <SideBar element={<RequestAsset />} />,
+  ReturnAsset: (
+    <SideBar
+      element={
+        <ProtectedPage adminOnly={true}>
+          <ReturnAsset />
+        </ProtectedPage>
+      }
+    />
+  ),
+  SettingsAssetName: <SideBar element={<SettingsAssetName />} />,
 };
 
 function App() {
@@ -72,6 +92,16 @@ function App() {
           path="/asset-tools/search/Details/:assetId"
           element={<SideBar element={<DetailsAsset />} />}
         />
+        <Route
+          path="/asset-tools/Detail-transfer/:assetId"
+          element={<SideBar element={<DetailTransferAsset />} />}
+        />
+
+        <Route
+          path="/asset-tools/Detail-Return/:assetId"
+          element={<SideBar element={<DetailReturnAsset />} />}
+        />
+        {/* <Route  */}
       </Routes>
     </div>
   );

@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       mobile: DataTypes.STRING,
       id_role: DataTypes.INTEGER,
+      id_karyawan: DataTypes.INTEGER,
       flag_active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
