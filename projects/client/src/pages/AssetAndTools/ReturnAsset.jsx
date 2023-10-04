@@ -316,8 +316,7 @@ const ReturnAsset = () => {
       <AddDataHeader
         title="Return Asset"
         desc="A list Transfer Asset"
-        addButtonText="Return Asse
-        t"
+        addButtonText="Return Asset"
         onAddClick={() => setOpenModal(true)}
       />
 

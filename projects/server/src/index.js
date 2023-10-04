@@ -57,7 +57,7 @@ app.use("/status", statusGlobalRouters);
 app.use("/owner", ownerRouters);
 app.use("/api/transfer-asset", transferAssetRouter);
 app.use("/api/return-asset", returnAssetRouter);
-app.use("/api/asset-name-by-categoryId", assetNameGlobalRouter);
+app.use("/api/asset-name", assetNameGlobalRouter);
 app.use("/users", userGlobalRouter);
 
 app.get("/", (req, res) => {
