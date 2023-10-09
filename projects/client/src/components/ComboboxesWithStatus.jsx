@@ -30,8 +30,8 @@ export default function ComboboxesWithStatus({
   selectedValue = {},
   setSelectedValue = {},
 }) {
-  console.log("selected value", selectedValue);
-  console.log("people", people);
+  // console.log("selected value", selectedValue);
+  // console.log("people", people);
   const [query, setQuery] = useState("");
   const [selectedPerson, setSelectedPerson] = useState(null);
 

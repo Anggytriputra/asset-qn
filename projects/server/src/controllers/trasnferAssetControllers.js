@@ -1,4 +1,4 @@
-const toTitleCase = require("../helper/loweUpperCase");
+const { toTitleCase, toUpperCase } = require("../helper/loweUpperCase");
 const db = require("../models");
 const { Op, where } = require("sequelize");
 const sequelize = db.sequelize;
@@ -70,6 +70,7 @@ async function getTransAsset(req, res) {
         "no_transfer",
         "date",
         "recipient_name",
+        "user_id_penerima",
       ],
       where: {
         [Op.and]: [branchIdClause, branchIdSortClause, dateClause],
@@ -78,19 +79,6 @@ async function getTransAsset(req, res) {
         {
           model: db.m_trans_d,
           exclude: ["created", "updatedAt"],
-          include: [
-            { model: db.m_categories, attributes: ["id", "name"] },
-            {
-              model: db.m_assets_in,
-              attributes: ["m_form_id", "value", "m_asset_id"],
-              include: [
-                {
-                  model: db.m_form,
-                  attributes: ["id", "column_name"],
-                },
-              ],
-            },
-          ],
         },
         {
           model: db.m_users,
@@ -136,47 +124,84 @@ async function getTransAsset(req, res) {
 async function createTransferAssetKendaraan(req, res) {
   try {
     console.log("req body nih kendaraan", req.body);
-    const {
-      desc,
-      fromBranch,
-      toBranch,
-      noPolice,
-      category,
-      assetName,
 
-      date,
-      // recipient_name,
-    } = req.body;
+    const user = req.user;
+    const { processedQtyInputArray, listTf, desc, fromBranch, toBranch, date } =
+      req.body;
 
-    const userId = parseInt(req.body.userId);
+    const userId = parseInt(user.id);
     const qty = parseInt(req.body.qty);
     const userIdPenerima = parseInt(req.body.userIdPenerima);
     const assetId = parseInt(req.body.assetId);
-    // console.log("qty", qty);
+
+    if (processedQtyInputArray.length !== listTf.length) {
+      return res.status(400).send({
+        message: "Please complete the quantity field or other fields",
+      });
+    }
+
+    for (const item of processedQtyInputArray) {
+      const assetId = item.assetId;
+      const selectQty = parseInt(item.selectQty);
+      console.log("selecteq qty ya", selectQty);
+
+      // Mencari jumlah stok aset berdasarkan assetId
+      const stock = await db.m_stock.findOne({
+        where: { m_asset_id: assetId },
+      });
+      // console.log("ini stock", stock.dataValues);
+
+      if (!stock) {
+        return res.status(400).send({
+          message: `Aset dengan ID ${assetId} tidak ditemukan dalam stok.`,
+        });
+      }
+      const stockQty = stock.dataValues.quantity;
+      if (selectQty > stockQty) {
+        return res.status(400).send({
+          message: `"Stock exceeds available quantity`,
+        });
+      }
+    }
 
     if (
-      category === "None" ||
-      !category ||
-      !desc ||
-      !assetName ||
-      !noPolice ||
-      !userIdPenerima ||
-      !fromBranch ||
-      !toBranch ||
-      !date
+      processedQtyInputArray.some(
+        (item) =>
+          item.assetId === undefined ||
+          item.assetId === null ||
+          item.selectQty === null ||
+          item.selectQty === undefined ||
+          item.selectQty === "0"
+      )
     )
+      return res.status(400).send({
+        message: "Please fill in the quantity field",
+      });
+
+    // console.log("desc adalah", desc);
+
+    if (!desc || !userIdPenerima || !fromBranch || !toBranch || !date)
       return res.status(400).send({ message: "Please Complete Your Data" });
 
-    const transDRetun = await db.m_trans_d.findOne({
-      where: { m_asset_id: assetId },
-    });
-
-    console.log("transD", transDRetun);
-
-    if (transDRetun && transDRetun.dataValues.flag_active === true)
-      return res.status(400).send({ message: "Asset Already req Transfer" });
-
     const decsText = toTitleCase(desc);
+
+    for (const asset of listTf) {
+      const assetId = asset.id;
+
+      // Mencari permintaan transfer aktif untuk aset ini
+      const transDRetun = await db.m_trans_d.findOne({
+        where: {
+          m_asset_id: assetId,
+          flag_active: true,
+        },
+      });
+
+      if (transDRetun) {
+        return res.status(400).send({
+          message: `Asset ${transDRetun.dataValues.m_asset_name} Already request Transfer`,
+        });
+      }
+    }
 
     const branch = await db.m_cabang.findOne({
       where: { cabang_name: toBranch },
@@ -193,12 +218,12 @@ async function createTransferAssetKendaraan(req, res) {
 
     const randomDigits = Math.floor(100 + Math.random() * 900);
 
-    console.log("random ", randomDigits);
+    // console.log("random ", randomDigits);
     const no_transfer = `TF${branchOutId}${branchInId}${currentDate}${randomDigits}`;
 
-    console.log("notransfer", no_transfer);
+    // console.log("notransfer", no_transfer);
 
-    console.log("userId", userId);
+    // console.log("userId", userId);
     const transH = await db.m_trans_h.create({
       cabang_id_out: branchOutId,
       cabang_id_in: branchInId,
@@ -210,25 +235,39 @@ async function createTransferAssetKendaraan(req, res) {
       createdBy: userId,
     });
 
-    console.log("Hasil transH:", transH.dataValues.id);
+    // console.log("Hasil transH:", transH.dataValues.id);
 
     const transHId = transH.dataValues.id;
 
-    const categories = await db.m_categories.findOne({
-      where: { name: category },
+    const mergedData = {};
+
+    processedQtyInputArray.forEach((inputItem) => {
+      const { assetId, selectQty } = inputItem;
+      const matchingItem = listTf.find((item) => item.id === assetId);
+      if (matchingItem) {
+        // Gabungkan data dari processedQtyInputArray dan listTf
+        mergedData[assetId] = {
+          assetId,
+          selectQty: parseInt(selectQty), // Mengonversi selectQty menjadi integer
+          ...matchingItem,
+        };
+      }
     });
 
-    // console.log("category", categories.dataValues.id);
+    const dataArray = Object.values(mergedData);
 
-    const categoryId = categories.dataValues.id;
-    const trandD = await db.m_trans_d.create({
-      m_trans_h_id: transHId,
-      m_asset_name: assetName,
-      m_asset_id: assetId,
-      qty: qty,
-      m_category_id: categoryId,
-      no_polisi: noPolice,
-    });
+    // Melakukan iterasi melalui dataArray dan membuat entri baru dalam tabel m_trans_d untuk setiap elemen
+    for (const data of dataArray) {
+      await db.m_trans_d.create({
+        m_trans_h_id: transHId,
+        m_asset_name: data.name,
+        m_asset_id: data.id,
+        qty: data.selectQty,
+        m_category_id: data.m_category_id,
+        no_polisi: data.noPolisi,
+        serial_number: data.serialNumber,
+      });
+    }
 
     return res.status(200).send({
       message: "Transfer asset created successfully",

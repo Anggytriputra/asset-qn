@@ -1,6 +1,7 @@
 // assetsColumns.js
 
 export const colsKendaraan = [
+  "",
   "Asset Name",
   "Branch",
   "Category",

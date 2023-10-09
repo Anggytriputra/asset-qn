@@ -58,7 +58,7 @@ export function reqTransferAsset(data, id) {
   return async (dispatch) => {
     try {
       // dispatch(setLoading(true));
-      const response = await api.post(`${BASE_URL}/t${id}`, data);
+      const response = await api.post(`${BASE_URL}/t1`, data);
 
       // console.log("response", response);
       // dispatch(setLoading(false))

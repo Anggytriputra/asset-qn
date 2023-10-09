@@ -47,3 +47,8 @@
 button[disabled] {
   cursor: not-allowed;
 }
+
+.checkbox {
+  cursor: pointer; /* Mengubah cursor menjadi gambar jari saat mengarahkan ke checkbox */
+  /* Gaya lainnya seperti background-color, border, dsb. */
+}

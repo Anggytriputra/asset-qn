@@ -1,11 +1,13 @@
 const transferAssetRouter = require("express").Router();
 
 const { transferAssetController } = require("../controllers");
+const userExtractor = require("../middleware/userExtractor");
 
 transferAssetRouter.get("/", transferAssetController.getTransAsset);
 
 transferAssetRouter.post(
   "/t1",
+  userExtractor,
   transferAssetController.createTransferAssetKendaraan
 );
 

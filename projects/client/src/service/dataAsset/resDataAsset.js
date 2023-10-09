@@ -8,15 +8,24 @@ import api from "../../api/api";
 
 const BASE_URL = "/asset";
 
+const fetchAllDataAsset = async (query = "") => {
+  console.log("res fetch all asset query");
+  try {
+    const res = await api.get(`${BASE_URL}?${query}`);
+
+    console.log("res fetch all asset", res);
+    return res;
+  } catch (error) {
+    console.log("error fetch", error);
+    throw error;
+  }
+};
 const fetchDataAsset = async (
   categoryId,
   subCategoryId,
   branchIdUser,
   userRole
 ) => {
-  // console.log("categoryId nih", categoryId);
-  // console.log("subcategoryId", subCategoryId);
-  console.log("branchId", userRole);
   const id = categoryId;
   console.log("id ya", id);
   try {
@@ -39,8 +48,8 @@ const fetchDataAsset = async (
 
 const createDataAsset = async (data, id) => {
   try {
-    // console.log("created data asset", data);
-    // console.log("id category", id);
+    console.log("created data asset", data);
+    console.log("id category", id);
     const res = await api.post(`${BASE_URL}/c${id}`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -79,4 +88,4 @@ const updateDataAsset = async (id, assetId, data) => {
   }
 };
 
-export { createDataAsset, fetchDataAsset, updateDataAsset };
+export { createDataAsset, fetchAllDataAsset, fetchDataAsset, updateDataAsset };

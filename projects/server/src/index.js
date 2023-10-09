@@ -52,7 +52,7 @@ app.use("/asset-byname", assetGlobalRouter);
 app.use("/img", imageRouter);
 app.use("/transh", transHOrderRouter);
 app.use("/category", categoryRouter);
-app.use("/branch", branchRouter);
+app.use("/api/branch", branchRouter);
 app.use("/status", statusGlobalRouters);
 app.use("/owner", ownerRouters);
 app.use("/api/transfer-asset", transferAssetRouter);

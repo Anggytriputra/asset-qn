@@ -8,19 +8,26 @@ import SearchBar from "../../components/SearchBar";
 import Dropdown from "../../components/DropDown";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAssetName } from "../../reducers/assetNameSlice";
+import TableList from "../../components/TableList";
+import Spinner from "../../components/Spinner";
 
 const SettingsAssetName = () => {
   const dispatch = useDispatch();
 
-  const [openModal, setOpenModal] = useState(false);
   const userGlobal = useSelector((state) => state.user);
   console.log("userGlobal", userGlobal);
+  const assetNamesGlobal = useSelector((state) => state.assetName);
+  console.log("asset names", assetNamesGlobal);
+
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     if (userGlobal.role === "Super Admin") {
       dispatch(fetchAssetName());
     }
-  });
+  }, [userGlobal.id]);
+
+  if (assetNamesGlobal.isLoading) return <Spinner />;
 
   return (
     <div>
@@ -44,7 +51,7 @@ const SettingsAssetName = () => {
           className="text-sm bg-gray-50 rounded-md border-0 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-orange-600 sm:text-sm sm:leading-6"
         />
       </div>
-      <GridList projects={listDataBaseName} />
+      <TableList projects={assetNamesGlobal.assetNames.rows} />
     </div>
   );
 };

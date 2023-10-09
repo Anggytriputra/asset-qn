@@ -1,5 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import api from "../api/api";
+
+const BASE_URL = "/branch";
 
 const initBranch = {
   allBranches: [],
@@ -23,8 +26,8 @@ export const { setBranch } = branchSlice.actions;
 export function fetchAllBranches() {
   return async (dispatch) => {
     try {
-      const data = await axios.get("http://localhost:2000/branch");
-      // console.log("data nih branchslice", data);
+      const data = await api.get(`${BASE_URL}`);
+      console.log("data nih branchslice", data);
       dispatch(setBranch(data.data.branches));
     } catch (error) {
       console.log(error.res);

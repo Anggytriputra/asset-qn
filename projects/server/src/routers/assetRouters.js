@@ -1,8 +1,10 @@
 const { assetControllers } = require("../controllers");
 const { fileUploader } = require("../middleware/multer");
+const userExtractor = require("../middleware/userExtractor");
 // const userExtractor = require("../middleware/userExtractor");
 const assetRouter = require("express").Router();
 
+assetRouter.get("/", userExtractor, assetControllers.getAllAsset);
 assetRouter.get("/fc1", assetControllers.getAssetKendaraan);
 assetRouter.get("/fc2", assetControllers.getAssetSpecialTool);
 assetRouter.get("/fc3", assetControllers.getAssetStandardTool);
@@ -10,7 +12,7 @@ assetRouter.get("/fc4", assetControllers.getAssetSafetyTool);
 
 assetRouter.post(
   "/c1",
-  //   userExtractor,
+  userExtractor,
   fileUploader({ destinationFolder: "kendaraan", prefix: "PIMG" }).array(
     "asset_image"
   ),
@@ -19,7 +21,7 @@ assetRouter.post(
 
 assetRouter.post(
   "/c2",
-  //   userExtractor,
+  userExtractor,
   fileUploader({ destinationFolder: "specialTools", prefix: "PIMG" }).array(
     "asset_image"
   ),
@@ -28,7 +30,7 @@ assetRouter.post(
 
 assetRouter.post(
   "/c3",
-  //   userExtractor,
+  userExtractor,
   fileUploader({ destinationFolder: "standardTools", prefix: "PIMG" }).array(
     "asset_image"
   ),
@@ -37,7 +39,7 @@ assetRouter.post(
 
 assetRouter.post(
   "/c4",
-  // userExtractor,
+  userExtractor,
   fileUploader({ destinationFolder: "safetyTools", prefix: "PIMG" }).array(
     "asset_image"
   ),

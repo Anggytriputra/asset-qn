@@ -1,3 +1,4 @@
+const { toTitleCase, toUpperCase } = require("../helper/loweUpperCase");
 const db = require("../models");
 const { Op } = require("sequelize");
 const sequelize = db.sequelize;
@@ -5,19 +6,143 @@ const assets = db.m_assets;
 const assetIns = db.m_assets_in;
 const forms = db.m_form;
 
+async function getAllAsset(req, res) {
+  try {
+    console.log("get kueri all asset", req.query);
+    console.log("data user", req.user);
+    const itemsPerPage = 25;
+
+    const userRole = req.roleName;
+
+    const page = parseInt(req.query.page);
+
+    const idCategory = parseInt(req.query.categoryId);
+    const assetname = req.query.assetName;
+    const branchId = parseInt(req.query.branchId);
+    const searchAssetName = req.query.q;
+
+    // const offsetLimit = {};
+    // if (page) {
+    //   offsetLimit.limit = itemsPerPage;
+    //   offsetLimit.offset = (page - 1) * itemsPerPage;
+    // }
+
+    const offsetLimit = {};
+    if (page) {
+      offsetLimit.limit = itemsPerPage;
+      offsetLimit.offset = (page - 1) * itemsPerPage;
+    }
+
+    const categoryIdClause = idCategory ? { category_id: idCategory } : {};
+
+    console.log("category clause", categoryIdClause);
+    const assetNameClause = searchAssetName
+      ? { name: { [Op.like]: "%" + searchAssetName + "%" } }
+      : {};
+
+    const branchIdClause =
+      userRole === "Super Admin"
+        ? {}
+        : userRole === "Warehouse HO"
+        ? {}
+        : { m_cabang_id: branchId };
+
+    console.log("branchClauseid", branchIdClause);
+
+    const asset = await db.m_assets.findAndCountAll({
+      subQuery: false,
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "createdBy"],
+      },
+      where: {
+        ...categoryIdClause,
+        ...branchIdClause,
+        ...assetNameClause,
+      },
+      include: [
+        {
+          model: db.m_assets_in,
+          attributes: ["m_form_id", "value", "m_asset_id"],
+          include: [
+            {
+              model: db.m_form,
+              attributes: ["id", "column_name", "m_category_id"],
+            },
+          ],
+        },
+        {
+          model: db.m_stock,
+          attributes: ["id", "quantity"],
+        },
+
+        {
+          model: db.m_status_condition,
+          attributes: ["id", "name"],
+        },
+        {
+          model: db.m_owner,
+          as: "owner",
+          attributes: ["id", "name"],
+        },
+        {
+          model: db.m_cabang,
+          attributes: ["id", "cabang_name"],
+        },
+
+        {
+          model: db.m_images,
+          attributes: ["id", "images_url", "m_asset_id"],
+          limit: 1,
+          order: [["id", "ASC"]],
+        },
+        {
+          model: db.m_categories,
+          attributes: ["id", "name"],
+        },
+        {
+          model: db.m_sub_categories,
+          attributes: ["id", "name"],
+        },
+      ],
+      ...offsetLimit,
+      order: [["id", "DESC"]],
+    });
+
+    console.log("asset ya count", asset);
+
+    const assetCount = await db.m_assets.count({
+      where: {
+        ...categoryIdClause,
+        ...branchIdClause,
+        ...assetNameClause,
+      },
+    });
+
+    console.log("count", assetCount);
+
+    res.status(200).send({
+      message: "SuccessFuly get data all sset",
+      ...asset,
+      count: assetCount, // Menambahkan properti count yang baru
+    });
+  } catch (error) {
+    console.log("error get kendaraan", error);
+    res.status(400).send(error);
+  }
+}
 async function getAssetKendaraan(req, res) {
   try {
     const itemsPerPage = 6;
 
-    console.log("get kueri kendaraan", req.query);
+    // console.log("get kueri kendaraan", req.query);
     const page = parseInt(req.query.page);
-    console.log("req query", req.query);
+    // console.log("req query", req.query);
     const idCategory = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
     const branchId = parseInt(req.query.branchId);
     const userRole = req.query.userRole;
 
-    console.log("categoryId", idCategory);
+    // console.log("categoryId", idCategory);
 
     // const offsetLimit = {};
     // if (page) {
@@ -66,6 +191,10 @@ async function getAssetKendaraan(req, res) {
             },
           ],
         },
+        {
+          model: db.m_stock,
+          attributes: ["id", "quantity"],
+        },
 
         {
           model: db.m_status_condition,
@@ -80,10 +209,7 @@ async function getAssetKendaraan(req, res) {
           model: db.m_cabang,
           attributes: ["id", "cabang_name"],
         },
-        {
-          model: db.m_stock,
-          attributes: ["id", "quantity"],
-        },
+
         {
           model: db.m_images,
           attributes: ["id", "images_url", "m_asset_id"],
@@ -352,6 +478,10 @@ async function getAssetSafetyTool(req, res) {
 async function createAssetKendaraan(req, res) {
   try {
     console.log("req body kendaraan", req.body);
+    console.log("req kueari", req.user);
+
+    const user = req.user;
+
     const {
       description,
       // conditionLabel,
@@ -359,8 +489,6 @@ async function createAssetKendaraan(req, res) {
       year,
       noRangka,
       noMesin,
-      // typeKendaraanName,
-
       receivedInBranch,
       noPolisi,
       expTaxOneYear,
@@ -372,12 +500,11 @@ async function createAssetKendaraan(req, res) {
 
     const CategoryId = parseInt(req.body.CategoryId);
     const ownerId = parseInt(req.body.ownerId);
+    const pic = parseInt(req.body.pic);
     const sub_category_id = parseInt(req.body.sub_category_id);
-    const branchId = parseInt(req.body.branch_id);
-    const userId = parseInt(req.body.userId);
+    const branchId = parseInt(req.body.branchId);
+    const userId = parseInt(user.id);
     const quantity = parseInt(req.body.quantity);
-
-    console.log("re body kendaraan", req.body);
 
     if (
       // sub_category_id == 0 ||
@@ -396,30 +523,36 @@ async function createAssetKendaraan(req, res) {
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
 
+    const descText = toTitleCase(description);
+    const numPolice = toUpperCase(noPolisi);
+    const numRangka = toUpperCase(noRangka);
+    const numMesin = toUpperCase(noMesin);
+    const color2 = toUpperCase(color);
+
     const noPolisiExist = await db.m_assets_in.findOne({
-      where: { value: noPolisi },
+      where: { value: numPolice },
     });
 
     if (noPolisiExist?.dataValues)
       return res.status(400).send({ message: "No police already exist" });
 
     const noRangkaExist = await db.m_assets_in.findOne({
-      where: { value: noRangka },
+      where: { value: numRangka },
     });
 
     if (noRangkaExist?.dataValues)
       return res.status(400).send({ message: "No rangka already exist" });
 
     const noMesinExist = await db.m_assets_in.findOne({
-      where: { value: noMesin },
+      where: { value: numMesin },
     });
 
     if (noMesinExist?.dataValues)
       return res.status(400).send({ message: "No mesin already exist" });
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).send({ message: "No Images files uploaded" });
-    }
+    // if (!req.files || req.files.length === 0) {
+    //   return res.status(400).send({ message: "No Images files uploaded" });
+    // }
 
     const [mForm] = await sequelize.query(
       `SELECT * FROM m_form WHERE m_category_id = ${CategoryId}`
@@ -452,33 +585,22 @@ async function createAssetKendaraan(req, res) {
     );
     const statusStnkId = findIdByColumnName(mForm, "Status Stnk");
 
-    // Masukkan quantity ke tabel m_stock
-    const [stockResult] = await sequelize.query(
-      `INSERT INTO m_stock(quantity) VALUES (?)`,
-      {
-        replacements: [1], // menggunakan opsi 'replacements'
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    // // // ambil idStock
-    const stockId = stockResult;
-
     // // // Masukkan data ke tabel m_assets
     const [resAsset] = await sequelize.query(
       `INSERT INTO m_assets (\`desc\`, name, m_sub_category_id,
-      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      m_category_id, m_cabang_id, createdBy, m_owner_id, m_status_condition_id, pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
-          description,
+          descText,
           name,
           sub_category_id,
           CategoryId,
           branchId,
-          stockId,
+          // stockId,
           userId,
           ownerId,
           4,
+          pic,
         ],
         type: sequelize.QueryTypes.INSERT,
       }
@@ -488,7 +610,14 @@ async function createAssetKendaraan(req, res) {
 
     const assetId = resAsset;
 
-    // console.log("subCatgoriesId", sub_category_id);
+    // Masukkan quantity ke tabel m_stock
+    const [stockResult] = await sequelize.query(
+      `INSERT INTO m_stock(quantity, m_asset_id) VALUES (?, ?)`,
+      {
+        replacements: [1, assetId], // menggunakan opsi 'replacements'
+        type: sequelize.QueryTypes.INSERT,
+      }
+    );
 
     const [mSubcatgories] = await sequelize.query(
       `SELECT * FROM m_sub_categories WHERE id = ?`,
@@ -521,7 +650,7 @@ async function createAssetKendaraan(req, res) {
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [noPolisiId, noPolisi, assetId, userId],
+        replacements: [noPolisiId, numPolice, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -529,7 +658,7 @@ async function createAssetKendaraan(req, res) {
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [noRangkaId, noRangka, assetId, userId],
+        replacements: [noRangkaId, numRangka, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -537,7 +666,7 @@ async function createAssetKendaraan(req, res) {
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [noMesinId, noMesin, assetId, userId],
+        replacements: [noMesinId, numMesin, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -545,7 +674,7 @@ async function createAssetKendaraan(req, res) {
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [warnaId, color, assetId, userId],
+        replacements: [warnaId, color2, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -577,20 +706,20 @@ async function createAssetKendaraan(req, res) {
     // // Disini, iterasi melalui semua gambar yang di-upload dan simpan ke tabel m_images
     // console.log("testimoni");
 
-    for (let file of req.files) {
-      const imagePath = file.filename;
-      await sequelize.query(
-        `INSERT INTO m_images(m_asset_id, images_url) VALUES (?, ?)`,
-        {
-          replacements: [assetId, imagePath],
-          type: sequelize.QueryTypes.INSERT,
-        }
-      );
-    }
+    // for (let file of req.files) {
+    //   const imagePath = file.filename;
+    //   await sequelize.query(
+    //     `INSERT INTO m_images(m_asset_id, images_url) VALUES (?, ?)`,
+    //     {
+    //       replacements: [assetId, imagePath],
+    //       type: sequelize.QueryTypes.INSERT,
+    //     }
+    //   );
+    // }
 
     // // Kirim respons sukses ke client
     return res.status(200).send({
-      message: "Asset created successfully",
+      message: "Asset Kendaraan created successfully",
       // asset: resAsset,
     });
   } catch (error) {
@@ -606,6 +735,7 @@ async function createAssetSpecialTool(req, res) {
   try {
     console.log("req.body id 2", req.body);
 
+    const user = req.user;
     const payload = { ...req.body };
     Object.keys(payload).forEach((key) => {
       if (payload[key] === "") {
@@ -615,47 +745,51 @@ async function createAssetSpecialTool(req, res) {
 
     const {
       name,
-      // pic,
-      // branchReceivedDate,
       serialNumber,
       AccessoriesOne,
       AccessoriesTwo,
       AccessoriesThree,
       description,
-      // quantity,
       merkName,
       typeName,
     } = payload;
 
     console.log("payload", payload);
 
-    const CategoryId = parseInt(req.body.category_id);
+    const CategoryId = parseInt(req.body.CategoryId);
     const ownerId = parseInt(req.body.ownerId);
-    const branchId = parseInt(req.body.branch_id);
-    const userId = parseInt(req.body.userId);
+    const branchId = parseInt(req.body.branchId);
+    const userId = parseInt(user.id);
+    const pic = parseInt(req.body.pic);
 
     if (
       !name ||
       !ownerId ||
       !CategoryId ||
-      // !branchReceivedDate ||
       !description ||
       !serialNumber ||
       !merkName ||
+      !pic ||
       !typeName
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
 
+    const descText = toTitleCase(description);
+    const accOne = AccessoriesOne ? toTitleCase(AccessoriesOne) : null;
+    const accTwo = AccessoriesTwo ? toTitleCase(AccessoriesTwo) : null;
+    const accThree = AccessoriesThree ? toTitleCase(AccessoriesThree) : null;
+    const sN = toUpperCase(serialNumber);
+
     const serialNumberExist = await db.m_assets_in.findOne({
-      where: { value: serialNumber },
+      where: { value: sN },
     });
 
     if (serialNumberExist?.dataValues)
       return res.status(400).send({ message: "Serial number already exist" });
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).send({ message: "No Images files uploaded" });
-    }
+    // if (!req.files || req.files.length === 0) {
+    //   return res.status(400).send({ message: "No Images files uploaded" });
+    // }
 
     const [mForm] = await sequelize.query(
       `SELECT * FROM m_form WHERE m_category_id = ${CategoryId}`
@@ -680,30 +814,16 @@ async function createAssetSpecialTool(req, res) {
 
     console.log("mform", mForm);
 
-    const quantity = 1;
-
-    // Masukkan quantity ke tabel m_stock
-    const [stockResult] = await sequelize.query(
-      `INSERT INTO m_stock(quantity) VALUES (?)`,
-      {
-        replacements: [1], // menggunakan opsi 'replacements'
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    // // ambil idStock
-    const stockId = stockResult;
-
     const [resAsset] = await sequelize.query(
       `INSERT INTO m_assets (\`desc\`, name,
-      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      m_category_id, m_cabang_id, pic, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
-          description,
+          descText,
           name,
           CategoryId,
           branchId,
-          stockId,
+          pic,
           userId,
           ownerId,
           4,
@@ -715,12 +835,21 @@ async function createAssetSpecialTool(req, res) {
     // // console.log("res Special Tool", resAsset);
     const assetId = resAsset;
 
+    // Masukkan quantity ke tabel m_stock
+    const [stockResult] = await sequelize.query(
+      `INSERT INTO m_stock(quantity, m_asset_id) VALUES (?, ?)`,
+      {
+        replacements: [1, assetId], // menggunakan opsi 'replacements'
+        type: sequelize.QueryTypes.INSERT,
+      }
+    );
+
     // console.log("assetId", assetId);
 
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [serialNumberId, serialNumber, assetId, userId],
+        replacements: [serialNumberId, sN, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -728,7 +857,7 @@ async function createAssetSpecialTool(req, res) {
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [AccessoriesOneId, AccessoriesOne, assetId, userId],
+        replacements: [AccessoriesOneId, accOne, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -736,7 +865,7 @@ async function createAssetSpecialTool(req, res) {
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [AccessoriesTwoId, AccessoriesTwo, assetId, userId],
+        replacements: [AccessoriesTwoId, accTwo, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -744,7 +873,7 @@ async function createAssetSpecialTool(req, res) {
     await sequelize.query(
       `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
       {
-        replacements: [AccessoriesThreeId, AccessoriesThree, assetId, userId],
+        replacements: [AccessoriesThreeId, accThree, assetId, userId],
         type: sequelize.QueryTypes.INSERT,
       }
     );
@@ -765,16 +894,16 @@ async function createAssetSpecialTool(req, res) {
       }
     );
 
-    for (let file of req.files) {
-      const imagePath = file.filename;
-      await sequelize.query(
-        `INSERT INTO m_images(m_asset_id, images_url) VALUES (?, ?)`,
-        {
-          replacements: [assetId, imagePath],
-          type: sequelize.QueryTypes.INSERT,
-        }
-      );
-    }
+    // for (let file of req.files) {
+    //   const imagePath = file.filename;
+    //   await sequelize.query(
+    //     `INSERT INTO m_images(m_asset_id, images_url) VALUES (?, ?)`,
+    //     {
+    //       replacements: [assetId, imagePath],
+    //       type: sequelize.QueryTypes.INSERT,
+    //     }
+    //   );
+    // }
 
     return res.status(200).send({
       // data: resAsset,
@@ -790,59 +919,50 @@ async function createdStandardTool(req, res) {
   try {
     console.log("req body StandardTool", req.body);
 
+    const user = req.user;
+
     const { name, description } = req.body;
     const CategoryId = parseInt(req.body.CategoryId);
     const quantity = parseInt(req.body.quantity);
 
     // console.log("quntity", quantity);
-    const branchId = parseInt(req.body.branch_id);
-    const userId = parseInt(req.body.userId);
+    const branchId = parseInt(req.body.branchId);
+    const pic = parseInt(req.body.pic);
+    const userId = parseInt(user.id);
     const ownerId = parseInt(req.body.ownerId);
-
-    console.log("branchId", branchId);
 
     if (
       !name ||
       name === undefined ||
       name === null ||
+      !pic ||
+      !CategoryId ||
       !description ||
       !quantity ||
       !ownerId
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).send({ message: "No Images files uploaded" });
-    }
+    // if (!req.files || req.files.length === 0) {
+    //   return res.status(400).send({ message: "No Images files uploaded" });
+    // }
     // Masukkan quantity ke tabel m_stock
-    // Masukkan quantity ke tabel m_stock
-    const [stockResult] = await sequelize.query(
-      `INSERT INTO m_stock(quantity) VALUES (?)`,
-      {
-        replacements: [quantity], // menggunakan opsi 'replacements'
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    const stockId = stockResult;
-
-    console.log("stockId", stockId);
 
     // const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
 
     const [resAsset] = await sequelize.query(
       `INSERT INTO m_assets (\`desc\`, name,
-      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      m_category_id, m_cabang_id, createdBy, m_owner_id, m_status_condition_id, pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
           description,
           name,
           CategoryId,
           branchId,
-          stockId,
           userId,
           ownerId,
           4,
+          pic,
         ],
         type: sequelize.QueryTypes.INSERT,
       }
@@ -850,18 +970,25 @@ async function createdStandardTool(req, res) {
 
     const assetId = resAsset;
 
-    console.log("assetId", assetId);
+    // Masukkan quantity ke tabel m_stock
+    const [stockResult] = await sequelize.query(
+      `INSERT INTO m_stock(quantity, m_asset_id) VALUES (?, ?)`,
+      {
+        replacements: [quantity, assetId], // menggunakan opsi 'replacements'
+        type: sequelize.QueryTypes.INSERT,
+      }
+    );
 
-    for (let file of req.files) {
-      const imagePath = file.filename;
-      await sequelize.query(
-        `INSERT INTO m_images(m_asset_id, images_url) VALUES (?, ?)`,
-        {
-          replacements: [assetId, imagePath],
-          type: sequelize.QueryTypes.INSERT,
-        }
-      );
-    }
+    // for (let file of req.files) {
+    //   const imagePath = file.filename;
+    //   await sequelize.query(
+    //     `INSERT INTO m_images(m_asset_id, images_url) VALUES (?, ?)`,
+    //     {
+    //       replacements: [assetId, imagePath],
+    //       type: sequelize.QueryTypes.INSERT,
+    //     }
+    //   );
+    // }
 
     return res.status(200).send({
       data: resAsset,
@@ -877,52 +1004,37 @@ async function createSafetyTool(req, res) {
   try {
     console.log("req body safetyTools", req.body);
 
+    const user = req.user;
     const { name, description } = req.body;
     const CategoryId = parseInt(req.body.CategoryId);
     const quantity = parseInt(req.body.quantity);
     const ownerId = parseInt(req.body.ownerId);
 
     // console.log("quntity", quantity);
-    const branchId = parseInt(req.body.branch_id);
-    const userId = parseInt(req.body.userId);
+    const branchId = parseInt(req.body.branchId);
+    const pic = parseInt(req.body.pic);
+    const userId = parseInt(user.id);
 
-    console.log("branchId", branchId);
-
-    if (!name || !description || !quantity || !ownerId)
+    if (!name || !CategoryId || !description || !quantity || !pic || !ownerId)
       return res.status(400).send({ message: "Please Complete Your Data" });
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).send({ message: "No Images files uploaded" });
-    }
-    // Masukkan quantity ke tabel m_stock
-    // Masukkan quantity ke tabel m_stock
-    const [stockResult] = await sequelize.query(
-      `INSERT INTO m_stock(quantity) VALUES (?)`,
-      {
-        replacements: [quantity], // menggunakan opsi 'replacements'
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
-
-    const stockId = stockResult;
-
-    console.log("stockId", stockId);
-
-    // const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+    // if (!req.files || req.files.length === 0) {
+    //   return res.status(400).send({ message: "No Images files uploaded" });
+    // }
 
     const [resAsset] = await sequelize.query(
       `INSERT INTO m_assets (\`desc\`, name, 
-      m_category_id, m_cabang_id, m_stock_id, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      m_category_id, m_cabang_id, createdBy, m_owner_id, m_status_condition_id, pic) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
           description,
           name,
           CategoryId,
           branchId,
-          stockId,
           userId,
           ownerId,
           4,
+          pic,
         ],
         type: sequelize.QueryTypes.INSERT,
       }
@@ -930,7 +1042,14 @@ async function createSafetyTool(req, res) {
 
     const assetId = resAsset;
 
-    console.log("assetId", assetId);
+    // Masukkan quantity ke tabel m_stock
+    const [stockResult] = await sequelize.query(
+      `INSERT INTO m_stock(quantity, m_asset_id) VALUES (?, ?)`,
+      {
+        replacements: [quantity, assetId], // menggunakan opsi 'replacements'
+        type: sequelize.QueryTypes.INSERT,
+      }
+    );
 
     for (let file of req.files) {
       const imagePath = file.filename;
@@ -1399,6 +1518,7 @@ async function updateAssetSafetyTool(req, res) {
 }
 
 module.exports = {
+  getAllAsset,
   getAssetKendaraan,
   getAssetSpecialTool,
   getAssetStandardTool,

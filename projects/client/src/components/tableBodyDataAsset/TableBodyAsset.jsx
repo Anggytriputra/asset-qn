@@ -2,9 +2,16 @@ import React from "react";
 import BrokenImg from "../../assets/broken_img.png";
 import { Link } from "react-router-dom";
 
-export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
-  console.log("asset table kendaraan", asset);
-  console.log("on edit", asset);
+export default function TableBodyAsset({
+  asset = [],
+  onEdit,
+  onDelete,
+  selectItem,
+  setSelectItem,
+  onCheckboxChange,
+}) {
+  // console.log("asset table kendaraan", asset);
+  // console.log("on edit", asset);
   // console.log("asset table kendaraan", asset[0]?.m_images.images_url);
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
@@ -26,10 +33,11 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
             >
               <input
                 type="checkbox"
-                className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 sm:left-6"
-                // ref={checkbox}
-                // checked={checked}
-                // onChange={toggleAll}
+                className="checkbox absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 sm:left-6"
+                onChange={() =>
+                  onCheckboxChange(assets, selectItem, setSelectItem)
+                }
+                checked={selectItem.includes(assets)}
               />
             </th>
             <td className="py-4 pl-4 pr-3 text-sm  text-gray-500">
@@ -75,6 +83,14 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               </div>
             </td>
 
+            <td className="px-4 py-4 text-sm text-gray-500">
+              <div className="text-gray-900 truncate max-w-[90px]">
+                {assetInsMap["No. Polisi"] ||
+                  assetInsMap["Serial Number"] ||
+                  "-"}
+              </div>
+            </td>
+
             {/* <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">
                 {assets.m_status_condition.name || "-"}
@@ -95,11 +111,11 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               </span>
             </td>
 
-            <td className="px-4 py-4 text-sm text-gray-500">
+            {/* <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
                 {assets.desc}
               </div>
-            </td>
+            </td> */}
 
             {/* <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">

@@ -8,11 +8,11 @@ async function userExtractor(req, res, next) {
     // console.log("test nih token", req);
     const token = req.headers.authorization;
 
-    console.log("ini token bro", token);
+    // console.log("ini token bro", token);
 
     if (!token) return res.status(400).json({ message: "Missing token" });
 
-    console.log("test");
+    // console.log("test");
 
     const userToken = await db.m_tokens.findOne({
       where: {
@@ -22,7 +22,7 @@ async function userExtractor(req, res, next) {
       },
     });
 
-    console.log("usertoken", userToken);
+    // console.log("usertoken", userToken);
     if (!userToken) return res.status(400).json({ message: "Token expired" });
 
     const userExists = await db.m_users.findOne({
@@ -35,14 +35,14 @@ async function userExtractor(req, res, next) {
       },
     });
 
-    console.log("user", userExists.dataValues);
+    // console.log("user", userExists.dataValues);
     if (!userExists)
       return res.status(400).json({ message: "User does not exist" });
     // throw new Error("User does not exist");
 
     const idRole = userExists.dataValues.id_role;
 
-    console.log("ini id role", idRole);
+    // console.log("ini id role", idRole);
 
     const role = await sequelize.query(
       `SELECT * FROM m_role WHERE id = ${idRole}`,
@@ -58,7 +58,7 @@ async function userExtractor(req, res, next) {
       return res.status(400).json({ message: "Role not found" });
     }
 
-    console.log("role name", roleName);
+    // console.log("role name", roleName);
 
     if (
       roleName !== "Super Admin" &&

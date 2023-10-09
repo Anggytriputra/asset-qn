@@ -31,7 +31,7 @@ export default function Comboboxes({
   setSelectedValue = {},
   isInputDisabled = true,
 }) {
-  console.log("selected value comboboxes", selectedValue);
+  // console.log("selected value comboboxes", selectedValue);
   // console.log("peaople", people);
   // console.log("peaople", people);
   const [query, setQuery] = useState("");

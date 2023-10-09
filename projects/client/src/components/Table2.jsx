@@ -1,4 +1,4 @@
-export default function Table({
+export default function Table2({
   headCols = [],
   tableBody = null,
   className = "",
@@ -12,7 +12,7 @@ export default function Table({
               <table className="min-w-full divide-y divide-gray-300">
                 <thead className="bg-gray-50">
                   <tr>
-                    {/* <th>{""}</th> */}
+                    <th>{""}</th>
                     {headCols.map((col, idx) => (
                       <th
                         key={idx}

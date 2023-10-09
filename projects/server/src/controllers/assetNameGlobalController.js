@@ -7,11 +7,12 @@ async function getAssetName(req, res) {
 
     const categoryId = parseInt(req.query.categoryId);
 
-    const categoryIdClause = categoryId ? categoryId : {};
+    const categoryClause = categoryId ? { m_category_id: categoryId } : {};
 
     const mAssetName = await db.m_assets_name.findAndCountAll({
-      attributes: ["id", "name"],
-      where: { m_category_id: categoryId },
+      attributes: ["id", "name", "updatedAt"],
+      where: categoryClause,
+      include: [{ model: db.m_categories, attributes: ["name"] }],
     });
 
     console.log("m asset name", mAssetName);
@@ -25,6 +26,7 @@ async function getAssetName(req, res) {
     res.status(400).send(error);
   }
 }
+
 async function getAssetNameByCategoryId(req, res) {
   try {
     console.log("req query asset name nih", req.query);
