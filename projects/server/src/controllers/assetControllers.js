@@ -10,7 +10,7 @@ async function getAllAsset(req, res) {
   try {
     console.log("get kueri all asset", req.query);
     console.log("data user", req.user);
-    const itemsPerPage = 25;
+    const itemsPerPage = 15;
 
     const userRole = req.roleName;
 
@@ -20,12 +20,6 @@ async function getAllAsset(req, res) {
     const assetname = req.query.assetName;
     const branchId = parseInt(req.query.branchId);
     const searchAssetName = req.query.q;
-
-    // const offsetLimit = {};
-    // if (page) {
-    //   offsetLimit.limit = itemsPerPage;
-    //   offsetLimit.offset = (page - 1) * itemsPerPage;
-    // }
 
     const offsetLimit = {};
     if (page) {
@@ -102,6 +96,11 @@ async function getAllAsset(req, res) {
         {
           model: db.m_sub_categories,
           attributes: ["id", "name"],
+        },
+        {
+          model: db.m_users,
+          attributes: ["id", "username"],
+          as: "pic_user",
         },
       ],
       ...offsetLimit,
@@ -508,6 +507,7 @@ async function createAssetKendaraan(req, res) {
 
     if (
       // sub_category_id == 0 ||
+      !sub_category_id ||
       statusStnkName === "None" ||
       !name ||
       !description ||
@@ -754,8 +754,9 @@ async function createAssetSpecialTool(req, res) {
       typeName,
     } = payload;
 
-    console.log("payload", payload);
+    // console.log("payload", payload);
 
+    const sub_category_id = parseInt(req.body.sub_category_id);
     const CategoryId = parseInt(req.body.CategoryId);
     const ownerId = parseInt(req.body.ownerId);
     const branchId = parseInt(req.body.branchId);
@@ -764,13 +765,13 @@ async function createAssetSpecialTool(req, res) {
 
     if (
       !name ||
+      !sub_category_id ||
       !ownerId ||
       !CategoryId ||
       !description ||
       !serialNumber ||
       !merkName ||
-      !pic ||
-      !typeName
+      !pic
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
 
@@ -815,12 +816,13 @@ async function createAssetSpecialTool(req, res) {
     console.log("mform", mForm);
 
     const [resAsset] = await sequelize.query(
-      `INSERT INTO m_assets (\`desc\`, name,
-      m_category_id, m_cabang_id, pic, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO m_assets (\`desc\`, name, m_sub_category_id,
+      m_category_id, m_cabang_id, pic, createdBy, m_owner_id, m_status_condition_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       {
         replacements: [
           descText,
           name,
+          sub_category_id,
           CategoryId,
           branchId,
           pic,
@@ -886,13 +888,13 @@ async function createAssetSpecialTool(req, res) {
       }
     );
 
-    await sequelize.query(
-      `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
-      {
-        replacements: [typeNameId, typeName, assetId, userId],
-        type: sequelize.QueryTypes.INSERT,
-      }
-    );
+    // await sequelize.query(
+    //   `INSERT INTO m_assets_in (m_form_id, value, m_asset_id, createdBy) VALUES (?, ?, ?, ?)`,
+    //   {
+    //     replacements: [typeNameId, typeName, assetId, userId],
+    //     type: sequelize.QueryTypes.INSERT,
+    //   }
+    // );
 
     // for (let file of req.files) {
     //   const imagePath = file.filename;

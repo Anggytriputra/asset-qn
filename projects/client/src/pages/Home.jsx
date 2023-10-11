@@ -51,11 +51,14 @@ import ModalForm2 from "../components/Modal2";
 import TableBodyListTransferAsset from "../components/tableBodyTransAsset/TableBodyListTransferAsset";
 import { reqTransferAsset } from "../reducers/transferSlice";
 import Table2 from "../components/Table2";
+import Pagination from "../components/Pagination";
+import Pagination2 from "../components/Pagination2";
 
 const Home = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
+  const [addNewData, setAddNewData] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [openModalTf, setOpenModalTf] = useState(false);
   // const [openModalTf, setOpenModalTf] = useState(false);
@@ -66,11 +69,19 @@ const Home = () => {
 
   //
   const [dataAsset, setDataAsset] = useState([]);
+  console.log("data asset nih bro", dataAsset);
+  const [editedAssetData, setEditedAssetData] = useState({});
+  console.log("editedAsset data", editedAssetData);
+  const [actionEdit, setActionEdit] = useState(false);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [loadingData, setLoadingData] = useState(false);
 
   //
   const [selectedCategory, setSelectedCategory] = useState();
+
+  console.log("selectedCategory", selectedCategory);
+
   const [selectedBrach, setSelectedBranch] = useState();
   const [selectedAssetName, setSelectedAssetName] = useState();
   const [selectedOwner, setSelectedOwner] = useState();
@@ -130,15 +141,7 @@ const Home = () => {
   const [selectedUserPenerima, setSelectedUserPenerima] = useState();
 
   const listTf = selectedItemTf.map(transformData);
-  console.log("detail transfer", listTf);
 
-  // const HandlecheckBox = handleCheckboxChange(
-  //   // assetId,
-  //   selectedItemTf,
-  //   setSelectedTf
-  // );
-
-  //
   const steps =
     selectedCategory &&
     ["Safety Tools", "Standard Tools"].includes(selectedCategory.name)
@@ -153,6 +156,31 @@ const Home = () => {
       setSelectedCategory("");
     }
   }, [openModal]);
+
+  useEffect(() => {
+    if (actionEdit && editedAssetData) {
+      setSelectedCategory(editedAssetData ? editedAssetData.m_category : null);
+      setSelectedBranch(
+        editedAssetData && editedAssetData.m_cabang
+          ? {
+              id: editedAssetData.m_cabang.id,
+              name: editedAssetData.m_cabang.cabang_name,
+            }
+          : null
+      );
+
+      setSelectedAssetName(editedAssetData ? editedAssetData : null);
+      setSelectedOwner(editedAssetData ? editedAssetData.owner : null);
+      setSelectedPic(
+        editedAssetData && editedAssetData.pic_user
+          ? {
+              id: editedAssetData.pic_user.id,
+              name: editedAssetData.pic_user.username,
+            }
+          : null
+      );
+    }
+  }, [actionEdit, editedAssetData]);
 
   useEffect(() => {
     if (userGlobal.role) {
@@ -179,7 +207,8 @@ const Home = () => {
       setLoadingData(false);
     };
     getAssets();
-  }, [userGlobal.role, searchAssetName, currentPage]);
+    setAddNewData(false);
+  }, [userGlobal.role, searchAssetName, currentPage, addNewData]);
 
   useEffect(() => {
     if (userGlobal.role && selectedCategory && selectedBrach) {
@@ -191,7 +220,7 @@ const Home = () => {
 
   useEffect(() => {
     if ((selectedToBranch && selectedToBranch.id) || selectedBrach) {
-      dispatch(fetchAllUsers(selectedToBranch.id));
+      // dispatch(fetchAllUsers(selectedToBranch.id));
     }
   }, [selectedToBranch, selectedBrach, selectedCategory]);
 
@@ -279,10 +308,26 @@ const Home = () => {
       mergedData = data;
     }
 
-    // console.log("merge data ", mergedData);
-
     const result = await createDataAsset(mergedData, id);
+
+    if (result && result.status === 200) {
+      setTimeout(() => {
+        setAddNewData(true);
+        setOpenModal(false);
+      }, 2000);
+    }
+
+    console.log("result", result);
   }
+
+  // Handle edit
+  function handleEditClick(assets, stockIdx) {
+    console.log("nih data asset edited", assets);
+    setEditedAssetData(assets);
+    setActionEdit(true);
+    setOpenModal(true);
+  }
+
   const qtyInputArray = Object.values(qtyInputTf);
   console.log("qtyInputArray", qtyInputArray);
   const processedQtyInputArray = qtyInputArray.map((item) => ({
@@ -332,6 +377,7 @@ const Home = () => {
               <Steppers steps={steps} />
               {currentStep === 0 && (
                 <FormFirstStep
+                  dataEdited={editedAssetData}
                   categories={updatedCategories}
                   allbranch={updatedBranch}
                   selectCategory={selectedCategory}
@@ -469,12 +515,20 @@ const Home = () => {
           ]}
           tableBody={
             <TableBodyAsset
+              onEdit={handleEditClick}
               asset={dataAsset.rows}
               selectItem={selectedItemTf}
               setSelectItem={setSelectedItemTf}
               onCheckboxChange={handleCheckboxChange}
             />
           }
+        />
+        <Pagination2
+          itemsInPage={dataAsset.rows ? dataAsset.rows.length : 0}
+          totalItems={dataAsset.count}
+          totalPages={Math.ceil(dataAsset.count / 15)}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
         />
       </div>
     </div>

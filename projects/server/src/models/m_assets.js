@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "m_owner_id",
         as: "owner", // Anda bisa memberikan alias yang sesuai
       });
+      models.m_assets.belongsTo(models.m_users, {
+        foreignKey: "pic",
+        as: "pic_user",
+      });
     }
   }
   m_assets.init(

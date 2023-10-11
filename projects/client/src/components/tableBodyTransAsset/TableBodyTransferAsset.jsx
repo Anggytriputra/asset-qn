@@ -14,9 +14,10 @@ export default function TableBodyTransferAsset({
 
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
-      {asset.map((assets) =>
-        assets.m_trans_ds.map((transD, stockIdx) => (
-          <tr key={transD.id}>
+      {asset.map(
+        (assets) => (
+          // assets.m_trans_ds.map((transD, stockIdx) => (
+          <tr key={assets.id}>
             <td className="px-3 py-4 text-sm text-blue-500 ">
               <Link
                 to={`/asset-tools/Detail-transfer/${assets.id}`}
@@ -32,12 +33,12 @@ export default function TableBodyTransferAsset({
             <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">{assets.date}</div>
             </td>
-            <td className="px-3 py-4 text-sm text-gray-500">
+            {/* <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">{transD.m_asset_name}</div>
-            </td>
-            <td className="px-3 py-4 text-sm text-gray-500">
+            </td> */}
+            {/* <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">{transD.m_category.name}</div>
-            </td>
+            </td> */}
 
             <td className="px-3 py-4 text-sm text-gray-500">
               <div className="text-gray-900">
@@ -83,8 +84,8 @@ export default function TableBodyTransferAsset({
                     onClick={() => {
                       setOpenModalConfirmed(true);
                       setNoidTH(assets.id);
-                      const clickedAsset = asset[stockIdx];
-                      setDetailApp(clickedAsset);
+                      // const clickedAsset = asset[stockIdx];
+                      // setDetailApp(clickedAsset);
                     }}
                   >
                     Confirmed
@@ -93,7 +94,8 @@ export default function TableBodyTransferAsset({
                 )}
             </td>
           </tr>
-        ))
+        )
+        // ))
       )}
     </tbody>
   );

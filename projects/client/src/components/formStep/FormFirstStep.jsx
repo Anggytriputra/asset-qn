@@ -16,6 +16,7 @@ import ComboboxesWithStatus from "../ComboboxesWithStatus";
   ```
 */
 export default function FormFirstStep({
+  dataEdited = {},
   categories = {},
   allbranch = {},
   selectCategory,
@@ -23,6 +24,7 @@ export default function FormFirstStep({
   selectBranch,
   setSelectBranch,
 }) {
+  console.log("ini data siap edit", dataEdited);
   return (
     <div className="space-y-8 divide-y divide-gray-200">
       <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">

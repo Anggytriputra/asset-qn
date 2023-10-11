@@ -10,7 +10,7 @@ export default function TableBodyAsset({
   setSelectItem,
   onCheckboxChange,
 }) {
-  // console.log("asset table kendaraan", asset);
+  console.log("asset table kendaraan", asset);
   // console.log("on edit", asset);
   // console.log("asset table kendaraan", asset[0]?.m_images.images_url);
   return (
@@ -73,13 +73,17 @@ export default function TableBodyAsset({
 
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
-                {assets.m_cabang.cabang_name}
+                {assets && assets.m_cabang && assets.m_cabang.cabang_name
+                  ? assets.m_cabang.cabang_name
+                  : "-"}
               </div>
             </td>
 
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">
-                {assets.m_category.name}
+                {assets && assets.m_category && assets.m_category.name
+                  ? assets.m_category.name
+                  : "-"}
               </div>
             </td>
 
@@ -100,84 +104,24 @@ export default function TableBodyAsset({
             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
               <span
                 className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
+                  assets &&
+                  assets.m_status_condition &&
                   assets.m_status_condition.name === "Service"
                     ? "bg-yellow-100 text-yellow-800"
-                    : assets.m_status_condition.name === "Bad"
+                    : assets &&
+                      assets.m_status_condition &&
+                      assets.m_status_condition.name === "Bad"
                     ? "bg-red-100 text-red-500"
                     : "bg-green-100 text-green-800"
                 }`}
               >
-                {assets.m_status_condition.name || "-"}
+                {assets &&
+                assets.m_status_condition &&
+                assets.m_status_condition.name
+                  ? assets.m_status_condition.name
+                  : "-"}
               </span>
             </td>
-
-            {/* <td className="px-4 py-4 text-sm text-gray-500">
-              <div className="text-gray-900 truncate max-w-[90px]">
-                {assets.desc}
-              </div>
-            </td> */}
-
-            {/* <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Person In Charge - (PIC)"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Name of Owner"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{"rusak"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{assetInsMap["Merk"] || "-"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">{assetInsMap["Year"] || "-"}</div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["No. Polisi"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["No. Rangka"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["No. Mesin"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Exp tgl Pajak 1 Tahun"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["Exp tgl Pajak 5 Tahun"] || "-"}
-              </div>
-            </td>
-
-            <td className="px-3 py-4 text-sm text-gray-500">
-              <div className="text-gray-900">
-                {assetInsMap["tanggal terima dicabang"] || "-"}
-              </div>
-            </td> */}
-
-            {/* ... */}
 
             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
               <button

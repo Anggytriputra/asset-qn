@@ -62,8 +62,8 @@ export default function FormThirdStep({
             </p>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            {currentCategory === "Kendaraan" && (
-              <>
+            {currentCategory === "Kendaraan" ||
+              (currentCategory === "Special Tools" && (
                 <div className="sm:col-span-2 ">
                   <label
                     htmlFor="sub_category"
@@ -71,13 +71,16 @@ export default function FormThirdStep({
                   >
                     Sub-Category
                   </label>
-
                   <Comboboxes
                     people={subCategory}
                     selectedValue={selectSubCategory}
                     setSelectedValue={setSelectSubCategory}
                   />
                 </div>
+              ))}
+
+            {currentCategory === "Kendaraan" && (
+              <>
                 <div className="sm:col-span-2 ">
                   <label
                     htmlFor="tahun"
@@ -239,20 +242,6 @@ export default function FormThirdStep({
                     people={oPMerkST}
                     selectedValue={selectMerkST}
                     setSelectedValue={setSelectMerkST}
-                  />
-                </div>
-
-                <div className="sm:col-span-2 ">
-                  <label
-                    htmlFor="tipe"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Tipe
-                  </label>
-                  <Comboboxes
-                    people={oPTipeST}
-                    selectedValue={selectTipeST}
-                    setSelectedValue={setSelectTipeST}
                   />
                 </div>
 

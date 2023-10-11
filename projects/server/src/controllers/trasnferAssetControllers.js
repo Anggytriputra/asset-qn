@@ -70,7 +70,6 @@ async function getTransAsset(req, res) {
         "no_transfer",
         "date",
         "recipient_name",
-        "user_id_penerima",
       ],
       where: {
         [Op.and]: [branchIdClause, branchIdSortClause, dateClause],
@@ -79,6 +78,19 @@ async function getTransAsset(req, res) {
         {
           model: db.m_trans_d,
           exclude: ["created", "updatedAt"],
+          include: [
+            { model: db.m_categories, attributes: ["id", "name"] },
+            //   {
+            //     model: db.m_assets_in,
+            //     attributes: ["m_form_id", "value", "m_asset_id"],
+            //     include: [
+            //       {
+            //         model: db.m_form,
+            //         attributes: ["id", "column_name"],
+            //       },
+            //     ],
+            // },
+          ],
         },
         {
           model: db.m_users,
