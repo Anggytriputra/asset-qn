@@ -67,7 +67,8 @@ const createDataAsset = async (data, id) => {
   }
 };
 
-const updateDataAsset = async (id, assetId, data) => {
+const updateDataAsset = async (data, assetId, id) => {
+  console.log("ini id update data", assetId);
   console.log("ini id update", id);
   try {
     const res = await api.patch(`${BASE_URL}/update_asset${id}`, data, {

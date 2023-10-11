@@ -483,7 +483,6 @@ async function createAssetKendaraan(req, res) {
 
     const {
       description,
-      // conditionLabel,
       merk,
       year,
       noRangka,
@@ -1095,9 +1094,10 @@ async function updateAssetKendaraan(req, res) {
     } = req.body;
 
     const assetId = parseInt(req.query.assetId);
+    const pic = parseInt(req.body.pic);
     const CategoryId = parseInt(req.body.CategoryId);
     const sub_category_id = parseInt(req.body.sub_category_id);
-    const branchId = parseInt(req.body.branch_id);
+    const branchId = parseInt(req.body.branchId);
     const ownerId = parseInt(req.body.ownerId);
     const userId = parseInt(req.body.userId);
     // const quantity = parseInt(req.body.quantity);
@@ -1105,12 +1105,14 @@ async function updateAssetKendaraan(req, res) {
     console.log("re body kendaraan", req.body);
 
     console.log("test update");
+
     if (
       !sub_category_id ||
       !name ||
       !description ||
       !statusStnkName ||
       !merk ||
+      !pic ||
       !year ||
       !noRangka ||
       !noMesin ||
@@ -1184,6 +1186,7 @@ async function updateAssetKendaraan(req, res) {
       mForm,
       "Exp tgl Pajak 1 Tahun"
     );
+
     const expTglPajak5TahunId = findIdByColumnName(
       mForm,
       "Exp tgl Pajak 5 Tahun"
@@ -1194,8 +1197,11 @@ async function updateAssetKendaraan(req, res) {
       {
         name: name,
         desc: description,
+        m_cabang_id: branchId,
         m_owner_id: ownerId,
         m_sub_category_id: sub_category_id,
+        updatedBy: userId,
+        pic: pic,
         updatedBy: userId,
       },
       {
@@ -1205,77 +1211,176 @@ async function updateAssetKendaraan(req, res) {
       }
     );
 
-    // merk
-    await db.m_assets_in.update(
-      { value: merk, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: merkId },
-      }
-    );
+    const existingMerk = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: merkId },
+    });
 
-    // year
-    await db.m_assets_in.update(
-      { value: year, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: yearId },
-      }
-    );
+    if (existingMerk.length) {
+      await db.m_assets_in.update(
+        { value: merk, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: merkId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: merkId,
+        value: merk,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
 
-    // noPolisi
-    await db.m_assets_in.update(
-      { value: noPolisi, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: noPolisiId },
-      }
-    );
+    const existingYear = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: yearId },
+    });
 
-    // noRangka
-    await db.m_assets_in.update(
-      { value: noRangka, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: noRangkaId },
-      }
-    );
+    if (existingYear.length) {
+      await db.m_assets_in.update(
+        { value: year, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: yearId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: yearId,
+        value: year,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
 
-    // // noMesin
-    await db.m_assets_in.update(
-      { value: noMesin, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: noMesinId },
-      }
-    );
+    const existingNoPol = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: noPolisiId },
+    });
 
-    // // warna
-    await db.m_assets_in.update(
-      { value: color, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: warnaId },
-      }
-    );
+    if (existingNoPol.length) {
+      await db.m_assets_in.update(
+        { value: noPolisi, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: noPolisiId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: noPolisiId,
+        value: noPolisi,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
 
-    // // expTglPajak1Tahun
-    await db.m_assets_in.update(
-      { value: expTaxOneYear, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: expTglPajak1TahunId },
-      }
-    );
+    const existingNoRangka = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: noRangkaId },
+    });
 
-    // // expTglPajak5Tahun
-    await db.m_assets_in.update(
-      { value: expTaxFiveYear, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: expTglPajak5TahunId },
-      }
-    );
+    if (existingNoRangka.length) {
+      await db.m_assets_in.update(
+        { value: noRangka, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: noRangkaId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: noRangkaId,
+        value: noRangka,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
 
-    // // status stnk
-    await db.m_assets_in.update(
-      { value: statusStnkName, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: statusStnkId },
-      }
-    );
+    const existingNoMesin = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: noMesinId },
+    });
+
+    if (existingNoMesin.length) {
+      await db.m_assets_in.update(
+        { value: noMesin, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: noMesinId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: noMesinId,
+        value: noMesin,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
+
+    const existingCoolor = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: warnaId },
+    });
+
+    if (existingCoolor.length) {
+      await db.m_assets_in.update(
+        { value: color, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: warnaId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: warnaId,
+        value: color,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
+
+    const existingExpOne = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: expTglPajak1TahunId },
+    });
+
+    if (existingExpOne.length) {
+      await db.m_assets_in.update(
+        { value: expTaxOneYear, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: expTglPajak1TahunId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: expTglPajak1TahunId,
+        value: expTaxOneYear,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
+
+    const existingExpFive = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: expTglPajak5TahunId },
+    });
+
+    if (existingExpFive.length) {
+      await db.m_assets_in.update(
+        { value: expTaxFiveYear, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: expTglPajak5TahunId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: expTglPajak5TahunId,
+        value: expTaxFiveYear,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
+
+    const existingStatusStnk = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: statusStnkId },
+    });
+
+    if (existingStatusStnk.length) {
+      await db.m_assets_in.update(
+        { value: statusStnkName, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: statusStnkId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: statusStnkId,
+        value: statusStnkName,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
 
     return res.status(200).send({
       // data: asset,
@@ -1289,7 +1394,7 @@ async function updateAssetKendaraan(req, res) {
 
 async function updateAssetSpecialtool(req, res) {
   try {
-    console.log("req body update asset", req.body);
+    console.log("req body update special tools", req.body);
     console.log("assetId ya", req.query);
 
     const {
@@ -1304,12 +1409,22 @@ async function updateAssetSpecialtool(req, res) {
     } = req.body;
 
     const assetId = parseInt(req.query.assetId);
-    const categoryId = parseInt(req.body.category_id);
+    const categoryId = parseInt(req.body.CategoryId);
+    const pic = parseInt(req.body.pic);
+    const subCategoryId = parseInt(req.body.sub_category_id);
     const ownerId = parseInt(req.body.ownerId);
-    const branchId = parseInt(req.body.branch_id);
+    const branchId = parseInt(req.body.branchId);
     const userId = parseInt(req.body.userId);
 
-    if (!name || !description || !serialNumber || !merkName || !typeName)
+    if (
+      !name ||
+      !categoryId ||
+      !description ||
+      !subCategoryId ||
+      !serialNumber ||
+      !description ||
+      !merkName
+    )
       return res.status(400).send({ message: "Please Complete Your Data" });
 
     const serialNumberExist = await db.m_assets_in.findOne({
@@ -1324,8 +1439,6 @@ async function updateAssetSpecialtool(req, res) {
       return res.status(400).send({
         message: "Serial number already exists for a different asset",
       });
-
-    console.log("serinumber exist", serialNumberExist);
 
     const mForm = await db.m_form.findAll({
       attributes: ["id", "column_name"],
@@ -1351,8 +1464,9 @@ async function updateAssetSpecialtool(req, res) {
         name: name,
         desc: description,
         m_owner_id: ownerId,
-        // m_sub_category_id: sub_category_id,
+        m_sub_category_id: subCategoryId,
         updatedBy: userId,
+        pic: pic,
       },
       {
         where: {
@@ -1361,53 +1475,121 @@ async function updateAssetSpecialtool(req, res) {
       }
     );
 
-    // serialNumber
-    await db.m_assets_in.update(
-      { value: serialNumber, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: serialNumberId },
-      }
-    );
+    // Melihat data apakah ada
+    // const existingType = await db.m_assets_in.findAll({
+    //   where: { m_asset_id: assetId, m_form_id: typeNameId },
+    // });
 
-    // AccessoriesOne
-    await db.m_assets_in.update(
-      { value: AccessoriesOne, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: AccessoriesOneId },
-      }
-    );
+    // if (existingType) {
+    //   await db.m_assets_in.update(
+    //     { value: typeName, updatedBy: userId },
+    //     { where: { m_asset_id: assetId, m_form_id: typeNameId } }
+    //   );
+    // } else {
+    //   await db.m_assets_in.create({
+    //     m_asset_id: assetId,
+    //     m_form_id: typeNameId,
+    //     value: typeName,
+    //     updatedBy: userId,
+    //     createdBy: userId,
+    //   });
+    // }
 
-    // AccessoriesTwo
-    await db.m_assets_in.update(
-      { value: AccessoriesTwo, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: AccessoriesTwoId },
-      }
-    );
+    const existingSN = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: serialNumberId },
+    });
+    console.log("existing sn", existingSN);
 
-    // AccessoriesThree
-    await db.m_assets_in.update(
-      { value: AccessoriesThree, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: AccessoriesThreeId },
-      }
-    );
+    if (existingSN.length) {
+      await db.m_assets_in.update(
+        { value: serialNumber, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: serialNumberId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: serialNumberId,
+        value: serialNumber,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
 
-    // merkName
-    await db.m_assets_in.update(
-      { value: merkName, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: merkNameId },
-      }
-    );
+    const existingAccOne = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: AccessoriesOneId },
+    });
 
-    // typeName
-    await db.m_assets_in.update(
-      { value: typeName, updatedBy: userId },
-      {
-        where: { m_asset_id: assetId, m_form_id: typeNameId },
-      }
-    );
+    if (existingAccOne.length) {
+      await db.m_assets_in.update(
+        { value: AccessoriesOne, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: AccessoriesOneId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: AccessoriesOneId,
+        value: AccessoriesOne,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
+
+    const existingAccTwo = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: AccessoriesTwoId },
+    });
+
+    if (existingAccTwo.length) {
+      await db.m_assets_in.update(
+        { value: AccessoriesTwo, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: AccessoriesTwoId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: AccessoriesTwoId,
+        value: AccessoriesTwo,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
+
+    const existingAccThree = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: AccessoriesThreeId },
+    });
+
+    if (existingAccThree.length) {
+      await db.m_assets_in.update(
+        { value: AccessoriesThree, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: AccessoriesThreeId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: AccessoriesThreeId,
+        value: AccessoriesThree,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
+
+    const existingMerk = await db.m_assets_in.findAll({
+      where: { m_asset_id: assetId, m_form_id: merkNameId },
+    });
+
+    if (existingMerk.length) {
+      await db.m_assets_in.update(
+        { value: merkName, updatedBy: userId },
+        { where: { m_asset_id: assetId, m_form_id: merkNameId } }
+      );
+    } else {
+      await db.m_assets_in.create({
+        m_asset_id: assetId,
+        m_form_id: merkNameId,
+        value: merkName,
+        updatedBy: userId,
+        createdBy: userId,
+      });
+    }
 
     return res.status(200).send({
       // data: asset,

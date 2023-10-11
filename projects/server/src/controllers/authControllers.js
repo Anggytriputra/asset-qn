@@ -125,6 +125,7 @@ async function getUserByToken(req, res) {
       .send({ message: "Success get User", user: findUser });
   } catch (error) {
     console.log("err get userbytoken", error);
+    return res.status(400).json({ error: error.message });
   }
 }
 

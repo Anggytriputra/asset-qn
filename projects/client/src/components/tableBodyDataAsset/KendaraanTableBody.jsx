@@ -81,7 +81,7 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               </div>
             </td> */}
 
-            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+            {/* <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
               <span
                 className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
                   assets.m_status_condition.name === "Service"
@@ -93,7 +93,7 @@ export default function KendaraanTableBody({ asset = [], onEdit, onDelete }) {
               >
                 {assets.m_status_condition.name || "-"}
               </span>
-            </td>
+            </td> */}
 
             <td className="px-4 py-4 text-sm text-gray-500">
               <div className="text-gray-900 truncate max-w-[90px]">

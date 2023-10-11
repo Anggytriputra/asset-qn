@@ -60,22 +60,7 @@ export default function KendaraanDetails({ asset = {}, img = {} }) {
                 // required
               />
             </div>
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="pic"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Person In Charge - (PIC)
-              </label>
-              <input
-                type="text"
-                name="pic"
-                id="pic"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Person In Charge - (PIC)"]}
-                disabled
-              />
-            </div>
+
             <div className="sm:col-span-2">
               <label
                 htmlFor="owner"
@@ -88,40 +73,24 @@ export default function KendaraanDetails({ asset = {}, img = {} }) {
                 name="owner"
                 id="owner"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Name of Owner"]}
+                defaultValue={asset.owner.name}
                 disabled
               />
             </div>
-            {/* <div className="sm:col-span-2">
+
+            <div className="sm:col-span-2">
               <label
-                htmlFor="receivedInBranch"
+                htmlFor="pic"
                 className="block text-sm font-medium text-gray-700"
               >
-                Received in Branch
-              </label>
-              <input
-                type="date"
-                name="receivedInBranch"
-                id="receivedInBranch"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={receivedInBranch}
-                required
-              />
-            </div> */}
-            <div className="sm:col-span-2 ">
-              <label
-                htmlFor="condition"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Condition
+                Person In Charge - (PIC)
               </label>
               <input
                 type="text"
-                name="owner"
-                id="owner"
+                name="pic"
+                id="pic"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Name of Owner"]}
-                // required
+                defaultValue={asset.pic_user.username}
                 disabled
               />
             </div>
@@ -159,23 +128,23 @@ export default function KendaraanDetails({ asset = {}, img = {} }) {
                 name="owner"
                 id="owner"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Name of Owner"]}
+                defaultValue={asset.m_sub_category.name}
                 disabled
               />
             </div>
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="tahun"
+                htmlFor="Merk"
                 className="block text-sm font-medium text-gray-700"
               >
                 Merk
               </label>
               <input
                 type="text"
-                name="owner"
-                id="owner"
+                name="Merk"
+                id="Merk"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Name of Owner"]}
+                defaultValue={assetInsMap["Merk"]}
                 disabled
               />
             </div>
@@ -191,7 +160,7 @@ export default function KendaraanDetails({ asset = {}, img = {} }) {
                 name="owner"
                 id="owner"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Name of Owner"]}
+                defaultValue={assetInsMap["Year"]}
                 disabled
               />
             </div>
@@ -246,22 +215,7 @@ export default function KendaraanDetails({ asset = {}, img = {} }) {
                 disabled
               />
             </div>
-            <div className="sm:col-span-2 ">
-              <label
-                htmlFor="tahun"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Tipe Kendaraan
-              </label>
-              <input
-                type="text"
-                name="owner"
-                id="owner"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Name of Owner"]}
-                disabled
-              />
-            </div>
+
             <div className="sm:col-span-2">
               <label
                 htmlFor="warna"
@@ -338,25 +292,12 @@ export default function KendaraanDetails({ asset = {}, img = {} }) {
               </label>
               <input
                 type="text"
-                name="owner"
-                id="owner"
+                name="statusstnk"
+                id="statusstnk"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Name of Owner"]}
+                defaultValue={assetInsMap["Status Stnk"]}
                 disabled
               />
-            </div>
-            {/* )} */}
-            <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">
-                Asset Image
-              </label>
-              {/* <ImageDragAndDrop
-                className="mt-1"
-                image={image}
-                setImage={setImage}
-              /> */}
-
-              <ListImages images={image} />
             </div>
           </div>
         </div>

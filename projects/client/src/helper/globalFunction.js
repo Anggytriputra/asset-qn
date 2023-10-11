@@ -78,3 +78,11 @@ export const handleQtyChange = (e, assetId, setQtyInputTf) => {
     };
   });
 };
+
+export const searchAssetForm = (asset, assetInsMap) => {
+  if (asset.m_assets_ins && asset.m_assets_ins.length > 0) {
+    asset.m_assets_ins.forEach((assetIn) => {
+      assetInsMap[assetIn.m_form.column_name] = assetIn.value;
+    });
+  }
+};

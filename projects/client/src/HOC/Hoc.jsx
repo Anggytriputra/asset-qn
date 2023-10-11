@@ -26,6 +26,7 @@ export default function HOC({ children }) {
         dispatch(login(user[0]));
         setIsLoading(false);
       } catch (err) {
+        // console.log("err hoc", err);
         setIsLoading(false);
       }
     }

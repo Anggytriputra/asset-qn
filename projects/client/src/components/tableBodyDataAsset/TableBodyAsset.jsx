@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 export default function TableBodyAsset({
   asset = [],
   onEdit,
+  setActionSend,
   onDelete,
   selectItem,
   setSelectItem,
@@ -126,7 +127,10 @@ export default function TableBodyAsset({
             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
               <button
                 className="text-teal-600 hover:text-teal-900"
-                onClick={() => onEdit(assets)}
+                onClick={() => {
+                  onEdit(assets);
+                  setActionSend("Edit");
+                }}
               >
                 Edit<span className="sr-only">{assets.name}</span>
               </button>

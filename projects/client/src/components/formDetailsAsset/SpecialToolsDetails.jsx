@@ -71,6 +71,24 @@ export default function SpecialToolsDetails({
                 // required
               />
             </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="owner"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Name of Owner
+              </label>
+              <input
+                type="text"
+                name="owner"
+                id="owner"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                defaultValue={asset.owner.name}
+                disabled
+              />
+            </div>
+
             <div className="sm:col-span-2">
               <label
                 htmlFor="pic"
@@ -83,72 +101,7 @@ export default function SpecialToolsDetails({
                 name="pic"
                 id="pic"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Person In Charge - (PIC)"]}
-                disabled
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="purchaseDate"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Tanggal Pembelian
-              </label>
-              <input
-                type="text"
-                name="purchaseDate"
-                id="purchaseDate"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Tanggal Pembelian"]}
-                disabled
-              />
-            </div>
-            {/* <div className="sm:col-span-2">
-              <label
-                htmlFor="receivedInBranch"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Received in Branch
-              </label>
-              <input
-                type="date"
-                name="receivedInBranch"
-                id="receivedInBranch"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={receivedInBranch}
-                required
-              />
-            </div> */}
-            <div className="sm:col-span-2 ">
-              <label
-                htmlFor="procurementDate"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Tanggal Pengadaan
-              </label>
-              <input
-                type="date"
-                name="procurementDate"
-                id="procurementDate"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Tanggal Pengadaan"]}
-                disabled
-              />
-            </div>
-
-            <div className="sm:col-span-2 ">
-              <label
-                htmlFor="branchReceivedDate"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Tanggal Pengadaan
-              </label>
-              <input
-                type="date"
-                name="branchReceivedDate"
-                id="branchReceivedDate"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Tanggal Terima dicabang"]}
+                defaultValue={asset.pic_user.username}
                 disabled
               />
             </div>
@@ -174,35 +127,20 @@ export default function SpecialToolsDetails({
                 Write a description about your asset.
               </p>
             </div>
+
             <div className="sm:col-span-2 ">
               <label
-                htmlFor="merk"
+                htmlFor="sb"
                 className="block text-sm font-medium text-gray-700"
               >
-                Merk
+                Sub-Category
               </label>
               <input
                 type="text"
-                name="merk"
-                id="merk"
+                name="sb"
+                id="sb"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Merk"]}
-                disabled
-              />
-            </div>
-            <div className="sm:col-span-2 ">
-              <label
-                htmlFor="tahun"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Merk
-              </label>
-              <input
-                type="text"
-                name="owner"
-                id="owner"
-                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
-                defaultValue={assetInsMap["Tipe"]}
+                defaultValue={asset.m_sub_category.name}
                 disabled
               />
             </div>
@@ -219,6 +157,22 @@ export default function SpecialToolsDetails({
                 id="owner"
                 className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
                 defaultValue={assetInsMap["Serial Number"]}
+                disabled
+              />
+            </div>
+            <div className="sm:col-span-2 ">
+              <label
+                htmlFor="merk"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Merk
+              </label>
+              <input
+                type="text"
+                name="merk"
+                id="merk"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                defaultValue={assetInsMap["Merk"]}
                 disabled
               />
             </div>

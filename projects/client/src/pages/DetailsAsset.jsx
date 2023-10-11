@@ -19,7 +19,7 @@ const DetailsAsset = () => {
   const imageGlobal = useSelector((state) => state.image);
   console.log("image global", imageGlobal);
 
-  const categoryName = imageGlobal.images?.assets?.[0]?.name || "";
+  const categoryName = asset && asset.m_category ? asset.m_category.name : "";
 
   console.log("category name", categoryName);
 
