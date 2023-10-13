@@ -51,6 +51,8 @@ const TransferAsset = () => {
   // console.log("cek admin", isSuperAdmin);
 
   const transferGlobal = useSelector((state) => state.transferAsset);
+
+  console.log("transferGlobal", transferGlobal);
   const branchGlobal = useSelector((state) => state.branch.allBranches);
   console.log("branchGlobal", branchGlobal);
   const categoryGlobal = useSelector((state) => state.category);
@@ -108,6 +110,7 @@ const TransferAsset = () => {
   const [selectedSerialNumber, setSelectedSerialNumber] = useState();
   const [selectedUserPenerima, setSelectedUserPenerima] = useState();
   const [detailConfirmed, setDetailConfirmed] = useState({});
+  console.log("detailConfirmeed", detailConfirmed);
 
   const [addNewData, setAddNewData] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -464,8 +467,6 @@ const TransferAsset = () => {
         headCols={[
           "No Transfer",
           "Date",
-          "Asset Name",
-          "Category",
           "Cabang Pengirim",
           "Cabang Penerima",
           "Shipping Notes",

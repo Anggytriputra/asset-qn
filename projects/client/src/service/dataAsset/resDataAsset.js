@@ -9,11 +9,11 @@ import api from "../../api/api";
 const BASE_URL = "/asset";
 
 const fetchAllDataAsset = async (query = "") => {
-  console.log("res fetch all asset query");
+  // console.log("res fetch all asset query");
   try {
     const res = await api.get(`${BASE_URL}?${query}`);
 
-    console.log("res fetch all asset", res);
+    // console.log("res fetch all asset", res);
     return res;
   } catch (error) {
     console.log("error fetch", error);
@@ -38,7 +38,7 @@ const fetchDataAsset = async (
       },
     });
 
-    console.log("res fetch", res);
+    // console.log("res fetch", res);
     return res;
   } catch (error) {
     console.log("error fetch", error);
@@ -48,14 +48,14 @@ const fetchDataAsset = async (
 
 const createDataAsset = async (data, id) => {
   try {
-    console.log("created data asset", data);
-    console.log("id category", id);
+    // console.log("created data asset", data);
+    // console.log("id category", id);
     const res = await api.post(`${BASE_URL}/c${id}`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log("res", res);
+    // console.log("res", res);
     successAlert(res.data.message);
     return res;
   } catch (error) {
@@ -68,7 +68,7 @@ const createDataAsset = async (data, id) => {
 };
 
 const updateDataAsset = async (data, assetId, id) => {
-  console.log("ini id update data", assetId);
+  console.log("ini id update data", data);
   console.log("ini id update", id);
   try {
     const res = await api.patch(`${BASE_URL}/update_asset${id}`, data, {
@@ -80,7 +80,7 @@ const updateDataAsset = async (data, assetId, id) => {
       },
     });
     successAlert(res.data.message);
-    console.log("res", res);
+    // console.log("res", res);
     return res;
   } catch (error) {
     errorAlertWithMessage(error.response.data.message);

@@ -10,22 +10,28 @@ async function getAllAsset(req, res) {
   try {
     console.log("get kueri all asset", req.query);
     console.log("data user", req.user);
-    const itemsPerPage = 15;
+    const itemsPerPage = 30;
 
     const userRole = req.roleName;
 
     const page = parseInt(req.query.page);
+    console.log("page", page);
 
     const idCategory = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
     const branchId = parseInt(req.query.branchId);
     const searchAssetName = req.query.q;
+    const sortCategoryId = req.query.sortCategory;
+    const sortBranch = req.query.sortBranch;
 
     const offsetLimit = {};
     if (page) {
+      console.log("ada page ya", page);
       offsetLimit.limit = itemsPerPage;
       offsetLimit.offset = (page - 1) * itemsPerPage;
     }
+
+    console.log("ini offeset limit", offsetLimit);
 
     const categoryIdClause = idCategory ? { category_id: idCategory } : {};
 
@@ -41,10 +47,13 @@ async function getAllAsset(req, res) {
         ? {}
         : { m_cabang_id: branchId };
 
-    console.log("branchClauseid", branchIdClause);
+    const sortBranchIdClause = sortBranch ? { m_cabang_id: sortBranch } : {};
+    const sortCategoryIdClause = sortCategoryId
+      ? { m_category_id: sortCategoryId }
+      : {};
 
-    const asset = await db.m_assets.findAndCountAll({
-      subQuery: false,
+    const asset = await db.m_assets.findAll({
+      // subQuery: false,
       attributes: {
         exclude: ["createdAt", "updatedAt", "createdBy"],
       },
@@ -52,6 +61,8 @@ async function getAllAsset(req, res) {
         ...categoryIdClause,
         ...branchIdClause,
         ...assetNameClause,
+        ...sortBranchIdClause,
+        ...sortCategoryIdClause,
       },
       include: [
         {
@@ -82,13 +93,6 @@ async function getAllAsset(req, res) {
           model: db.m_cabang,
           attributes: ["id", "cabang_name"],
         },
-
-        {
-          model: db.m_images,
-          attributes: ["id", "images_url", "m_asset_id"],
-          limit: 1,
-          order: [["id", "ASC"]],
-        },
         {
           model: db.m_categories,
           attributes: ["id", "name"],
@@ -114,14 +118,19 @@ async function getAllAsset(req, res) {
         ...categoryIdClause,
         ...branchIdClause,
         ...assetNameClause,
+        ...sortBranchIdClause,
+        ...sortCategoryIdClause,
       },
+      // ...offsetLimit,
+      ...offsetLimit,
+      order: [["id", "DESC"]],
     });
 
-    console.log("count", assetCount);
+    // console.log("count", assetCount);
 
     res.status(200).send({
       message: "SuccessFuly get data all sset",
-      ...asset,
+      asset: asset,
       count: assetCount, // Menambahkan properti count yang baru
     });
   } catch (error) {
@@ -235,6 +244,8 @@ async function getAssetKendaraan(req, res) {
         m_category_id: idCategory,
         // ...assetNameClause,
       },
+      ...offsetLimit,
+      order: [["id", "DESC"]],
     });
 
     console.log("count", assetCount);
@@ -1078,7 +1089,7 @@ async function updateAssetKendaraan(req, res) {
     console.log("req body update asset", req.body);
     console.log("assetId ya", req.query);
 
-    // const assetId = parseInt(req.params.id);
+    const user = req.user;
     const {
       statusStnkName,
       noPolisi,
@@ -1099,8 +1110,8 @@ async function updateAssetKendaraan(req, res) {
     const sub_category_id = parseInt(req.body.sub_category_id);
     const branchId = parseInt(req.body.branchId);
     const ownerId = parseInt(req.body.ownerId);
-    const userId = parseInt(req.body.userId);
-    // const quantity = parseInt(req.body.quantity);
+    const userId = parseInt(user.id);
+    const quantity = parseInt(req.body.quantity);
 
     console.log("re body kendaraan", req.body);
 
@@ -1110,6 +1121,7 @@ async function updateAssetKendaraan(req, res) {
       !sub_category_id ||
       !name ||
       !description ||
+      !quantity ||
       !statusStnkName ||
       !merk ||
       !pic ||
@@ -1123,6 +1135,11 @@ async function updateAssetKendaraan(req, res) {
       !color
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
+
+    if (quantity > 1)
+      return res
+        .status(400)
+        .send({ message: "Quantity melebihi yang diharuskan" });
 
     const noPolisiExist = await db.m_assets_in.findOne({
       where: { value: noPolisi },
@@ -1145,6 +1162,17 @@ async function updateAssetKendaraan(req, res) {
         message: "Police number already exists for a different asset",
       });
 
+    const existingStock = await db.m_stock.findOne({
+      where: { m_asset_id: assetId },
+    });
+
+    console.log("stock", existingStock);
+    if (!existingStock) {
+      await db.m_stock.create({
+        m_asset_id: assetId,
+        quantity: quantity,
+      });
+    }
     if (
       noRangkaExist &&
       noRangkaExist.dataValues &&
@@ -1160,7 +1188,7 @@ async function updateAssetKendaraan(req, res) {
       noMesinExist.dataValues.m_asset_id !== assetId
     )
       return res.status(400).send({
-        message: "Mesi number already exists for a different asset",
+        message: "Mesin number already exists for a different asset",
       });
 
     const mForm = await db.m_form.findAll({
@@ -1210,6 +1238,8 @@ async function updateAssetKendaraan(req, res) {
         },
       }
     );
+
+    console.log("update mAsset", asset);
 
     const existingMerk = await db.m_assets_in.findAll({
       where: { m_asset_id: assetId, m_form_id: merkId },
@@ -1395,8 +1425,9 @@ async function updateAssetKendaraan(req, res) {
 async function updateAssetSpecialtool(req, res) {
   try {
     console.log("req body update special tools", req.body);
-    console.log("assetId ya", req.query);
+    // console.log("assetId ya", req.query);
 
+    const user = req.user;
     const {
       name,
       description,
@@ -1414,7 +1445,8 @@ async function updateAssetSpecialtool(req, res) {
     const subCategoryId = parseInt(req.body.sub_category_id);
     const ownerId = parseInt(req.body.ownerId);
     const branchId = parseInt(req.body.branchId);
-    const userId = parseInt(req.body.userId);
+    const userId = parseInt(user.id);
+    const quantity = parseInt(req.body.quantity);
 
     if (
       !name ||
@@ -1423,9 +1455,15 @@ async function updateAssetSpecialtool(req, res) {
       !subCategoryId ||
       !serialNumber ||
       !description ||
+      !quantity ||
       !merkName
     )
       return res.status(400).send({ message: "Please Complete Your Data" });
+
+    if (quantity > 1)
+      return res
+        .status(400)
+        .send({ message: "Quantity melebihi yang diharuskan" });
 
     const serialNumberExist = await db.m_assets_in.findOne({
       where: { value: serialNumber },
@@ -1450,14 +1488,24 @@ async function updateAssetSpecialtool(req, res) {
       return obj ? obj.id : null;
     };
 
-    console.log("findColumn Name", findIdByColumnName);
-
     const serialNumberId = findIdByColumnName(mForm, "Serial Number");
     const AccessoriesOneId = findIdByColumnName(mForm, "Accessories 1");
     const AccessoriesTwoId = findIdByColumnName(mForm, "Accessories 2");
     const AccessoriesThreeId = findIdByColumnName(mForm, "Accessories 3");
     const merkNameId = findIdByColumnName(mForm, "Merk");
     const typeNameId = findIdByColumnName(mForm, "Tipe");
+
+    const existingStock = await db.m_stock.findOne({
+      where: { m_asset_id: assetId },
+    });
+
+    console.log("stock", existingStock);
+    if (!existingStock) {
+      await db.m_stock.create({
+        m_asset_id: assetId,
+        quantity: quantity,
+      });
+    }
 
     const asset = await db.m_assets.update(
       {
@@ -1619,12 +1667,22 @@ async function updateAssetStandardTool(req, res) {
       where: { id: assetId },
     });
 
-    console.log("asset", asset.dataValues);
+    const existingStock = await db.m_stock.findOne({
+      where: { m_asset_id: assetId },
+    });
 
-    const stock = await db.m_stock.update(
-      { quantity: qty },
-      { where: { id: asset.dataValues.m_stock_id } }
-    );
+    console.log("stock", existingStock);
+    if (!existingStock) {
+      await db.m_stock.create({
+        m_asset_id: assetId,
+        quantity: qty,
+      });
+    } else {
+      const stock = await db.m_stock.update(
+        { quantity: qty },
+        { where: { id: asset.dataValues.m_stock_id } }
+      );
+    }
 
     const assets = await db.m_assets.update(
       {
@@ -1671,10 +1729,17 @@ async function updateAssetSafetyTool(req, res) {
 
     console.log("asset", asset.dataValues);
 
-    const stock = await db.m_stock.update(
-      { quantity: qty },
-      { where: { id: asset.dataValues.m_stock_id } }
-    );
+    if (!existingStock) {
+      await db.m_stock.create({
+        m_asset_id: assetId,
+        quantity: qty,
+      });
+    } else {
+      const stock = await db.m_stock.update(
+        { quantity: qty },
+        { where: { id: asset.dataValues.m_stock_id } }
+      );
+    }
 
     const assets = await db.m_assets.update(
       {

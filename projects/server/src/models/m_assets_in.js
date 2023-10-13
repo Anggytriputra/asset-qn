@@ -9,8 +9,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      // Dalam model m_assets_in
-      this.belongsTo(models.m_assets, { foreignKey: "m_asset_id" });
+
+      this.belongsTo(models.m_assets, {
+        foreignKey: "m_asset_id",
+      });
 
       this.belongsTo(models.m_form, {
         foreignKey: "m_form_id",
@@ -19,11 +21,8 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.m_trans_d, {
         // Tambahkan asosiasi ke m_trans_d
         foreignKey: "m_asset_id",
+        as: "m_trans_d",
       });
-      // this.hasMany(models.m_trans_d_return, {
-      //   // Tambahkan asosiasi ke m_trans_d
-      //   foreignKey: "m_asset_id",
-      // });
     }
   }
   m_assets_in.init(

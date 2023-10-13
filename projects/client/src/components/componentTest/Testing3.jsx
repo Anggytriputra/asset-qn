@@ -1,97 +1,124 @@
-import { CheckIcon } from "@heroicons/react/24/solid";
+/*
+  This example requires Tailwind CSS v3.0+
+  
+  This example requires some changes to your config:
+  
+  ```
+  // tailwind.config.js
+  module.exports = {
+    // ...
+    plugins: [
+      // ...
+      require('@tailwindcss/forms'),
+    ],
+  }
+  ```
+*/
+import { Fragment, useState } from "react";
+import { UsersIcon } from "@heroicons/react/24/outline";
+import { Combobox, Dialog, Transition } from "@headlessui/react";
 
-const steps = [
-  { id: "01", name: "Job details", href: "#", status: "complete" },
-  { id: "02", name: "Application form", href: "#", status: "complete" },
-  { id: "03", name: "Preview", href: "#", status: "upcoming" },
+const people = [
+  { id: 1, name: "Leslie Alexander", url: "#" },
+  // More people...
 ];
 
-export default function Example() {
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export default function Testing3() {
+  const [query, setQuery] = useState("");
+
+  const [open, setOpen] = useState(true);
+
+  const filteredPeople =
+    query === ""
+      ? []
+      : people.filter((person) => {
+          return person.name.toLowerCase().includes(query.toLowerCase());
+        });
+
   return (
-    <nav aria-label="Progress">
-      <ol
-        role="list"
-        className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0"
+    <Transition.Root
+      show={open}
+      as={Fragment}
+      afterLeave={() => setQuery("")}
+      appear
+    >
+      <Dialog
+        as="div"
+        className="relative z-10"
+        onClose={setOpen}
       >
-        {steps.map((step, stepIdx) => (
-          <li
-            key={step.name}
-            className="relative md:flex md:flex-1"
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-25 transition-opacity" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20">
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
           >
-            {step.status === "complete" ? (
-              <a
-                href={step.href}
-                className="group flex w-full items-center"
-              >
-                <span className="flex items-center px-6 py-4 text-sm font-medium">
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 group-hover:bg-indigo-800">
-                    <CheckIcon
-                      className="h-6 w-6 text-white"
+            <Dialog.Panel className="mx-auto max-w-xl transform rounded-xl bg-white p-2 shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+              <Combobox onChange={(person) => (window.location = person.url)}>
+                <Combobox.Input
+                  className="w-full rounded-md border-0 bg-gray-100 px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm"
+                  placeholder="Search..."
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+
+                {filteredPeople.length > 0 && (
+                  <Combobox.Options
+                    static
+                    className="-mb-2 max-h-72 scroll-py-2 overflow-y-auto py-2 text-sm text-gray-800"
+                  >
+                    {filteredPeople.map((person) => (
+                      <Combobox.Option
+                        key={person.id}
+                        value={person}
+                        className={({ active }) =>
+                          classNames(
+                            "cursor-default select-none rounded-md px-4 py-2",
+                            active && "bg-indigo-600 text-white"
+                          )
+                        }
+                      >
+                        {person.name}
+                      </Combobox.Option>
+                    ))}
+                  </Combobox.Options>
+                )}
+
+                {query !== "" && filteredPeople.length === 0 && (
+                  <div className="py-14 px-4 text-center sm:px-14">
+                    <UsersIcon
+                      className="mx-auto h-6 w-6 text-gray-400"
                       aria-hidden="true"
                     />
-                  </span>
-                  <span className="ml-4 text-sm font-medium text-gray-900">
-                    {step.name}
-                  </span>
-                </span>
-              </a>
-            ) : step.status === "current" ? (
-              <a
-                href={step.href}
-                className="flex items-center px-6 py-4 text-sm font-medium"
-                aria-current="step"
-              >
-                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-indigo-600">
-                  <span className="text-indigo-600">{step.id}</span>
-                </span>
-                <span className="ml-4 text-sm font-medium text-indigo-600">
-                  {step.name}
-                </span>
-              </a>
-            ) : (
-              <a
-                href={step.href}
-                className="group flex items-center"
-              >
-                <span className="flex items-center px-6 py-4 text-sm font-medium">
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 group-hover:border-gray-400">
-                    <span className="text-gray-500 group-hover:text-gray-900">
-                      {step.id}
-                    </span>
-                  </span>
-                  <span className="ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900">
-                    {step.name}
-                  </span>
-                </span>
-              </a>
-            )}
-
-            {stepIdx !== steps.length - 1 ? (
-              <>
-                {/* Arrow separator for lg screens and up */}
-                <div
-                  className="absolute top-0 right-0 hidden h-full w-5 md:block"
-                  aria-hidden="true"
-                >
-                  <svg
-                    className="h-full w-full text-gray-300"
-                    viewBox="0 0 22 80"
-                    fill="none"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M0 -2L20 40L0 82"
-                      vectorEffect="non-scaling-stroke"
-                      stroke="currentcolor"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </>
-            ) : null}
-          </li>
-        ))}
-      </ol>
-    </nav>
+                    <p className="mt-4 text-sm text-gray-900">
+                      No people found using that search term.
+                    </p>
+                  </div>
+                )}
+              </Combobox>
+            </Dialog.Panel>
+          </Transition.Child>
+        </div>
+      </Dialog>
+    </Transition.Root>
   );
 }

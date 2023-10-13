@@ -1,9 +1,12 @@
+import { qtyValidationSchema } from "../../midlleware/Formik";
+import { Formik } from "formik";
 import Comboboxes from "../Comboboxes";
 
 export default function TableBodyListTransferAsset({
   asset = [],
   allBranch = [],
   allUsers = [],
+  formikRef,
   selectDestBranch,
   setSelectBranch,
   isSuperAdmin,
@@ -20,6 +23,7 @@ export default function TableBodyListTransferAsset({
   handleQtyChange,
 }) {
   console.log("asset tf", asset);
+  console.log("yg di tf", qtyInputTf);
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
@@ -30,14 +34,6 @@ export default function TableBodyListTransferAsset({
             <time dateTime="2022-08-01">August 1, 2022</time> to{" "}
             <time dateTime="2022-08-31">August 31, 2022</time>.
           </p>
-        </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
-          >
-            Print
-          </button>
         </div>
       </div>
       <div className="-mx-4 mt-8 flex flex-col sm:-mx-6 md:mx-0">
@@ -90,58 +86,55 @@ export default function TableBodyListTransferAsset({
                   {data.serialNumber || data.noPolisi || "-"}
                 </td>
                 <td className="py-4 pl-3 pr-4 text-right text-sm text-gray-500 sm:pr-6 md:pr-0">
-                  <input
-                    type="number"
-                    min="0"
-                    name="qty"
-                    id="qty"
-                    // value={qtyInputTf[data.id] || ""}
-                    onChange={(e) => handleQtyChange(e, data.id, setQtyInputTf)}
-                    className="p-2 border border-gray-400 spin-hidden   min-w-0 flex-1 rounded-md  focus:border-orange-500 focus:ring-orange-500 sm:text-right"
-                    required
-                  />
+                  <Formik
+                    initialValues={{ assetId: data.id, qty: 0 }} // Inisialisasi assetId dan qty
+                    validationSchema={qtyValidationSchema(asset)}
+                    innerRef={(ref) => (formikRef[data.id] = ref)}
+                    initialTouched={{ qty: true }} // Atur bidang sebagai "touched" secara awal
+                    initialErrors={{ qty: "Jumlah harus diisi" }}
+                    onSubmit={(values) => {
+                      // Validasi berhasil
+                      const assetId = values.assetId;
+                      const qty = values.qty;
+                      // Lakukan sesuatu dengan assetId dan qty yang telah divalidasi
+                      setQtyInputTf({ qty: qty, assetId: assetId });
+                    }}
+                  >
+                    {({
+                      values,
+                      errors,
+                      touched,
+                      handleChange,
+                      handleBlur,
+                      handleSubmit,
+                    }) => (
+                      <form onSubmit={handleSubmit}>
+                        <input
+                          type="number"
+                          min="0"
+                          name="qty"
+                          id="qty"
+                          value={values.qty}
+                          onChange={(e) => {
+                            handleChange(e);
+                            handleQtyChange(e, data.id, setQtyInputTf);
+                          }}
+                          onBlur={handleBlur}
+                          className="p-2 border border-gray-400 spin-hidden min-w-0 flex-1 rounded-md focus:border-orange-500 focus:ring-orange-500 sm:text-right"
+                          required
+                        />
+                        {touched.qty && errors.qty && (
+                          <div className="text-red-500">{errors.qty}</div>
+                        )}
+                      </form>
+                    )}
+                  </Formik>
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             {/* <tr>
-              <th
-                scope="row"
-                colSpan={3}
-                className="hidden pl-6 pr-3 pt-6 text-right text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
-              >
-                Subtotal
-              </th>
-              <th
-                scope="row"
-                className="pl-4 pr-3 pt-6 text-left text-sm font-normal text-gray-500 sm:hidden"
-              >
-                Subtotal
-              </th>
-              <td className="pl-3 pr-4 pt-6 text-right text-sm text-gray-500 sm:pr-6 md:pr-0">
-                $3,900.00
-              </td>
-            </tr>
-            <tr>
-              <th
-                scope="row"
-                colSpan={3}
-                className="hidden pl-6 pr-3 pt-4 text-right text-sm font-normal text-gray-500 sm:table-cell md:pl-0"
-              >
-                Tax
-              </th>
-              <th
-                scope="row"
-                className="pl-4 pr-3 pt-4 text-left text-sm font-normal text-gray-500 sm:hidden"
-              >
-                Tax
-              </th>
-              <td className="pl-3 pr-4 pt-4 text-right text-sm text-gray-500 sm:pr-6 md:pr-0">
-                $585.00
-              </td>
-            </tr> */}
-            <tr>
               <th
                 scope="row"
                 colSpan={4}
@@ -158,7 +151,7 @@ export default function TableBodyListTransferAsset({
               <td className="pl-3 pr-4 pt-4 text-right text-sm font-semibold text-gray-900 sm:pr-6 md:pr-0">
                 $4,485.00
               </td>
-            </tr>
+            </tr> */}
           </tfoot>
         </table>
         <div className="space-y-6 pt-8 sm:space-y-5 sm:pt-10">

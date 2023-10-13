@@ -13,9 +13,9 @@ const DetailTransferAsset = () => {
 
   return (
     <div>
-      <div>DetailTransferAsset</div>
+      {/* <div>DetailTransferAsset</div> */}
 
-      <DetailTransfer asset={assetTransfer} />
+      <DetailTransfer detailData={assetTransfer} />
     </div>
   );
 };

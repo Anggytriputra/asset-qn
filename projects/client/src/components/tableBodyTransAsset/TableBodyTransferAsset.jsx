@@ -84,8 +84,8 @@ export default function TableBodyTransferAsset({
                     onClick={() => {
                       setOpenModalConfirmed(true);
                       setNoidTH(assets.id);
-                      // const clickedAsset = asset[stockIdx];
-                      // setDetailApp(clickedAsset);
+                      const clickedAsset = asset;
+                      setDetailApp(clickedAsset);
                     }}
                   >
                     Confirmed

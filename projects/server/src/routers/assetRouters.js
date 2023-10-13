@@ -5,10 +5,10 @@ const userExtractor = require("../middleware/userExtractor");
 const assetRouter = require("express").Router();
 
 assetRouter.get("/", userExtractor, assetControllers.getAllAsset);
-assetRouter.get("/fc1", assetControllers.getAssetKendaraan);
-assetRouter.get("/fc2", assetControllers.getAssetSpecialTool);
-assetRouter.get("/fc3", assetControllers.getAssetStandardTool);
-assetRouter.get("/fc4", assetControllers.getAssetSafetyTool);
+// assetRouter.get("/fc1", assetControllers.getAssetKendaraan);
+// assetRouter.get("/fc2", assetControllers.getAssetSpecialTool);
+// assetRouter.get("/fc3", assetControllers.getAssetStandardTool);
+// assetRouter.get("/fc4", assetControllers.getAssetSafetyTool);
 
 assetRouter.post(
   "/c1",
@@ -48,7 +48,7 @@ assetRouter.post(
 
 assetRouter.patch(
   "/update_asset1",
-  //   userExtractor,
+  userExtractor,
   fileUploader({ destinationFolder: "kendaraan", prefix: "PIMG" }).array(
     "asset_image"
   ),
@@ -57,7 +57,7 @@ assetRouter.patch(
 
 assetRouter.patch(
   "/update_asset2",
-  //   userExtractor,
+  userExtractor,
   fileUploader({ destinationFolder: "specialTools", prefix: "PIMG" }).array(
     "asset_image"
   ),

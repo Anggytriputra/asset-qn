@@ -11,7 +11,7 @@ export default function TableBodyAsset({
   setSelectItem,
   onCheckboxChange,
 }) {
-  console.log("asset table kendaraan", asset);
+  // console.log("asset table kendaraan", asset);
   // console.log("on edit", asset);
   // console.log("asset table kendaraan", asset[0]?.m_images.images_url);
   return (
@@ -66,7 +66,7 @@ export default function TableBodyAsset({
                 </div>
                 <div className="ml-4">
                   <div className="font-medium text-gray-900 truncate max-w-[200px]">
-                    {assets.name}
+                    {assets.name || "-"}
                   </div>
                 </div>
               </div>

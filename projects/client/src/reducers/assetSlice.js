@@ -6,10 +6,12 @@ import {
 } from "../helper/alerts";
 
 import axios from "axios";
+import api from "../api/api";
 
 const initDataAsset = {
   totalPages: 0,
   totalItems: 0,
+  allAsset: [],
   Assets: [],
   AssetByBranchId: [],
   noPolisi: [],
@@ -24,6 +26,9 @@ const assetSlice = createSlice({
   initialState: initDataAsset,
 
   reducers: {
+    setAllAsset(state, action) {
+      state.allAsset = action.payload;
+    },
     setAssets(state, action) {
       state.Assets = action.payload;
     },
@@ -46,6 +51,7 @@ const assetSlice = createSlice({
 });
 
 export const {
+  setAllAsset,
   setAssets,
   setNoPolisi,
   setSerialNumber,
@@ -54,6 +60,30 @@ export const {
   setLoading,
 } = assetSlice.actions;
 
+export function fetchAllAsset(query) {
+  console.log("queryfetcProductsliec", query);
+
+  return async (dispatch) => {
+    const URL = `/asset`;
+    try {
+      dispatch(setLoading(true));
+      const res = await api.get(`${URL}?${query}`);
+      console.log("resasetslice", res);
+      dispatch(
+        setAllAsset({
+          asset: res.data.asset,
+          totalItems: res.data.count,
+          totalPages: Math.ceil(res.data.count / 25),
+        })
+      );
+      // console.log("asset", res);
+      dispatch(setLoading(false));
+    } catch (error) {
+      // errorAlert();
+      console.log(error.message);
+    }
+  };
+}
 export function fetchAssetByname(query) {
   const BASEURL = "http://localhost:2000/asset-byname";
   // console.log("queryfetcProductsliec", query);

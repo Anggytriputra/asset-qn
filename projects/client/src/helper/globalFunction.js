@@ -60,7 +60,7 @@ export const transformData = (item, index) => {
     name,
     desc,
     m_cabang_id,
-    qty: m_stock.quantity,
+    qty: m_stock ? m_stock.quantity : null,
     category: m_category.name,
     noPolisi: noPolisi ? noPolisi.value : null,
     serialNumber: serialNumber ? serialNumber.value : null,

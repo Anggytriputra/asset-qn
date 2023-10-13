@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       desc: DataTypes.STRING,
       m_cabang_id: DataTypes.INTEGER,
-      m_stock_id: DataTypes.INTEGER,
+      // m_stock_id: DataTypes.INTEGER,
       m_sub_category_id: DataTypes.INTEGER,
       createdBy: DataTypes.INTEGER,
       updatedBy: DataTypes.INTEGER,

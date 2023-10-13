@@ -1,383 +1,634 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { fetchAllBranches } from "../../reducers/branchSlice";
-import TransitionFade from "../../components/TransitionFade";
-import AddDataHeader from "../../components/AddDataHeader";
-import Table from "../../components/Table";
-import DataKendaraanForm from "../../components/DataKendaraanForm";
-// import { fetchAssets } from "../../reducers/assetSlice";
-import AssetTableBody from "../../components/AssetTableBody";
+import { useSearchParams } from "react-router-dom";
 import {
-  fetchAllCategoriesData,
+  handleCheckboxChange,
+  handleQtyChange,
+  searchAssetForm,
+  transformData,
+  updateStepStatus,
+} from "../../helper/globalFunction";
+import {
+  stepsForOtherCategories,
+  stepsForStandardSafetyTools,
+} from "../../constant/detailSteps";
+import {
   fetchCategories,
   fetchSubCategories,
 } from "../../reducers/categorySlice";
-import axios from "axios";
-import { fetchDataAsset } from "../../service/dataAsset/resDataAsset";
-import NavigationDataAsset from "../../components/NavigationDataAsset";
-import Filterasset from "../../components/FilterAsset";
-import Spinner from "../../components/Spinner";
-import DataSpecialToolsForm from "../../components/DataSpecialTools";
-import DataStandardToolsForm from "../../components/DataStandardToolsForm";
-import DataSafetyToolsForm from "../../components/DataSafetyToolsForm";
-import AssetKendaraanTableBody from "../../components/AssetKendaraanTableBody";
-import KendaraanTableBody from "../../components/tableBodyDataAsset/KendaraanTableBody";
-import SpecialToolsTableBody from "../../components/tableBodyDataAsset/SpecialToolsTableBody";
-import StandardToolsTableBody from "../../components/tableBodyDataAsset/StandardToolsTableBody";
-import SafetyToolsTableBody from "../../components/tableBodyDataAsset/SafetyToolsTableBody";
-import {
-  colsKendaraan,
-  colsSpecialTools,
-  colsStandardTools,
-  colsSafetyTools,
-} from "../../constant/headColsdataAsset";
-import { fetchImgByAssetId } from "../../service/dataAsset/resDataImg";
-import Pagination from "../../components/Pagination";
-import { fetchAllOwner } from "../../reducers/ownerSlice";
+import { fetchAllBranches } from "../../reducers/branchSlice";
+import { fetchAllAsset } from "../../reducers/assetSlice";
 import { fetchAssetNameByCategor } from "../../reducers/assetNameSlice";
-
-const subCategoryOption = [{ value: 0, label: "None" }];
+import { fetchAllOwner } from "../../reducers/ownerSlice";
+import { fetchAllUsers } from "../../reducers/allUsersSlice";
+import {
+  createDataAsset,
+  updateDataAsset,
+} from "../../service/dataAsset/resDataAsset";
+import { errorAlertWithMessage } from "../../helper/alerts";
+import { reqTransferAsset } from "../../reducers/transferSlice";
+import Spinner from "../../components/Spinner";
+import Modal4 from "../../components/Modal4";
+import Steppers from "../../components/Steppers";
+import FormFirstStep from "../../components/formStep/FormFirstStep";
+import FormSecondStep from "../../components/formStep/FormSecondStep";
+import FormThirdStep from "../../components/formStep/FormThirdStep";
+import ModalForm2 from "../../components/Modal2";
+import TableBodyListTransferAsset from "../../components/tableBodyTransAsset/TableBodyListTransferAsset";
+import AddDataHeaderDataAsset from "../../components/AddDataHeaderDataAsset";
+import SearchBar from "../../components/SearchBar";
+import Comboboxes from "../../components/Comboboxes";
+import Table2 from "../../components/Table2";
+import TableBodyAsset from "../../components/tableBodyDataAsset/TableBodyAsset";
+import Pagination2 from "../../components/Pagination2";
+import {
+  OpMerk,
+  OpMerkSpecialTools,
+  OpStnk,
+  OpTipeSpecialTools,
+  OpYear,
+  opCondition,
+} from "../../utils/option/optionValues";
+import Testing3 from "../../components/componentTest/Testing3";
 
 const DataAsset = () => {
   const dispatch = useDispatch();
-
-  const userGlobal = useSelector((state) => state.user);
-
-  const categoriesGlobal = useSelector((state) => state.category.categories);
-  const subCategoryGlobal = useSelector(
-    (state) => state.category.subCategories
-  );
-
-  const assetNameGlobal = useSelector((state) => state.assetName);
-  console.log("assetName adalah", assetNameGlobal);
-
-  const ownerGlobal = useSelector((state) => state.owner);
-
-  const activeTabId = localStorage.getItem("activeTab");
   const [searchParams, setSearchParams] = useSearchParams();
-  const [showAddDataForm, setShowAddDataForm] = useState(false);
-  const [showEditDataForm, setShowEditDataForm] = useState(false);
-  const [activeTab, setActiveTab] = useState(1);
-  const [addNewData, setNewAddData] = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
-  console.log("loading data", loadingData);
+  const [actionSend, setActionSend] = useState("");
+  const formikRef = useRef();
 
-  // const [subCategoryOptions, setSubCategoryOptions] = useState([]);
+  // console.log("actionSend", actionSend);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [addNewData, setAddNewData] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [openModalTf, setOpenModalTf] = useState(false);
+  // const [openModalTf, setOpenModalTf] = useState(false);
+
+  // filter
+  const [searchAssetName, setSearchAssetName] = useState("");
+  // console.log("testimoni search", searchAssetName);
+
+  //
   const [dataAsset, setDataAsset] = useState([]);
+  // console.log("ini data asset", dataAsset);
 
-  // console.log("dataAsset ya bro", dataAsset);
+  const [editedAssetData, setEditedAssetData] = useState();
+  const [actionEdit, setActionEdit] = useState(false);
 
-  const [subCategoriesFilter, setSubCategoryFilter] = useState([
-    subCategoryOption[0],
-  ]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [loadingData, setLoadingData] = useState(false);
 
-  const [editedAssetId, setEditedAsset] = useState({});
-  console.log("edited asset", editedAssetId.id);
-  const [imgAssetById, setImgAssetById] = useState({});
+  // Sort
+  const [sortBranch, setSortBranch] = useState();
+  const [sortCategory, setSortCategory] = useState();
+  //
+  const [selectedCategory, setSelectedCategory] = useState();
 
-  // console.log("edited asset", editedAssetId);
-  // console.log("img byid", imgAssetById);
+  const [selectedBrach, setSelectedBranch] = useState();
+  const [selectedAssetName, setSelectedAssetName] = useState();
+  const [selectedOwner, setSelectedOwner] = useState();
+  const [selectedPic, setSelectedPic] = useState();
+  const [qty, setQty] = useState();
+  const [desc, setDesc] = useState("");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Fungsi async tambahan
-      if (editedAssetId.id) {
-        try {
-          const dataImgByAssetId = await fetchImgByAssetId(editedAssetId.id);
-          // console.log("dataImgByAssetId", dataImgByAssetId);
-          setImgAssetById(dataImgByAssetId.data.img);
-        } catch (error) {
-          console.log("Failed to fetch image", error);
+  // Kendaraan
+  const [selectedSubCategory, setSelectedSubCategory] = useState();
+  const [selectedOpMerk, setSelectedOpMerk] = useState();
+  const [selectedOpStnk, setSelectedOpStnk] = useState();
+  const [selectedYear, setSelectedYear] = useState();
+  const [selectedCondition, setSelectedCondition] = useState();
+  const [noPolisi, setNoPolisi] = useState("");
+
+  const [noRangka, setNoRangka] = useState("");
+  const [noMesin, setNomesin] = useState("");
+  const [color, setColor] = useState("");
+  const [expOneYear, setExpOneYear] = useState("");
+  const [expFiveYear, setExptFiveYear] = useState("");
+
+  // UseState Special Tools
+  const [selectedMerkST, setSelectedMerkST] = useState();
+  const [selectedTipeST, setSelectedTipeST] = useState();
+  const [serialNumber, setSerialNumber] = useState("");
+
+  const [accesoriesOne, setAccesoriesOne] = useState("");
+  const [accesoriesTwo, setAccesoriesTwo] = useState("");
+  const [accesoriesThree, setAccesoriesThree] = useState("");
+  //REDUX
+  const AssetGlobal = useSelector((state) => state.asset);
+  const assetLength =
+    AssetGlobal && AssetGlobal.allAsset && AssetGlobal.allAsset.asset
+      ? AssetGlobal.allAsset.asset.length
+      : 0;
+
+  console.log("allasset", AssetGlobal);
+  const userGlobal = useSelector((state) => state.user);
+  const categoriesGlobal = useSelector((state) => state.category.categories);
+  const allBranchGlobal = useSelector((state) => state.branch);
+  const assetNameGlobal = useSelector((state) => state.assetName);
+  const ownerGlobal = useSelector((state) => state.owner);
+  const allUserGlobal = useSelector((state) => state.allUsers);
+  const subCategoryGlobal = useSelector((state) => state.category);
+
+  //Transfer
+  const isSuperAdmin = userGlobal.role === "Super Admin";
+  const [selectedItemTf, setSelectedItemTf] = useState([]);
+  const [qtyInputTf, setQtyInputTf] = useState([]);
+
+  const [selectedFromBranch, setSelectedFromBranch] = useState(
+    userGlobal.role === "Super Admin"
+      ? null
+      : {
+          id: userGlobal.id_cabang,
+          name: userGlobal.cabang_name,
         }
-      }
-    };
-
-    fetchData(); // Jalankan fungsi async
-  }, [editedAssetId.id]);
-
-  useEffect(() => {
-    if (!userGlobal.role) return;
-    dispatch(fetchCategories());
-  }, [userGlobal.role]);
-
-  // Navigation Data Asset dari sini
-  const location = useLocation();
-  useEffect(() => {
-    // Fungsi untuk membaca activeTab dari localStorage dan set state
-    const savedTab = localStorage.getItem("activeTab");
-
-    if (savedTab) {
-      setActiveTab(parseInt(savedTab, 10));
-    }
-    // console.log("savetab", savedTab);
-  }, []);
-
-  useEffect(() => {
-    // Fungsi untuk menyimpan activeTab ke localStorage setiap kali state berubah
-    if (activeTab !== null) {
-      localStorage.setItem("activeTab", activeTab.toString());
-    }
-  }, [activeTab]);
-
-  useEffect(() => {
-    // Hapus activeTab dari localStorage saat URL berubah
-    return () => {
-      localStorage.removeItem("activeTab");
-    };
-  }, [location.pathname]);
-
-  const tabs = Object.keys(categoriesGlobal)
-    .filter((key) => key !== "isLoading")
-    .map((key) => {
-      const id = categoriesGlobal[key].id;
-      const current = id === activeTab;
-
-      return {
-        id: id,
-        name: categoriesGlobal[key].name_ctgr,
-        current: current,
-      };
-    });
-
-  // console.log("ini tabs", tabs);
-
-  // atas sampai sini navigatiDataAsset.jsx
-
-  // Memicu fetchSubCategories() jika activeTabId sudah diisi
-  useEffect(() => {
-    if (!activeTab) return;
-    dispatch(fetchSubCategories(activeTab));
-  }, [activeTab]);
-
-  // console.log("on activeTabs", activeTab);
-
-  const newSubCategoriesOption = subCategoryGlobal.map((subCategory) => ({
-    value: subCategory.id,
-    label: subCategory.name,
-  }));
-
-  subCategoryOption.splice(
-    1,
-    subCategoryOption.length - 1,
-    ...newSubCategoriesOption
   );
 
-  useEffect(() => {
-    dispatch(fetchAllOwner());
-    dispatch(fetchAssetNameByCategor(activeTab));
-  }, [activeTab]);
+  const [selectedToBranch, setSelectedToBranch] = useState();
+  const [selectedUserPenerima, setSelectedUserPenerima] = useState();
 
-  // console.log("active tab", activeTab);
-  // console.log("sub catgeory id", subCategoriesFilter.value);
-  useEffect(() => {
-    setLoadingData(true);
-    const getAssets = async () => {
-      try {
-        // console.log("loadingData", loadingData);
-        const assets = await fetchDataAsset(
-          activeTab,
-          subCategoriesFilter.value,
-          userGlobal.id_cabang,
-          userGlobal.role
-        );
-        console.log("assets nih", assets);
-        setDataAsset(assets.data);
-        setLoadingData(false);
-        // console.log("loadingData", loadingData);
+  const listTf = selectedItemTf.map(transformData);
 
-        if (addNewData) {
-          setNewAddData(false);
-        }
-      } catch (error) {
-        console.log("error data asset", error);
-        // Anda bisa menangani error di sini jika diperlukan
-      }
+  const steps =
+    selectedCategory &&
+    ["Safety Tools", "Standard Tools"].includes(selectedCategory.name)
+      ? stepsForStandardSafetyTools
+      : stepsForOtherCategories;
+
+  const updatedSteps = updateStepStatus(currentStep, steps);
+
+  useEffect(() => {
+    if (!openModal) {
+      setCurrentStep(0);
+      setSelectedCategory("");
+      setActionSend("");
+    }
+  }, [openModal]);
+
+  useEffect(() => {
+    if (actionEdit && editedAssetData) {
+      let assetInMaps = {};
+
+      const assetInsForEach = searchAssetForm(editedAssetData, assetInMaps);
+      console.log("assetInMaps", assetInMaps);
+
+      setSelectedCategory(editedAssetData ? editedAssetData.m_category : null);
+      setSelectedBranch(
+        editedAssetData && editedAssetData.m_cabang
+          ? {
+              id: editedAssetData.m_cabang.id,
+              name: editedAssetData.m_cabang.cabang_name,
+            }
+          : null
+      );
+
+      // Global
+      setSelectedAssetName(editedAssetData ? editedAssetData : null);
+      setSelectedOwner(editedAssetData ? editedAssetData.owner : null);
+      setSelectedPic(
+        editedAssetData && editedAssetData.pic_user
+          ? {
+              id: editedAssetData.pic_user.id,
+              name: editedAssetData.pic_user.username,
+            }
+          : null
+      );
+      setQty(
+        editedAssetData && editedAssetData.m_stock
+          ? editedAssetData.m_stock.quantity
+          : null
+      );
+
+      setDesc(editedAssetData ? editedAssetData.desc : null);
+
+      // Special tools
+      setSelectedSubCategory(
+        editedAssetData && editedAssetData.m_sub_category
+          ? editedAssetData.m_sub_category
+          : null
+      );
+      setSelectedMerkST(
+        editedAssetData ? { id: 1, name: assetInMaps["Merk"] } : null
+      );
+
+      setSerialNumber(
+        editedAssetData && assetInMaps ? assetInMaps["Serial Number"] : null
+      );
+
+      setAccesoriesOne(
+        editedAssetData && assetInMaps ? assetInMaps["Accessories 1"] : null
+      );
+      setAccesoriesTwo(
+        editedAssetData && assetInMaps ? assetInMaps["Accessories 2"] : null
+      );
+      setAccesoriesThree(
+        editedAssetData && assetInMaps ? assetInMaps["Accessories 3"] : null
+      );
+
+      // Kendaraan
+      setSelectedOpMerk(
+        editedAssetData ? { id: 1, name: assetInMaps["Merk"] } : null
+      );
+
+      setSelectedYear(
+        editedAssetData ? { id: 1, name: assetInMaps["Year"] } : null
+      );
+
+      setNoPolisi(editedAssetData ? assetInMaps["No. Polisi"] : null);
+      setNoRangka(editedAssetData ? assetInMaps["No. Rangka"] : null);
+      setNomesin(editedAssetData ? assetInMaps["No. Mesin"] : null);
+      setColor(editedAssetData ? assetInMaps["Warna"] : null);
+      setExpOneYear(
+        editedAssetData ? assetInMaps["Exp tgl Pajak 1 Tahun"] : null
+      );
+      setExptFiveYear(
+        editedAssetData ? assetInMaps["Exp tgl Pajak 5 Tahun"] : null
+      );
+      setSelectedOpStnk(
+        editedAssetData ? { value: 1, label: assetInMaps["Status Stnk"] } : null
+      );
+    }
+  }, [actionEdit, editedAssetData]);
+
+  // useEffect fecth data
+  useEffect(() => {
+    if (userGlobal.role) {
+      dispatch(fetchCategories());
+      dispatch(fetchAllBranches());
+    }
+
+    // query by searchparams
+    let query = `page=${currentPage}`;
+    searchAssetName
+      ? searchParams.set("q", searchAssetName)
+      : searchParams.delete("q");
+    userGlobal.id_cabang
+      ? searchParams.set("branchId", userGlobal.id_cabang)
+      : searchParams.delete("branchId");
+
+    query += `&${searchParams.toString()}`;
+    setSearchParams(searchParams);
+
+    dispatch(fetchAllAsset(query));
+    setAddNewData(false);
+  }, [dispatch, userGlobal.role, searchAssetName, currentPage, addNewData]);
+
+  useEffect(() => {
+    if (userGlobal.role && selectedCategory && selectedBrach) {
+      dispatch(fetchAssetNameByCategor(selectedCategory.id));
+      dispatch(fetchAllOwner());
+      dispatch(fetchAllUsers(selectedBrach.id));
+    }
+  }, [userGlobal.role, selectedCategory, selectedBrach]);
+
+  useEffect(() => {
+    if (selectedToBranch && selectedToBranch.id) {
+      dispatch(fetchAllUsers(selectedToBranch.id));
+    } else if (selectedBrach) {
+      dispatch(fetchAllUsers(selectedBrach.id));
+    }
+  }, [selectedToBranch, selectedBrach, selectedCategory]);
+
+  useEffect(() => {
+    if (
+      userGlobal.role &&
+      selectedCategory &&
+      selectedBrach &&
+      selectedAssetName &&
+      selectedOwner
+    ) {
+      dispatch(fetchSubCategories(selectedCategory.id));
+    }
+  }, [
+    userGlobal.role,
+    selectedCategory,
+    selectedBrach,
+    selectedAssetName,
+    selectedOwner,
+  ]);
+
+  //  Data Manipulation
+  const updatedCategories = categoriesGlobal.map((category) => ({
+    id: category.id,
+    name: category.name_ctgr,
+  }));
+
+  const updatedBranch = allBranchGlobal.allBranches.map((branch) => ({
+    id: branch.id,
+    name: branch.cabang_name,
+  }));
+
+  const updatedAllUsers = allUserGlobal.users.map((user) => ({
+    id: user.id,
+    name: user.username,
+    branchId: user.id_cabang,
+  }));
+
+  function handleSubmitSearch(e) {
+    e.preventDefault();
+    setSearchAssetName(e.target.searchBar?.value);
+  }
+
+  async function handleSubmit() {
+    const id = selectedCategory ? selectedCategory.id : "";
+    const assetId = editedAssetData ? editedAssetData.id : null;
+
+    const data = {
+      name: selectedAssetName?.name || null,
+      CategoryId: selectedCategory?.id || null,
+      pic: selectedPic?.id || null,
+      branchId: selectedBrach?.id || null,
+      sub_category_id: selectedSubCategory?.id || null,
+      ownerId: selectedOwner?.id || null,
+      quantity: qty,
+      description: desc || null,
     };
-    getAssets();
-  }, [activeTab, subCategoriesFilter.value, addNewData]);
 
+    let mergedData = {};
+
+    if (selectedCategory && selectedCategory.name === "Kendaraan") {
+      const DataKd = {
+        statusStnkName: selectedOpStnk?.label || null,
+        merk: selectedOpMerk?.name || null,
+        year: selectedYear?.name || null,
+        noRangka: noRangka || null,
+        noMesin: noMesin || null,
+        noPolisi: noPolisi || null,
+        expTaxOneYear: expOneYear || null,
+        expTaxFiveYear: expFiveYear || null,
+        color: color || null,
+      };
+      mergedData = { ...data, ...DataKd };
+    } else if (selectedCategory && selectedCategory.name === "Special Tools") {
+      const DataST = {
+        serialNumber: serialNumber || null,
+        typeName: selectedTipeST?.name || null,
+        merkName: selectedMerkST?.name || null,
+        AccessoriesOne: accesoriesOne || null,
+        AccessoriesTwo: accesoriesTwo || null,
+        AccessoriesThree: accesoriesThree || null,
+      };
+      mergedData = { ...data, ...DataST };
+    } else {
+      // Jika kategori bukan Kendaraan atau Special Tools, gunakan data saja
+      mergedData = data;
+    }
+
+    let result;
+    if (actionSend === "Add") {
+      // console.log("berhasil manambahkan data");
+      result = await createDataAsset(mergedData, id);
+    } else if (actionSend === "Edit") {
+      // console.log("Berhasil edit");
+      result = await updateDataAsset(mergedData, assetId, id);
+    } else {
+      errorAlertWithMessage("Action failed");
+    }
+
+    if (result && result.status === 200) {
+      setTimeout(() => {
+        setAddNewData(true);
+        setOpenModal(false);
+      }, 2000);
+    }
+
+    // console.log("result", result);
+  }
+
+  // Handle edit
   function handleEditClick(assets, stockIdx) {
-    console.log("nih ", assets);
-    setEditedAsset(assets);
-    setShowEditDataForm(true);
+    // console.log("nih data asset edited", assets);
+    setEditedAssetData(assets);
+    setActionEdit(true);
+    setOpenModal(true);
   }
 
-  if (categoriesGlobal.isLoading || loadingData) return <Spinner />;
+  const qtyInputArray = Object.values(qtyInputTf);
+  console.log("qtyInputArray", qtyInputArray);
+  const processedQtyInputArray = qtyInputArray.map((item) => ({
+    assetId: item.assetId,
+    selectQty: item.selectQty === "" ? null : item.selectQty,
+  }));
 
-  let activeCols = [];
-  let activeTableBody = null;
+  async function handleSubmitTransfer(e) {
+    e.preventDefault();
+    if (formikRef.current) {
+      formikRef.current.submitForm(); // Trigger submit Formik secara manual
+      console.log("ini formik", formikRef);
+    }
+    const desc = e.target.desc.value || null;
+    const date = e.target.date.value || null;
 
-  const activeTabName = tabs.find((tab) => tab.current)?.name;
+    const userIdPenerima = selectedUserPenerima
+      ? selectedUserPenerima.id
+      : null;
+    const fromBranch = selectedFromBranch ? selectedFromBranch.name : null;
+    const toBranch = selectedToBranch ? selectedToBranch.name : null;
 
-  // console.log("active tab", activeTabName);
-
-  switch (activeTabName) {
-    case "Kendaraan":
-      activeCols = colsKendaraan;
-      activeTableBody = (
-        <KendaraanTableBody
-          asset={dataAsset.rows}
-          onEdit={handleEditClick}
-        />
-      );
-      break;
-    case "Special Tools":
-      activeCols = colsSpecialTools;
-      activeTableBody = (
-        <SpecialToolsTableBody
-          asset={dataAsset.rows}
-          onEdit={handleEditClick}
-        />
-      );
-      break;
-    case "Standard Tools":
-      activeCols = colsStandardTools;
-      activeTableBody = (
-        <StandardToolsTableBody
-          asset={dataAsset.rows}
-          onEdit={handleEditClick}
-        />
-      );
-      break;
-    case "Safety Tools":
-      activeCols = colsSafetyTools;
-      activeTableBody = (
-        <SafetyToolsTableBody
-          asset={dataAsset.rows}
-          onEdit={handleEditClick}
-        />
-      );
-      break;
-    default:
-      break;
+    dispatch(
+      reqTransferAsset({
+        processedQtyInputArray,
+        listTf,
+        date: date,
+        userIdPenerima: userIdPenerima,
+        toBranch: toBranch,
+        fromBranch: fromBranch,
+        desc: desc,
+      })
+    );
   }
+
+  if (AssetGlobal.isLoading) return <Spinner />;
 
   return (
     <div>
-      <TransitionFade>
-        <NavigationDataAsset
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          categoriesGlobal={categoriesGlobal}
-          tabs={tabs}
-        />
-      </TransitionFade>
-
-      <TransitionFade show={showEditDataForm || showAddDataForm}>
-        {(() => {
-          const currentTabName = tabs.find((tab) => tab.current)?.name;
-          let action = showEditDataForm ? "Edit" : "Add"; // Menentukan mode berdasarkan state
-
-          console.log("action saat ini", action);
-
-          switch (currentTabName) {
-            case "Kendaraan":
-              return (
-                <DataKendaraanForm
-                  action={action}
-                  setShowForm={
-                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
-                  }
-                  subCategoryOption={subCategoryGlobal}
-                  currPage={currentPage}
-                  idOnTabsCategory={activeTab}
-                  asset={action === "Add" ? {} : editedAssetId}
-                  img={action === "Add" ? {} : imgAssetById}
-                  addNewData={addNewData}
-                  setNewAddData={setNewAddData}
-                  ownerG={ownerGlobal.allOwner}
-                  assetName={assetNameGlobal.assetName}
+      {/* <CompTesting2 /> */}
+      <div>
+        <Modal4
+          open={openModal}
+          setOpen={setOpenModal}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          title="modal nih"
+          action="Add"
+          steps={updatedSteps}
+          onSubmit={handleSubmit}
+          children={
+            <div>
+              <Steppers steps={steps} />
+              {currentStep === 0 && (
+                <FormFirstStep
+                  dataEdited={editedAssetData}
+                  categories={updatedCategories}
+                  allbranch={updatedBranch}
+                  selectCategory={selectedCategory}
+                  setSelectCategory={setSelectedCategory}
+                  selectBranch={selectedBrach}
+                  setSelectBranch={setSelectedBranch}
                 />
-              );
-            case "Special Tools":
-              return (
-                <DataSpecialToolsForm
-                  action={action}
-                  setShowForm={
-                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
-                  }
-                  currPage={currentPage}
-                  idOnTabsCategory={activeTab}
-                  asset={action === "Add" ? {} : editedAssetId}
-                  img={action === "Add" ? {} : imgAssetById}
-                  addNewData={addNewData}
-                  setNewAddData={setNewAddData}
-                  ownerG={ownerGlobal.allOwner}
-                  assetName={assetNameGlobal.assetName}
+              )}
+              {currentStep === 1 && (
+                <FormSecondStep
+                  allAssetName={assetNameGlobal.assetName}
+                  selectAssetName={selectedAssetName}
+                  setSelectAssetName={setSelectedAssetName}
+                  allOwner={ownerGlobal.allOwner}
+                  selectOwner={selectedOwner}
+                  setSelectOwner={setSelectedOwner}
+                  qty={qty}
+                  setQty={setQty}
+                  desc={desc}
+                  setDesc={setDesc}
+                  allUsers={updatedAllUsers}
+                  selectPic={selectedPic}
+                  setSelectPic={setSelectedPic}
                 />
-              );
-            case "Standard Tools":
-              return (
-                <DataStandardToolsForm
-                  action={action}
-                  setShowForm={
-                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
+              )}
+              {currentStep === 2 && (
+                <FormThirdStep
+                  currentCategory={
+                    selectedCategory ? selectedCategory.name : ""
                   }
-                  currPage={currentPage}
-                  idOnTabsCategory={activeTab}
-                  asset={action === "Add" ? {} : editedAssetId}
-                  img={action === "Add" ? {} : imgAssetById}
-                  addNewData={addNewData}
-                  setNewAddData={setNewAddData}
-                  ownerG={ownerGlobal.allOwner}
-                  assetName={assetNameGlobal.assetName}
+                  subCategory={subCategoryGlobal.subCategories}
+                  selectSubCategory={selectedSubCategory}
+                  setSelectSubCategory={setSelectedSubCategory}
+                  OpMerk={OpMerk}
+                  selectOpOwner={selectedOpMerk}
+                  setSelectOpOwner={setSelectedOpMerk}
+                  OpStnk={OpStnk}
+                  selectOpStnk={selectedOpStnk}
+                  setSelectOpStnk={setSelectedOpStnk}
+                  OpYear={OpYear}
+                  selectYear={selectedYear}
+                  setSelectYear={setSelectedYear}
+                  opCondition={opCondition}
+                  selectCondition={selectedCondition}
+                  setSelectCondition={setSelectedCondition}
+                  selectNoPolisi={noPolisi}
+                  setSelectNoPolisi={setNoPolisi}
+                  selectNoMesin={noMesin}
+                  setSelectNoMesin={setNomesin}
+                  selectNoRangka={noRangka}
+                  setSelectNorangka={setNoRangka}
+                  selectColor={color}
+                  setSelectColor={setColor}
+                  selectExpOneYear={expOneYear}
+                  setSelectExpOneYear={setExpOneYear}
+                  selectExpFiveYear={expFiveYear}
+                  setSelectFiveYear={setExptFiveYear}
+                  //
+                  // Special Tools
+                  sN={serialNumber}
+                  setSN={setSerialNumber}
+                  oPMerkST={OpMerkSpecialTools}
+                  selectMerkST={selectedMerkST}
+                  setSelectMerkST={setSelectedMerkST}
+                  oPTipeST={OpTipeSpecialTools}
+                  selectTipeST={selectedTipeST}
+                  setSelectTipeST={setSelectedTipeST}
+                  accOne={accesoriesOne}
+                  setAccOne={setAccesoriesOne}
+                  accTwo={accesoriesTwo}
+                  setAccTwo={setAccesoriesTwo}
+                  accThree={accesoriesThree}
+                  setAccThree={setAccesoriesThree}
                 />
-              );
-            case "Safety Tools":
-              return (
-                <DataSafetyToolsForm
-                  action={action}
-                  setShowForm={
-                    action === "Add" ? setShowAddDataForm : setShowEditDataForm
-                  }
-                  currPage={currentPage}
-                  idOnTabsCategory={activeTab}
-                  asset={action === "Add" ? {} : editedAssetId}
-                  img={action === "Add" ? {} : imgAssetById}
-                  addNewData={addNewData}
-                  setNewAddData={setNewAddData}
-                  ownerG={ownerGlobal.allOwner}
-                  assetName={assetNameGlobal.assetName}
-                />
-              );
-            default:
-              return null;
+              )}
+            </div>
           }
-        })()}
-      </TransitionFade>
+        />
+      </div>
+      <div>
+        <ModalForm2
+          title="List Transfer Assets"
+          open={openModalTf}
+          setOpen={setOpenModalTf}
+          action="Add"
+          onSubmit={handleSubmitTransfer}
+          children={
+            <TableBodyListTransferAsset
+              // TF
+              formikRef={formikRef}
+              isSuperAdmin={isSuperAdmin}
+              asset={listTf}
+              allBranch={updatedBranch}
+              allUsers={updatedAllUsers}
+              selectfromBranch={selectedFromBranch}
+              setSelectFromBranch={setSelectedFromBranch}
+              selectToBranch={selectedToBranch}
+              setSelectToBranch={setSelectedToBranch}
+              selectUserPenerima={selectedUserPenerima}
+              setSelectUserPenerima={setSelectedUserPenerima}
+              qtyInputTf={qtyInputTf}
+              setQtyInputTf={setQtyInputTf}
+              //function
+              handleQtyChange={handleQtyChange}
+            />
+          }
+        />
+      </div>
 
-      <TransitionFade show={!showAddDataForm && !showEditDataForm}>
-        <div>
-          <AddDataHeader
-            title="Data Assets"
-            desc="A list Data Assets"
-            addButtonText="Add Data"
-            onAddClick={() => setShowAddDataForm(true)}
-          />
+      <AddDataHeaderDataAsset
+        title="Home"
+        desc="A list Asset PT. Quantum Nusatama"
+        addButtonText="Add Asset"
+        addButtonText2="Transfer Asset"
+        onAddClick={() => {
+          setOpenModal(true);
+          setActionSend("Add");
+        }}
+        onAddClick2={() => setOpenModalTf(true)}
+      />
 
-          <Filterasset
-            subCategoryOption={subCategoryOption}
-            subCategoriesFilter={subCategoriesFilter}
-            onSubCategoriesChange={setSubCategoryFilter}
-          />
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 mt-12 border-b border-gray-200">
+        <SearchBar
+          onSubmit={handleSubmitSearch}
+          defaultValue={searchAssetName}
+        />
+        {/* <Testing3 /> */}
+        <Comboboxes
+          people={updatedBranch}
+          selectedValue={sortBranch}
+          setSelectedValue={setSortBranch}
+        />
+        <Comboboxes
+          people={updatedCategories}
+          selectedValue={sortCategory}
+          setSelectedValue={setSortCategory}
+        />
+      </div>
 
-          <Table
-            className="mb-4 py-6"
-            headCols={activeCols}
-            tableBody={activeTableBody}
-          />
-          <Pagination
-            itemsInPage={dataAsset.rows ? dataAsset.rows.length : 0}
-            totalItems={dataAsset.count}
-            totalPages={Math.ceil(dataAsset.count / 6)}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
-        </div>
-      </TransitionFade>
+      <div>
+        <Table2
+          className="mb-4"
+          headCols={[
+            // "",
+            "Asset Name",
+            "Branch",
+            "Category",
+            "NoPol/SN",
+            "Status",
+          ]}
+          tableBody={
+            <TableBodyAsset
+              onEdit={handleEditClick}
+              setActionSend={setActionSend}
+              asset={AssetGlobal.allAsset.asset}
+              selectItem={selectedItemTf}
+              setSelectItem={setSelectedItemTf}
+              onCheckboxChange={handleCheckboxChange}
+            />
+          }
+        />
+        <Pagination2
+          itemsInPage={assetLength}
+          totalItems={AssetGlobal.allAsset.totalItems}
+          totalPages={AssetGlobal.allAsset.totalPages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      </div>
     </div>
   );
 };
