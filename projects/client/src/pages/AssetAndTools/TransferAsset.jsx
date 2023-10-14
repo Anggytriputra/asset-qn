@@ -87,6 +87,7 @@ const TransferAsset = () => {
   console.log("status submit", statusSubmitConfirmasi);
 
   const [selectedBranch, setSelectedBranch] = useState();
+  const [fromBranch, setFromBranch] = useState();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedCategory, setSelectedCategory] = useState();
@@ -452,6 +453,20 @@ const TransferAsset = () => {
             />
           </div>
         )}
+
+        <div className="sm:col-span-2">
+          <label
+            htmlFor="expTaxOneYear"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Cabang Penerima
+          </label>
+          <Comboboxes
+            people={branchOptions}
+            selectedValue={selectedBranch}
+            setSelectedValue={setSelectedBranch}
+          />
+        </div>
         {/* <div className="sm:col-span-2">
           <button
             type="submit"

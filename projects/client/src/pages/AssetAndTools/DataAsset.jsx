@@ -52,6 +52,9 @@ import {
 } from "../../utils/option/optionValues";
 import Testing3 from "../../components/componentTest/Testing3";
 
+const branchOptions = [{ id: "", name: "ALL BRANCH" }];
+const categoryOptions = [{ id: "", name: "None" }];
+
 const DataAsset = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -81,8 +84,9 @@ const DataAsset = () => {
   const [loadingData, setLoadingData] = useState(false);
 
   // Sort
-  const [sortBranch, setSortBranch] = useState();
-  const [sortCategory, setSortCategory] = useState();
+  const [sortBranch, setSortBranch] = useState(branchOptions[0]);
+  console.log("sort branch", sortBranch);
+  const [sortCategory, setSortCategory] = useState(categoryOptions[0]);
   //
   const [selectedCategory, setSelectedCategory] = useState();
 
@@ -263,16 +267,27 @@ const DataAsset = () => {
     searchAssetName
       ? searchParams.set("q", searchAssetName)
       : searchParams.delete("q");
-    userGlobal.id_cabang
-      ? searchParams.set("branchId", userGlobal.id_cabang)
-      : searchParams.delete("branchId");
+    sortBranch.id
+      ? searchParams.set("sortBranch", sortBranch.id)
+      : searchParams.delete("sortBranch");
+    sortCategory.id
+      ? searchParams.set("sortCategory", sortCategory.id)
+      : searchParams.delete("sortCategory");
 
     query += `&${searchParams.toString()}`;
     setSearchParams(searchParams);
 
     dispatch(fetchAllAsset(query));
     setAddNewData(false);
-  }, [dispatch, userGlobal.role, searchAssetName, currentPage, addNewData]);
+  }, [
+    dispatch,
+    userGlobal.role,
+    searchAssetName,
+    currentPage,
+    addNewData,
+    sortBranch,
+    sortCategory,
+  ]);
 
   useEffect(() => {
     if (userGlobal.role && selectedCategory && selectedBrach) {
@@ -280,7 +295,7 @@ const DataAsset = () => {
       dispatch(fetchAllOwner());
       dispatch(fetchAllUsers(selectedBrach.id));
     }
-  }, [userGlobal.role, selectedCategory, selectedBrach]);
+  }, [userGlobal.role, selectedCategory, selectedBrach, sortBranch]);
 
   useEffect(() => {
     if (selectedToBranch && selectedToBranch.id) {
@@ -314,11 +329,16 @@ const DataAsset = () => {
     name: category.name_ctgr,
   }));
 
+  categoryOptions.splice(1, categoryOptions.length - 1, ...updatedCategories);
+
   const updatedBranch = allBranchGlobal.allBranches.map((branch) => ({
     id: branch.id,
     name: branch.cabang_name,
   }));
 
+  branchOptions.splice(1, branchOptions.length - 1, ...updatedBranch);
+
+  console.log("allBranch", branchOptions);
   const updatedAllUsers = allUserGlobal.users.map((user) => ({
     id: user.id,
     name: user.username,
@@ -588,12 +608,12 @@ const DataAsset = () => {
         />
         {/* <Testing3 /> */}
         <Comboboxes
-          people={updatedBranch}
+          people={branchOptions}
           selectedValue={sortBranch}
           setSelectedValue={setSortBranch}
         />
         <Comboboxes
-          people={updatedCategories}
+          people={categoryOptions}
           selectedValue={sortCategory}
           setSelectedValue={setSortCategory}
         />

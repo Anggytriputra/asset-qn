@@ -30,12 +30,17 @@ async function userExtractor(req, res, next) {
         id: userToken.dataValues.user_id,
         flag_active: true,
       },
-      attributes: {
-        exclude: ["password", "createdAt", "updatedAt", "deletedAt"],
-      },
+      attributes: [
+        "id",
+        "id_karyawan",
+        "username",
+        "name",
+        "id_role",
+        "flag_active",
+      ],
     });
 
-    // console.log("user", userExists.dataValues);
+    console.log("user nih", userExists.dataValues);
     if (!userExists)
       return res.status(400).json({ message: "User does not exist" });
     // throw new Error("User does not exist");
@@ -72,6 +77,24 @@ async function userExtractor(req, res, next) {
       return res.status(400).json({ message: "You do not have access" });
     }
 
+    const rck = await db.rel_cabangkaryawan.findOne({
+      attributes: ["id", "id_cabang"],
+      where: { id_karyawan: userExists.dataValues.id_karyawan },
+      include: [
+        {
+          model: db.m_cabang,
+          attributes: ["id", "cabang_name"],
+        },
+      ],
+    });
+
+    console.log("rck nih bos", rck.dataValues);
+
+    const userLoginBranch = rck.dataValues.m_cabang.dataValues;
+
+    console.log("cabang user ", userLoginBranch);
+
+    req.branchUser = userLoginBranch;
     req.roleName = roleName;
     req.user = userExists.dataValues;
     next();

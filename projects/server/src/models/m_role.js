@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class rel_cabangkaryawan extends Model {
+  class m_role extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -9,28 +9,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      rel_cabangkaryawan.belongsTo(models.m_cabang, {
-        foreignKey: "id_cabang",
-      });
     }
   }
-  rel_cabangkaryawan.init(
+  m_role.init(
     {
-      id_cabang: DataTypes.INTEGER,
-      id_karyawan: DataTypes.INTEGER,
-      notes: DataTypes.TEXT,
+      view_name: DataTypes.STRING,
+      id_role_level: DataTypes.INTEGER,
       flag_active: DataTypes.INTEGER,
-      isUpdated: DataTypes.INTEGER,
-      isDeleted: DataTypes.INTEGER,
       createdBy: DataTypes.INTEGER,
       updatedBy: DataTypes.INTEGER,
     },
     {
       sequelize,
-      modelName: "rel_cabangkaryawan",
-      tableName: "rel_cabangkaryawan",
-      // freezeTableName: true,
+      modelName: "m_role",
+      tableName: "m_role",
     }
   );
-  return rel_cabangkaryawan;
+  return m_role;
 };

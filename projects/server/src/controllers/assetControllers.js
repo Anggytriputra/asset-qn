@@ -10,19 +10,23 @@ async function getAllAsset(req, res) {
   try {
     console.log("get kueri all asset", req.query);
     console.log("data user", req.user);
+    console.log("branch user", req.branchUser);
     const itemsPerPage = 30;
 
     const userRole = req.roleName;
+    const brancUser = req.branchUser;
+    console.log("branchuser", brancUser);
 
     const page = parseInt(req.query.page);
-    console.log("page", page);
+    // console.log("page", page);
 
     const idCategory = parseInt(req.query.categoryId);
     const assetname = req.query.assetName;
-    const branchId = parseInt(req.query.branchId);
+    const branchId = parseInt(brancUser.id);
     const searchAssetName = req.query.q;
     const sortCategoryId = req.query.sortCategory;
-    const sortBranch = req.query.sortBranch;
+    const sortBranch = parseInt(req.query.sortBranch);
+    console.log("sortBranch", sortBranch);
 
     const offsetLimit = {};
     if (page) {
