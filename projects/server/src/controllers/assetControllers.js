@@ -1168,16 +1168,21 @@ async function updateAssetKendaraan(req, res) {
         .status(400)
         .send({ message: "Quantity melebihi yang diharuskan" });
 
+    const noPolisiUp = toUpperCase(noPolisi);
+    const noMesinUp = toUpperCase(noMesin);
+    const noRangkaUp = toUpperCase(noRangka);
+    const colorUp = toUpperCase(color);
+
     const noPolisiExist = await db.m_assets_in.findOne({
-      where: { value: noPolisi },
+      where: { value: noPolisiUp },
     });
 
     const noRangkaExist = await db.m_assets_in.findOne({
-      where: { value: noRangka },
+      where: { value: noRangkaUp },
     });
 
     const noMesinExist = await db.m_assets_in.findOne({
-      where: { value: noMesin },
+      where: { value: noMesinUp },
     });
 
     if (
@@ -1266,8 +1271,6 @@ async function updateAssetKendaraan(req, res) {
       }
     );
 
-    console.log("update mAsset", asset);
-
     const existingMerk = await db.m_assets_in.findAll({
       where: { m_asset_id: assetId, m_form_id: merkId },
     });
@@ -1312,14 +1315,14 @@ async function updateAssetKendaraan(req, res) {
 
     if (existingNoPol.length) {
       await db.m_assets_in.update(
-        { value: noPolisi, updatedBy: userId },
+        { value: noPolisiUp, updatedBy: userId },
         { where: { m_asset_id: assetId, m_form_id: noPolisiId } }
       );
     } else {
       await db.m_assets_in.create({
         m_asset_id: assetId,
         m_form_id: noPolisiId,
-        value: noPolisi,
+        value: noPolisiUp,
         updatedBy: userId,
         createdBy: userId,
       });
@@ -1331,14 +1334,14 @@ async function updateAssetKendaraan(req, res) {
 
     if (existingNoRangka.length) {
       await db.m_assets_in.update(
-        { value: noRangka, updatedBy: userId },
+        { value: noRangkaUp, updatedBy: userId },
         { where: { m_asset_id: assetId, m_form_id: noRangkaId } }
       );
     } else {
       await db.m_assets_in.create({
         m_asset_id: assetId,
         m_form_id: noRangkaId,
-        value: noRangka,
+        value: noRangkaUp,
         updatedBy: userId,
         createdBy: userId,
       });
@@ -1350,14 +1353,14 @@ async function updateAssetKendaraan(req, res) {
 
     if (existingNoMesin.length) {
       await db.m_assets_in.update(
-        { value: noMesin, updatedBy: userId },
+        { value: noMesinUp, updatedBy: userId },
         { where: { m_asset_id: assetId, m_form_id: noMesinId } }
       );
     } else {
       await db.m_assets_in.create({
         m_asset_id: assetId,
         m_form_id: noMesinId,
-        value: noMesin,
+        value: noMesinUp,
         updatedBy: userId,
         createdBy: userId,
       });
@@ -1369,14 +1372,14 @@ async function updateAssetKendaraan(req, res) {
 
     if (existingCoolor.length) {
       await db.m_assets_in.update(
-        { value: color, updatedBy: userId },
+        { value: colorUp, updatedBy: userId },
         { where: { m_asset_id: assetId, m_form_id: warnaId } }
       );
     } else {
       await db.m_assets_in.create({
         m_asset_id: assetId,
         m_form_id: warnaId,
-        value: color,
+        value: colorUp,
         updatedBy: userId,
         createdBy: userId,
       });
@@ -1492,8 +1495,10 @@ async function updateAssetSpecialtool(req, res) {
         .status(400)
         .send({ message: "Quantity melebihi yang diharuskan" });
 
+    const serialNumberUp = toUpperCase(serialNumber);
+
     const serialNumberExist = await db.m_assets_in.findOne({
-      where: { value: serialNumber },
+      where: { value: serialNumberUp },
     });
 
     if (
@@ -1534,10 +1539,12 @@ async function updateAssetSpecialtool(req, res) {
       });
     }
 
+    const descTitle = toTitleCase(description);
+
     const asset = await db.m_assets.update(
       {
         name: name,
-        desc: description,
+        desc: descTitle,
         m_owner_id: ownerId,
         m_sub_category_id: subCategoryId,
         updatedBy: userId,
@@ -1573,18 +1580,17 @@ async function updateAssetSpecialtool(req, res) {
     const existingSN = await db.m_assets_in.findAll({
       where: { m_asset_id: assetId, m_form_id: serialNumberId },
     });
-    console.log("existing sn", existingSN);
 
     if (existingSN.length) {
       await db.m_assets_in.update(
-        { value: serialNumber, updatedBy: userId },
+        { value: serialNumberUp, updatedBy: userId },
         { where: { m_asset_id: assetId, m_form_id: serialNumberId } }
       );
     } else {
       await db.m_assets_in.create({
         m_asset_id: assetId,
         m_form_id: serialNumberId,
-        value: serialNumber,
+        value: serialNumberUp,
         updatedBy: userId,
         createdBy: userId,
       });
