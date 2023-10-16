@@ -26,6 +26,9 @@ import Spinner from "../../components/Spinner";
 import Pagination from "../../components/Pagination";
 import ConfirmedReturnAssetForm from "../../components/formReturnAsset/ConfirmedReturnAssetForm";
 import Modal3 from "../../components/Modal3";
+import Comboboxes from "../../components/Comboboxes";
+
+const branchOptions = [{ id: 0, name: "ALL BRANCH" }];
 
 const ReturnAsset = () => {
   const dispatch = useDispatch();
@@ -60,13 +63,17 @@ const ReturnAsset = () => {
   const [addNewData, setAddNewData] = useState(false);
   const [detailConfirmed, setDetailConfirmed] = useState({});
 
-  console.log("detail confirmed", detailConfirmed);
-  console.log("test add new data", addNewData);
+  // SORT FILTER
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [selectedBranch, setSelectedBranch] = useState({
+    id: 0,
+    name: "ALL BRANCH",
+  });
+
   // const userIdPenerima = selectedUserPenerima
   //   ? selectedUserPenerima.id
   //   : undefined;
-
-  console.log("selected asset", selectedAsset);
 
   const [selectedFromBranch, setSelectedFromBranch] = useState(
     userGlobal.role === "Super Admin"
@@ -76,8 +83,6 @@ const ReturnAsset = () => {
           name: userGlobal.cabang_name,
         }
   );
-
-  console.log("dari cabang", selectedFromBranch);
 
   const [selectedToBranch, setSelectedToBranch] = useState();
   const [openModal, setOpenModal] = useState(false);
@@ -95,6 +100,16 @@ const ReturnAsset = () => {
 
   useEffect(() => {
     let query = `page=${currentPage}`;
+
+    startDate
+      ? searchParams.set("startDate", startDate)
+      : searchParams.delete("startDate");
+    endDate
+      ? searchParams.set("endDate", endDate)
+      : searchParams.delete("endDate");
+    endDate
+      ? searchParams.set("sortBranch", endDate)
+      : searchParams.delete("endDate");
     userGlobal.id
       ? searchParams.set("userId", userGlobal.id)
       : searchParams.delete("userId");
@@ -112,7 +127,7 @@ const ReturnAsset = () => {
     setSearchParams(searchParams);
     dispatch(fetchReqReturnAsset(query));
     setAddNewData(false);
-  }, [userGlobal.id, currentPage, addNewData]);
+  }, [userGlobal.id, currentPage, addNewData, startDate, endDate]);
 
   useEffect(() => {
     dispatch(fetchAllBranches());
@@ -172,12 +187,12 @@ const ReturnAsset = () => {
         }))
       : [];
 
-  console.log("seperator asset", seperatorAsset);
-
   const branchesWithNewName = branchGlobal.allBranches.map((branch) => ({
     id: branch.id,
     name: branch.cabang_name,
   }));
+
+  branchOptions.splice(1, branchOptions.length - 1, ...branchesWithNewName);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -313,43 +328,99 @@ const ReturnAsset = () => {
           children={<ConfirmedReturnAssetForm detailData={detailConfirmed} />}
         />
       </div>
-      <AddDataHeader
-        title="Return Asset"
-        desc="A list Transfer Asset"
-        addButtonText="Return Asset"
-        onAddClick={() => setOpenModal(true)}
-      />
 
-      <Table
-        className="mb-4"
-        headCols={[
-          "No Return",
-          "Date",
-          "Asset Name",
-          "Category",
-          "From Branch",
-          "Destination",
-          "Shipping Notes",
-          "Receipt Notes",
-          "Condition Status",
-          "Status",
-        ]}
-        tableBody={
-          <TableBodyReturnAsset
-            asset={returnAssetGlobal.returnAsset}
-            setOpenModalConfirmed={setOpenModalConfirmed}
-            setNoidTH={setNoidTH}
-            setDetailApp={setDetailConfirmed}
+      <div>
+        <AddDataHeader
+          title="Return Asset"
+          desc="A list Transfer Asset"
+          addButtonText="Return Asset"
+          onAddClick={() => setOpenModal(true)}
+        />
+
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 mt-12 border-b border-gray-200">
+          <div className="flex flex-wrap items-center justify-start gap-6 pb-4 mb-4 mt-12 border-b border-gray-200">
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Start Date
+              </label>
+              <input
+                type="date"
+                name="startDate"
+                id="startDate"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="endDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                End Date
+              </label>
+              <input
+                type="date"
+                name="endDate"
+                id="endDate"
+                className="p-2 block w-full min-w-0 flex-1 rounded-md border border-gray-300 focus:ring-orange-500 sm:text-sm"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+
+            {/* <div className="sm:col-span-2">
+              <label
+                htmlFor="expTaxOneYear"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Branch
+              </label>
+              <Comboboxes
+                people={branchOptions}
+                selectedValue={selectedBranch}
+                setSelectedValue={setSelectedBranch}
+              />
+            </div> */}
+          </div>
+        </div>
+
+        <div>
+          <Table
+            className="mb-4"
+            headCols={[
+              "No Return",
+              "Date",
+              "Asset Name",
+              "Category",
+              "From Branch",
+              "Destination",
+              "Shipping Notes",
+              "Receipt Notes",
+              "Condition Status",
+              "Status",
+            ]}
+            tableBody={
+              <TableBodyReturnAsset
+                asset={returnAssetGlobal.returnAsset}
+                setOpenModalConfirmed={setOpenModalConfirmed}
+                setNoidTH={setNoidTH}
+                setDetailApp={setDetailConfirmed}
+              />
+            }
           />
-        }
-      />
-      <Pagination
-        itemsInPage={returnAssetGlobal.returnAsset.length}
-        totalItems={returnAssetGlobal.totalItem}
-        totalPages={returnAssetGlobal.totalPages}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
+          <Pagination
+            itemsInPage={returnAssetGlobal.returnAsset.length}
+            totalItems={returnAssetGlobal.totalItem}
+            totalPages={returnAssetGlobal.totalPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
+      </div>
     </div>
   );
 };

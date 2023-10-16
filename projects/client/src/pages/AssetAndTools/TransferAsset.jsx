@@ -398,12 +398,16 @@ const TransferAsset = () => {
           children={<ConfirmedTransferAssetForm detailData={detailConfirmed} />}
         />
       </div>
-      <AddDataHeader
-        title="Transfer Asset"
-        desc="A list Transfer Asset"
-        addButtonText="Transfer Asset"
-        onAddClick={() => setOpenModal(true)}
-      />
+
+      <div className="sm:flex sm:items-center ml-4 mr-4 py-6">
+        <div className=" sm:flex-auto ">
+          <h1 className="text-2xl relative font-semibold  w-max text-gray-900 after:block after:bg-red-300 after:absolute  after:bottom-1 after:-z-10 after:left-0 after:right-0">
+            Transfer Asset
+          </h1>
+          <p className="mt-4 text-sm text-gray-700">A list Transfer Asset"</p>
+        </div>
+      </div>
+
       <div className="flex flex-wrap items-center justify-start gap-6 pb-4 mb-4 mt-12 border-b border-gray-200">
         <div className="sm:col-span-2">
           <label
@@ -459,7 +463,7 @@ const TransferAsset = () => {
             htmlFor="expTaxOneYear"
             className="block text-sm font-medium text-gray-700"
           >
-            Cabang Penerima
+            Branch
           </label>
           <Comboboxes
             people={branchOptions}
@@ -467,14 +471,6 @@ const TransferAsset = () => {
             setSelectedValue={setSelectedBranch}
           />
         </div>
-        {/* <div className="sm:col-span-2">
-          <button
-            type="submit"
-            className="flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Search
-          </button>
-        </div> */}
       </div>
 
       <Table

@@ -246,10 +246,52 @@ async function getAccesoriesAsset(req, res) {
   }
 }
 
+async function getAssetNoPolSN(req, res) {
+  try {
+    console.log("req query body nopol sn", req.query);
+    const branchId = parseInt(req.query.branchId);
+    const role = req.query.role;
+
+    const branchIdClause =
+      (role === "Warehouse HO" && branchId === 17) || role === "Super Admin"
+        ? {}
+        : {
+            m_cabang_id: branchId,
+          };
+
+    console.log("branchid clause adalah", branchIdClause);
+
+    const noPolSN = await db.m_assets.findAll({
+      attributes: ["id", "m_category_id", "name", "m_cabang_id"],
+      where: {
+        ...branchIdClause,
+        [Op.or]: [{ m_category_id: 1 }, { m_category_id: 2 }],
+      },
+      include: [
+        {
+          model: db.m_assets_in,
+          attributes: ["id", "m_form_id", "value", "m_asset_id"],
+          where: {
+            [Op.or]: [{ m_form_id: 6 }, { m_form_id: 20 }],
+          },
+        },
+      ],
+    });
+    res.status(200).send({
+      message: "SuccessFuly get data asset nopol sn",
+      noPolSN,
+    });
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).send(error);
+  }
+}
+
 module.exports = {
   getByIdAsset,
   getAssetNoPolisi,
   getSerialNumber,
   getAssetbyBranchId,
   getAccesoriesAsset,
+  getAssetNoPolSN,
 };

@@ -199,7 +199,6 @@ async function createTransferAssetKendaraan(req, res) {
 
     for (const asset of listTf) {
       const assetId = asset.id;
-
       // Mencari permintaan transfer aktif untuk aset ini
       const transDRetun = await db.m_trans_d.findOne({
         where: {
@@ -567,16 +566,13 @@ async function confirmasiTransfer(req, res) {
     console.log("trans d adlah", transD);
 
     const mAssetIds = transD.map((data) => data.dataValues.m_asset_id);
+    const transDId = transD.map((data) => data.dataValues.id);
 
     console.log("mAssetid", mAssetIds);
 
     const CabangIdIn = mTransH.dataValues.cabang_id_in;
     const transhHId = mTransH.dataValues.id;
     const statusId = mTransH.dataValues.m_status_id;
-
-    // console.log("test", CabangIdIn);
-
-    // console.log("mtrans H", mTransH);
 
     if (CabangIdIn !== userBranchIdLogin)
       return res.status(400).send({ message: "Branch mismatch" });
@@ -605,24 +601,21 @@ async function confirmasiTransfer(req, res) {
       }
     );
 
-    // console.log("ini coba guys", updateTransH);
-
-    // const m_asset = await db.m_assets.update(
-    //   {
-    //     m_cabang_id: CabangIdIn,
-    //   },
-    //   {
-    //     where: {
-    //       id: assetId,
-    //     },
-    //   }
-    // );
     for (const assetId of mAssetIds) {
       await db.m_assets.update(
         { m_cabang_id: CabangIdIn },
         { where: { id: assetId } }
       );
     }
+
+    for (const idTransD of transDId) {
+      await db.m_trans_d.update(
+        { flag_active: false },
+        { where: { id: idTransD } }
+      );
+    }
+
+    // for (const)
 
     return res.status(200).send({
       message: "Thank you for your confirmation",

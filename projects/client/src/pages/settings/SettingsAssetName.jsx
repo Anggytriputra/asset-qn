@@ -33,7 +33,7 @@ const SettingsAssetName = () => {
     <div>
       <div>SettingsAssetName</div>
       <AddDataHeader
-        title="Seeting Asset Name"
+        title="Setting Asset Name"
         desc="A list Asset Name"
         addButtonText="Add Asset"
         onAddClick={() => setOpenModal(true)}

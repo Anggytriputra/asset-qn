@@ -11,6 +11,7 @@ import statusSlice from "./reducers/statusSlice";
 import returnSlice from "./reducers/returnSlice";
 import ownerSlice from "./reducers/ownerSlice";
 import assetNameSlice from "./reducers/assetNameSlice";
+import optionSlice from "./reducers/optionSlice";
 // impo;
 
 const store = configureStore({
@@ -27,6 +28,7 @@ const store = configureStore({
     status: statusSlice,
     owner: ownerSlice,
     assetName: assetNameSlice,
+    option: optionSlice,
   },
 });
 

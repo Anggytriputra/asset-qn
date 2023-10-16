@@ -11,12 +11,13 @@ export default function TableBodyAsset({
   setSelectItem,
   onCheckboxChange,
 }) {
-  // console.log("asset table kendaraan", asset);
+  console.log("asset table kendaraan", asset);
   // console.log("on edit", asset);
   // console.log("asset table kendaraan", asset[0]?.m_images.images_url);
   return (
     <tbody className="divide-y divide-gray-200 bg-white">
-      {asset.map((assets, index) => {
+      {asset.rows.map((assets, index) => {
+        console.log("asset adalah", asset);
         // Membuat objek untuk menyimpan column_name dan value dari assets.m_assets_ins
         const assetInsMap = {};
 

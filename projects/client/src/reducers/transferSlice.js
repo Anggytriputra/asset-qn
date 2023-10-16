@@ -67,6 +67,7 @@ export function reqTransferAsset(data, id) {
     } catch (error) {
       console.log("error", error.response.data.message);
       errorAlertWithMessage(error.response.data.message);
+      return error.response;
     }
   };
 }

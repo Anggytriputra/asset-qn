@@ -16,6 +16,7 @@ const {
   statusGlobalRouters,
   returnAssetRouter,
   assetNameGlobalRouter,
+  optionRouters,
 } = require("./routers");
 const categoryRouter = require("./routers/categoryRouter");
 const ownerRouters = require("./routers/ownerRouters");
@@ -59,6 +60,7 @@ app.use("/api/transfer-asset", transferAssetRouter);
 app.use("/api/return-asset", returnAssetRouter);
 app.use("/api/asset-name", assetNameGlobalRouter);
 app.use("/users", userGlobalRouter);
+app.use("/api/option", optionRouters);
 
 app.get("/", (req, res) => {
   res.json({

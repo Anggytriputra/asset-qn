@@ -41,7 +41,7 @@ export function fetchAssetNameByCategor(id) {
       // console.log("data nih asset name", data);
       dispatch(setAssetName(data.data.mAssetName));
     } catch (error) {
-      console.log(error.res);
+      console.log(error);
     }
   };
 }

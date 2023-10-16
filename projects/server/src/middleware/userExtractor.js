@@ -40,7 +40,7 @@ async function userExtractor(req, res, next) {
       ],
     });
 
-    console.log("user nih", userExists.dataValues);
+    // console.log("user nih", userExists.dataValues);
     if (!userExists)
       return res.status(400).json({ message: "User does not exist" });
     // throw new Error("User does not exist");
@@ -88,11 +88,11 @@ async function userExtractor(req, res, next) {
       ],
     });
 
-    console.log("rck nih bos", rck.dataValues);
+    // console.log("rck nih bos", rck.dataValues);
 
     const userLoginBranch = rck.dataValues.m_cabang.dataValues;
 
-    console.log("cabang user ", userLoginBranch);
+    // console.log("cabang user ", userLoginBranch);
 
     req.branchUser = userLoginBranch;
     req.roleName = roleName;

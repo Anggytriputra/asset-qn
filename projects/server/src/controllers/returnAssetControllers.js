@@ -1,4 +1,4 @@
-const toTitleCase = require("../helper/loweUpperCase");
+const { toTitleCase } = require("../helper/loweUpperCase");
 const db = require("../models");
 const { Op, Sequelize } = require("sequelize");
 const sequelize = db.sequelize;
@@ -13,6 +13,8 @@ async function getTransReturn(req, res) {
     const branchName = req.query.branchName;
     const branchId = parseInt(req.query.branchId);
     const roleUser = req.query.role;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
 
     console.log("roleUser", roleUser);
 
@@ -27,7 +29,26 @@ async function getTransReturn(req, res) {
           }
         : {};
 
-    console.log("branchClauseid", branchIdClause);
+    const dateClause =
+      startDate && endDate
+        ? {
+            date: {
+              [Op.between]: [startDate, endDate],
+            },
+          }
+        : startDate
+        ? {
+            date: {
+              [Op.gte]: startDate,
+            },
+          }
+        : endDate
+        ? {
+            date: {
+              [Op.lte]: endDate,
+            },
+          }
+        : {};
 
     const transHCount = await db.m_trans_h_return.count({
       where: {
@@ -50,6 +71,7 @@ async function getTransReturn(req, res) {
       where: {
         // flag_active: true,
         ...branchIdClause, // Use the spread operator to merge the branchIdClause
+        ...dateClause,
       },
       include: [
         {

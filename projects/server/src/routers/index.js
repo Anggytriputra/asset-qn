@@ -11,6 +11,7 @@ const userGlobalRouter = require("./userGlobalRouter");
 const returnAssetRouter = require("./returnAssetRouter");
 const statusGlobalRouters = require("./statusGlobalRouters");
 const assetNameGlobalRouter = require("./assetNameGlobalRouter");
+const optionRouters = require("./optionRouters");
 
 module.exports = {
   authRouter,
@@ -25,4 +26,5 @@ module.exports = {
   statusGlobalRouters,
   returnAssetRouter,
   assetNameGlobalRouter,
+  optionRouters,
 };

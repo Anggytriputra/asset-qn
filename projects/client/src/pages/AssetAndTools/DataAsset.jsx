@@ -18,7 +18,7 @@ import {
   fetchSubCategories,
 } from "../../reducers/categorySlice";
 import { fetchAllBranches } from "../../reducers/branchSlice";
-import { fetchAllAsset } from "../../reducers/assetSlice";
+import { fetchAllAsset, fetchAssetNoPolSN } from "../../reducers/assetSlice";
 import { fetchAssetNameByCategor } from "../../reducers/assetNameSlice";
 import { fetchAllOwner } from "../../reducers/ownerSlice";
 import { fetchAllUsers } from "../../reducers/allUsersSlice";
@@ -51,9 +51,11 @@ import {
   opCondition,
 } from "../../utils/option/optionValues";
 import Testing3 from "../../components/componentTest/Testing3";
+import { fetchMerkByCategoryId } from "../../reducers/optionSlice";
 
 const branchOptions = [{ id: "", name: "ALL BRANCH" }];
 const categoryOptions = [{ id: "", name: "None" }];
+const snNoPolOption = [{ id: "", name: "ALL SN NOPOL" }];
 
 const DataAsset = () => {
   const dispatch = useDispatch();
@@ -87,6 +89,7 @@ const DataAsset = () => {
   const [sortBranch, setSortBranch] = useState(branchOptions[0]);
   console.log("sort branch", sortBranch);
   const [sortCategory, setSortCategory] = useState(categoryOptions[0]);
+  const [sortNoPolSN, setSortNoPolSN] = useState(snNoPolOption[0]);
   //
   const [selectedCategory, setSelectedCategory] = useState();
 
@@ -121,12 +124,17 @@ const DataAsset = () => {
   const [accesoriesThree, setAccesoriesThree] = useState("");
   //REDUX
   const AssetGlobal = useSelector((state) => state.asset);
+  console.log("assetGlobal ini", AssetGlobal);
   const assetLength =
-    AssetGlobal && AssetGlobal.allAsset && AssetGlobal.allAsset.asset
-      ? AssetGlobal.allAsset.asset.length
+    AssetGlobal &&
+    AssetGlobal.allAsset &&
+    AssetGlobal.allAsset.asset &&
+    AssetGlobal.allAsset.asset
+      ? AssetGlobal.allAsset.asset.rows.length
       : 0;
 
-  console.log("allasset", AssetGlobal);
+  console.log("assetGlobal adalah", assetLength);
+  // console.log("allasset", AssetGlobal);
   const userGlobal = useSelector((state) => state.user);
   const categoriesGlobal = useSelector((state) => state.category.categories);
   const allBranchGlobal = useSelector((state) => state.branch);
@@ -134,6 +142,7 @@ const DataAsset = () => {
   const ownerGlobal = useSelector((state) => state.owner);
   const allUserGlobal = useSelector((state) => state.allUsers);
   const subCategoryGlobal = useSelector((state) => state.category);
+  const optionGlobal = useSelector((state) => state.option);
 
   //Transfer
   const isSuperAdmin = userGlobal.role === "Super Admin";
@@ -167,6 +176,30 @@ const DataAsset = () => {
       setCurrentStep(0);
       setSelectedCategory("");
       setActionSend("");
+
+      // formfirsstep
+      setSelectedCategory("");
+      setSelectedBranch("");
+
+      //FormSecondStep
+      setSelectedAssetName("");
+      setSelectedOwner("");
+      setQty("");
+      setDesc("");
+      setSelectedPic("");
+
+      // FormThirdStep
+      setSelectedSubCategory("");
+      setSelectedOpMerk("");
+      setSelectedOpStnk("");
+      setSelectedYear("");
+      setSelectedCondition("");
+      setNoPolisi("");
+      setNomesin("");
+      setNoRangka("");
+      setColor("");
+      setExpOneYear("");
+      setExptFiveYear("");
     }
   }, [openModal]);
 
@@ -175,7 +208,7 @@ const DataAsset = () => {
       let assetInMaps = {};
 
       const assetInsForEach = searchAssetForm(editedAssetData, assetInMaps);
-      console.log("assetInMaps", assetInMaps);
+      // console.log("assetInMaps", assetInMaps);
 
       setSelectedCategory(editedAssetData ? editedAssetData.m_category : null);
       setSelectedBranch(
@@ -255,11 +288,19 @@ const DataAsset = () => {
     }
   }, [actionEdit, editedAssetData]);
 
+  // const branchId = userGlobal.id_cabang;
+  // const userRole = userGlobal.role
+
+  const q = {
+    branchId: userGlobal.id_cabang,
+    role: userGlobal.role,
+  };
   // useEffect fecth data
   useEffect(() => {
     if (userGlobal.role) {
       dispatch(fetchCategories());
       dispatch(fetchAllBranches());
+      dispatch(fetchAssetNoPolSN(q));
     }
 
     // query by searchparams
@@ -273,6 +314,9 @@ const DataAsset = () => {
     sortCategory.id
       ? searchParams.set("sortCategory", sortCategory.id)
       : searchParams.delete("sortCategory");
+    sortNoPolSN.name
+      ? searchParams.set("sortNoPolSN", sortNoPolSN.name)
+      : searchParams.delete("sortNoPolSN");
 
     query += `&${searchParams.toString()}`;
     setSearchParams(searchParams);
@@ -287,6 +331,7 @@ const DataAsset = () => {
     addNewData,
     sortBranch,
     sortCategory,
+    sortNoPolSN,
   ]);
 
   useEffect(() => {
@@ -294,6 +339,7 @@ const DataAsset = () => {
       dispatch(fetchAssetNameByCategor(selectedCategory.id));
       dispatch(fetchAllOwner());
       dispatch(fetchAllUsers(selectedBrach.id));
+      dispatch(fetchMerkByCategoryId(selectedCategory.id));
     }
   }, [userGlobal.role, selectedCategory, selectedBrach, sortBranch]);
 
@@ -335,10 +381,25 @@ const DataAsset = () => {
     id: branch.id,
     name: branch.cabang_name,
   }));
+  // console.log("branchOption adalah", updatedBranch);
 
   branchOptions.splice(1, branchOptions.length - 1, ...updatedBranch);
 
-  console.log("allBranch", branchOptions);
+  const allNoPolSN = AssetGlobal
+    ? AssetGlobal.noPolSN.map((asset, index) =>
+        asset.m_assets_ins.map((assetIn) => ({
+          id: index,
+          name: assetIn.value,
+        }))
+      )
+    : [];
+
+  const flattenedAllNoPolSN = allNoPolSN.flat();
+  snNoPolOption.splice(1, snNoPolOption.length - 1, ...flattenedAllNoPolSN);
+
+  // console.log("ini nopol sn", snNoPolOption);
+
+  // console.log("allBranch", branchOptions);
   const updatedAllUsers = allUserGlobal.users.map((user) => ({
     id: user.id,
     name: user.username,
@@ -435,7 +496,7 @@ const DataAsset = () => {
     e.preventDefault();
     if (formikRef.current) {
       formikRef.current.submitForm(); // Trigger submit Formik secara manual
-      console.log("ini formik", formikRef);
+      // console.log("ini formik", formikRef);
     }
     const desc = e.target.desc.value || null;
     const date = e.target.date.value || null;
@@ -456,10 +517,21 @@ const DataAsset = () => {
         fromBranch: fromBranch,
         desc: desc,
       })
-    );
+    ).then((response) => {
+      console.log("response tf asset", response);
+      if (response && response.status === 200) {
+        setOpenModalTf(false);
+      }
+      // setAddNewData(false);
+    });
   }
 
-  if (AssetGlobal.isLoading) return <Spinner />;
+  // console.log("asset isloading", AssetGlobal.isLoading);
+  if (
+    AssetGlobal.isLoading ||
+    !(AssetGlobal.allAsset && AssetGlobal.allAsset.asset)
+  )
+    return <Spinner />;
 
   return (
     <div>
@@ -513,7 +585,7 @@ const DataAsset = () => {
                   subCategory={subCategoryGlobal.subCategories}
                   selectSubCategory={selectedSubCategory}
                   setSelectSubCategory={setSelectedSubCategory}
-                  OpMerk={OpMerk}
+                  OpMerk={optionGlobal.merk}
                   selectOpOwner={selectedOpMerk}
                   setSelectOpOwner={setSelectedOpMerk}
                   OpStnk={OpStnk}
@@ -541,7 +613,7 @@ const DataAsset = () => {
                   // Special Tools
                   sN={serialNumber}
                   setSN={setSerialNumber}
-                  oPMerkST={OpMerkSpecialTools}
+                  oPMerkST={optionGlobal.merk}
                   selectMerkST={selectedMerkST}
                   setSelectMerkST={setSelectedMerkST}
                   oPTipeST={OpTipeSpecialTools}
@@ -589,65 +661,73 @@ const DataAsset = () => {
         />
       </div>
 
-      <AddDataHeaderDataAsset
-        title="Home"
-        desc="A list Asset PT. Quantum Nusatama"
-        addButtonText="Add Asset"
-        addButtonText2="Transfer Asset"
-        onAddClick={() => {
-          setOpenModal(true);
-          setActionSend("Add");
-        }}
-        onAddClick2={() => setOpenModalTf(true)}
-      />
-
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 mt-12 border-b border-gray-200">
-        <SearchBar
-          onSubmit={handleSubmitSearch}
-          defaultValue={searchAssetName}
-        />
-        {/* <Testing3 /> */}
-        <Comboboxes
-          people={branchOptions}
-          selectedValue={sortBranch}
-          setSelectedValue={setSortBranch}
-        />
-        <Comboboxes
-          people={categoryOptions}
-          selectedValue={sortCategory}
-          setSelectedValue={setSortCategory}
-        />
-      </div>
-
       <div>
-        <Table2
-          className="mb-4"
-          headCols={[
-            // "",
-            "Asset Name",
-            "Branch",
-            "Category",
-            "NoPol/SN",
-            "Status",
-          ]}
-          tableBody={
-            <TableBodyAsset
-              onEdit={handleEditClick}
-              setActionSend={setActionSend}
-              asset={AssetGlobal.allAsset.asset}
-              selectItem={selectedItemTf}
-              setSelectItem={setSelectedItemTf}
-              onCheckboxChange={handleCheckboxChange}
+        <AddDataHeaderDataAsset
+          title="Data Asset"
+          desc="A list Asset PT. Quantum Nusatama"
+          addButtonText="Add Asset"
+          addButtonText2="Transfer Asset"
+          onAddClick={() => {
+            setOpenModal(true);
+            setActionSend("Add");
+          }}
+          onAddClick2={() => setOpenModalTf(true)}
+        />
+
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 mt-12 border-b border-gray-200">
+          <SearchBar
+            onSubmit={handleSubmitSearch}
+            defaultValue={searchAssetName}
+          />
+          <div className="flex gap-2 items-center flex-wrap">
+            <Comboboxes
+              people={snNoPolOption}
+              selectedValue={sortNoPolSN}
+              setSelectedValue={setSortNoPolSN}
             />
-          }
-        />
-        <Pagination2
-          itemsInPage={assetLength}
-          totalItems={AssetGlobal.allAsset.totalItems}
-          totalPages={AssetGlobal.allAsset.totalPages}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
+            <Comboboxes
+              people={branchOptions}
+              selectedValue={sortBranch}
+              setSelectedValue={setSortBranch}
+            />
+            <Comboboxes
+              people={categoryOptions}
+              selectedValue={sortCategory}
+              setSelectedValue={setSortCategory}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Table2
+            className="mb-4"
+            headCols={[
+              // "",
+              "Asset Name",
+              "Branch",
+              "Category",
+              "NoPol/SN",
+              "Status",
+            ]}
+            tableBody={
+              <TableBodyAsset
+                onEdit={handleEditClick}
+                setActionSend={setActionSend}
+                asset={AssetGlobal.allAsset.asset}
+                selectItem={selectedItemTf}
+                setSelectItem={setSelectedItemTf}
+                onCheckboxChange={handleCheckboxChange}
+              />
+            }
+          />
+          <Pagination2
+            itemsInPage={assetLength}
+            totalItems={AssetGlobal.allAsset.totalItems}
+            totalPages={AssetGlobal.allAsset.totalPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
       </div>
     </div>
   );

@@ -9,13 +9,13 @@ const forms = db.m_form;
 async function getAllAsset(req, res) {
   try {
     console.log("get kueri all asset", req.query);
-    console.log("data user", req.user);
-    console.log("branch user", req.branchUser);
-    const itemsPerPage = 30;
+    // console.log("data user", req.user);
+    // console.log("branch user", req.branchUser);
+    const itemsPerPage = 20;
 
     const userRole = req.roleName;
     const brancUser = req.branchUser;
-    console.log("branchuser", brancUser);
+    // console.log("branchuser", brancUser);
 
     const page = parseInt(req.query.page);
     // console.log("page", page);
@@ -26,20 +26,19 @@ async function getAllAsset(req, res) {
     const searchAssetName = req.query.q;
     const sortCategoryId = req.query.sortCategory;
     const sortBranch = parseInt(req.query.sortBranch);
-    console.log("sortBranch", sortBranch);
+    const sortNoPolSN = req.query.sortNoPolSN;
+
+    console.log("sortnopol sn adalah", sortNoPolSN);
 
     const offsetLimit = {};
     if (page) {
-      console.log("ada page ya", page);
+      // console.log("ada page ya", page);
       offsetLimit.limit = itemsPerPage;
       offsetLimit.offset = (page - 1) * itemsPerPage;
     }
 
-    console.log("ini offeset limit", offsetLimit);
-
     const categoryIdClause = idCategory ? { category_id: idCategory } : {};
 
-    console.log("category clause", categoryIdClause);
     const assetNameClause = searchAssetName
       ? { name: { [Op.like]: "%" + searchAssetName + "%" } }
       : {};
@@ -56,12 +55,33 @@ async function getAllAsset(req, res) {
       ? { m_category_id: sortCategoryId }
       : {};
 
-    const asset = await db.m_assets.findAll({
+    const sortNoPolSNClause =
+      sortNoPolSN === "ALL SN NOPOL" || !sortNoPolSN
+        ? {}
+        : { value: sortNoPolSN };
+
+    console.log("sortclasueNopol", sortNoPolSNClause);
+
+    let existNoPolSN = null;
+
+    if (Object.keys(sortNoPolSNClause).length > 0) {
+      existNoPolSN = await db.m_assets_in.findOne({
+        where: { ...sortNoPolSNClause },
+      });
+    }
+
+    const assetIdNoPolSNClause = existNoPolSN
+      ? { id: existNoPolSN.dataValues.m_asset_id }
+      : {};
+    console.log("test nopol", assetIdNoPolSNClause);
+
+    const asset = await db.m_assets.findAndCountAll({
       // subQuery: false,
       attributes: {
         exclude: ["createdAt", "updatedAt", "createdBy"],
       },
       where: {
+        ...assetIdNoPolSNClause,
         ...categoryIdClause,
         ...branchIdClause,
         ...assetNameClause,
@@ -72,6 +92,7 @@ async function getAllAsset(req, res) {
         {
           model: db.m_assets_in,
           attributes: ["m_form_id", "value", "m_asset_id"],
+          // where: { ...sortNoPolSNClause },
           include: [
             {
               model: db.m_form,
@@ -115,10 +136,11 @@ async function getAllAsset(req, res) {
       order: [["id", "DESC"]],
     });
 
-    console.log("asset ya count", asset);
+    // // console.log("asset ya count", asset);
 
     const assetCount = await db.m_assets.count({
       where: {
+        ...assetIdNoPolSNClause,
         ...categoryIdClause,
         ...branchIdClause,
         ...assetNameClause,
@@ -142,6 +164,7 @@ async function getAllAsset(req, res) {
     res.status(400).send(error);
   }
 }
+
 async function getAssetKendaraan(req, res) {
   try {
     const itemsPerPage = 6;

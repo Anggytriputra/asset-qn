@@ -13,6 +13,7 @@ const userGlobalControllers = require("./userGlobalControllers");
 const statusGlobalControllers = require("./statusGlobalControllers");
 const ownerControllers = require("./ownerControllers");
 const assetNameGlobalController = require("./assetNameGlobalController");
+const optionControllers = require("./optionControllers");
 
 module.exports = {
   authControllers,
@@ -28,4 +29,5 @@ module.exports = {
   statusGlobalControllers,
   ownerControllers,
   assetNameGlobalController,
+  optionControllers,
 };
