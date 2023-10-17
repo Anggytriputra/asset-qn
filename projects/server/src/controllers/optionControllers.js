@@ -18,6 +18,32 @@ async function getMerkByCategoryId(req, res) {
   }
 }
 
+async function createAssetName(req, res) {
+  try {
+    console.log("req create assetname", req.body);
+
+    const { name, categoryId } = req.body;
+
+    if (!name || name === "" || !categoryId || categoryId === "")
+      res.status(400).send({ message: "Please complete your data" });
+
+    const assetname = await db.m_assets_name.findOne({
+      where: { name: name },
+    });
+
+    console.log("ini asset name", assetname);
+
+    res.status(200).send({
+      message: "SuccessFuly create asset name",
+      // merk,
+    });
+  } catch (error) {
+    return re;
+    res.status(400).send(error);
+  }
+}
+
 module.exports = {
   getMerkByCategoryId,
+  createAssetName,
 };

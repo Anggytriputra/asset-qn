@@ -67,14 +67,11 @@ async function userExtractor(req, res, next) {
 
     if (
       roleName !== "Super Admin" &&
-      roleName !== "Warehouse HO" &&
-      roleName !== "Warehouse Surabaya" &&
-      roleName !== "Warehouse Semarang" &&
-      roleName !== "Warehouse Makasar" &&
-      roleName !== "Warehouse Palu" &&
-      roleName !== "Warehouse Cabang"
+      roleName !== "Manager Logistik" &&
+      roleName !== "Admin Logistik" &&
+      roleName !== "Logistik"
     ) {
-      return res.status(400).json({ message: "You do not have access" });
+      return res.status(401).json({ message: "You do not have access" });
     }
 
     const rck = await db.rel_cabangkaryawan.findOne({

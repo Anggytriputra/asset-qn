@@ -46,18 +46,19 @@ export function fetchAssetNameByCategor(id) {
   };
 }
 
-export function fetchAssetName(id) {
-  console.log("id test", id);
+export function fetchAssetName(query) {
   return async (dispatch) => {
     try {
       dispatch(setLoading(true));
-      const data = await api.get(`${BASE_URL}`, {
-        params: {
-          categoryId: id,
-        },
-      });
+      const data = await api.get(`${BASE_URL}?${query}`);
       console.log("data nih asset name", data);
-      dispatch(setAssetNames(data.data.mAssetName));
+      dispatch(
+        setAssetNames({
+          asset: data.data.mAssetName.rows,
+          totalItem: data.data.mAssetName.count,
+          totalPages: Math.ceil(data.data.mAssetName.count / 7),
+        })
+      );
       dispatch(setLoading(false));
     } catch (error) {
       console.log(error.res);

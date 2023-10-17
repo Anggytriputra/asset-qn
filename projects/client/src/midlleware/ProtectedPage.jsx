@@ -19,11 +19,9 @@ export default function ProtectedPage({
       adminOnly &&
       !(
         user?.role === "Super Admin" ||
-        user?.role === "Warehouse Cabang" ||
-        user?.role === "Warehouse Surabaya" ||
-        user?.role === "Warehouse Makasar" ||
-        user?.role === "Warehouse Palu" ||
-        user?.role === "Warehouse HO"
+        user?.role === "Manager Logistik" ||
+        user?.role === "Admin Logistik" ||
+        user?.role === "Logistik"
       )
     ) {
       errorAlertWithMessage("You are not allowed to access this page");

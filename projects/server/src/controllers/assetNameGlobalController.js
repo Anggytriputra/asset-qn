@@ -5,17 +5,35 @@ async function getAssetName(req, res) {
   try {
     console.log("req query get asset", req.query);
 
-    const categoryId = parseInt(req.query.categoryId);
+    const itemsPerPage = 7;
+    const page = parseInt(req.query.page);
+    const categoryIdSort = parseInt(req.query.sortCategory);
+    const searchAssetName = parseInt(req.query.q);
 
-    const categoryClause = categoryId ? { m_category_id: categoryId } : {};
+    const offsetLimit = {};
+    if (page) {
+      // console.log("ada page ya", page);
+      offsetLimit.limit = itemsPerPage;
+      offsetLimit.offset = (page - 1) * itemsPerPage;
+    }
+
+    const assetNameClause = searchAssetName
+      ? { name: { [Op.like]: "%" + searchAssetName + "%" } }
+      : {};
+
+    const categoryClause = categoryIdSort
+      ? { m_category_id: categoryIdSort }
+      : {};
 
     const mAssetName = await db.m_assets_name.findAndCountAll({
-      attributes: ["id", "name", "updatedAt"],
-      where: categoryClause,
+      // attributes: ["id", "name", "updatedAt"],
+      where: { ...categoryClause, ...assetNameClause },
       include: [{ model: db.m_categories, attributes: ["name"] }],
+      ...offsetLimit,
+      order: [["id", "DESC"]],
     });
 
-    console.log("m asset name", mAssetName);
+    // console.log("m asset name", mAssetName);
 
     res.status(200).send({
       message: "SuccessFuly get data asset name",

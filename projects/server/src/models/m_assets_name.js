@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       m_category_id: DataTypes.INTEGER,
       createdBy: DataTypes.INTEGER,
       updatedBy: DataTypes.INTEGER,
+      flag_active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+      },
     },
     {
       sequelize,

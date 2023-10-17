@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import api from "../api/api";
+import { errorAlertWithMessage, successAlert } from "../helper/alerts";
 
 const BASE_URL = "/option";
 
@@ -37,6 +38,20 @@ export function fetchMerkByCategoryId(id) {
       dispatch(setLoading(false));
     } catch (error) {
       console.log(error);
+    }
+  };
+}
+
+export function createAssetName(data) {
+  console.log("ini datanya", data);
+  return async (dispatch) => {
+    try {
+      const res = await api.post(`${BASE_URL}/asset_name`, data);
+      console.log("res set asset names", res);
+      successAlert(res.data.message);
+    } catch (error) {
+      console.log("error", error);
+      errorAlertWithMessage(error.response.data.message);
     }
   };
 }

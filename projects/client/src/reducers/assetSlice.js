@@ -82,11 +82,11 @@ export function fetchAllAsset(query) {
           totalPages: Math.ceil(res.data.count / 20),
         })
       );
-      // console.log("asset", res);
+      console.log("asset res nih", res);
       dispatch(setLoading(false));
     } catch (error) {
       // errorAlert();
-      console.log(error.message);
+      console.log("error fetch all asset", error);
     }
   };
 }

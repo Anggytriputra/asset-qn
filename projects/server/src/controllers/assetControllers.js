@@ -46,9 +46,13 @@ async function getAllAsset(req, res) {
     const branchIdClause =
       userRole === "Super Admin"
         ? {}
-        : userRole === "Warehouse HO"
+        : userRole === "Manager Logistik" ||
+          userRole === "Admin Logistik" ||
+          (userRole === "Logistik" && branchId === 17)
         ? {}
         : { m_cabang_id: branchId };
+
+    console.log("branchId clause", branchIdClause);
 
     const sortBranchIdClause = sortBranch ? { m_cabang_id: sortBranch } : {};
     const sortCategoryIdClause = sortCategoryId

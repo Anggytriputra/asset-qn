@@ -89,12 +89,12 @@ export default function TableList({ projects = [] }) {
                   >
                     <span className="lg:pl-2">Name</span>
                   </th>
-                  {/* <th
+                  <th
                     className="border-b border-gray-200 bg-gray-50 px-6 py-3 text-left text-sm font-semibold text-gray-900"
                     scope="col"
                   >
                     Members
-                  </th> */}
+                  </th>
                   <th
                     className="hidden border-b border-gray-200 bg-gray-50 px-6 py-3 text-right text-sm font-semibold text-gray-900 md:table-cell"
                     scope="col"
@@ -134,25 +134,11 @@ export default function TableList({ projects = [] }) {
                           </a>
                         </div>
                       </td>
-                      {/* <td className="px-6 py-3 text-sm font-medium text-gray-500">
-                      <div className="flex items-center space-x-2">
-                        <div className="flex flex-shrink-0 -space-x-1">
-                          {data.members.map((member) => (
-                            <img
-                              key={member.handle}
-                              className="h-6 w-6 max-w-none rounded-full ring-2 ring-white"
-                              src={member.imageUrl}
-                              alt={member.name}
-                            />
-                          ))}
-                        </div>
-                        {data.totalMembers > data.members.length ? (
-                          <span className="flex-shrink-0 text-xs font-medium leading-5">
-                            +{data.totalMembers - data.members.length}
-                          </span>
-                        ) : null}
-                      </div>
-                    </td> */}
+
+                      <td className="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">
+                        {data.m_category.name}
+                      </td>
+
                       <td className="hidden whitespace-nowrap px-6 py-3 text-right text-sm text-gray-500 md:table-cell">
                         {new Date(data.updatedAt).toLocaleString()}
                       </td>
